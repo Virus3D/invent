@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.inventory_move'|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    {% include '_breadcrumb.html.twig' with {
+        'item': item,
+        'type': 'inventory',
+        'action': 'move'
+    } %}
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-arrow-left-right"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body"
+                     data-controller="inventory-move"
+                     data-inventory-move-current-location-id-value="{{ item.location ? item.location.id : '' }}"
+                     data-inventory-move-show-url-value="{{ path('app_inventory_show', {'id': item.id}) }}"
+                     data-inventory-move-submit-url-value="{{ path('app_inventory_move', {'id': item.id}) }}">
+
+                    <!-- Контейнер для ошибок (будет создан динамически) -->
+                    <div data-inventory-move-target="errorContainer"
+                         class="alert alert-danger d-none"
+                         role="alert"></div>
+
+                    <!-- Информация об объекте -->
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="bi bi-box-seam display-6"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1">{{ item.name }}</h5>
+                                <p class="mb-0">
+                                    <strong>{{ 'inventory_item.info.inventory_number_label'|trans }}</strong> {{ item.inventoryNumber }}<br>
+                                    <strong>{{ 'inventory_item.info.current_location_label'|trans }}</strong>
+                                    {% if item.location %}
+                                        {{ item.location.name }} ({{ 'location.room_abbreviation'|trans }} {{ item.location.roomNumber }})
+                                    {% else %}
+                                        <span class="text-muted">{{ 'inventory_item.not_location'|trans }}</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{ form_start(form, {
+                        'attr': {
+                            'id': 'moveForm',
+                            'class': 'needs-validation',
+                            'novalidate': 'novalidate',
+                            'data-inventory-move-target': 'form',
+                            'data-action': 'submit->inventory-move#submitForm'
+                        }
+                    }) }}
+
+                    <!-- Скрытое поле для объекта -->
+                    {{ form_widget(form.inventoryItem, {'attr': {'style': 'display: none;'}}) }}
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-geo-alt"></i> {{ 'move.form.from_location'|trans }}
+                        </label>
+                        {{ form_widget(form.fromLocation, {
+                            'attr': {
+                                'class': 'form-control',
+                                'data-inventory-move-target': 'fromLocation'
+                            }
+                        }) }}
+                        <small class="form-text text-muted">
+                            {{ 'move.form.from_location_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required">
+                            <i class="bi bi-geo-alt-fill"></i> {{ 'move.form.to_location'|trans }}
+                        </label>
+                        {{ form_widget(form.toLocation, {
+                            'attr': {
+                                'class': 'form-select',
+                                'data-inventory-move-target': 'toLocation',
+                                'data-action': 'change->inventory-move#validateToLocation'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            {{ 'move.form.to_location_required'|trans }}
+                        </div>
+                        <small class="form-text text-muted">
+                            {{ 'move.form.to_location_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label required">
+                            <i class="bi bi-person"></i> {{ 'move.form.moved_by'|trans }}
+                        </label>
+                        {{ form_widget(form.movedBy, {
+                            'attr': {
+                                'class': 'form-control',
+                                'placeholder': 'move.form.moved_by_placeholder'|trans,
+                                'data-inventory-move-target': 'movedBy',
+                                'data-action': 'input->inventory-move#validateMovedBy'
+                            }
+                        }) }}
+                        <div class="invalid-feedback">
+                            {{ 'move.form.moved_by_required'|trans }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-card-text"></i> {{ 'move.form.reason'|trans }}
+                        </label>
+                        {{ form_widget(form.reason, {
+                            'attr': {
+                                'class': 'form-control',
+                                'rows': 3,
+                                'placeholder': 'move.form.reason_placeholder'|trans
+                            }
+                        }) }}
+                        <small class="form-text text-muted">
+                            {{ 'move.form.reason_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_inventory_show', {'id': item.id}) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans }}
+                        </a>
+                        <button type="submit"
+                                class="btn btn-warning"
+                                data-inventory-move-target="submitButton">
+                            <i class="bi bi-check-circle"></i> {{ 'move.form.submit'|trans }}
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- История перемещений -->
+            {% if item.movementLogs|length > 0 %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> {{ 'move.history.title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for log in item.movementLogs|slice(0, 5) %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small class="text-muted">
+                                        {{ log.movedAt|date('d.m.Y H:i') }}
+                                    </small>
+                                </div>
+                                <div class="mb-1">
+                                    {% if log.fromLocation %}
+                                        <span class="badge bg-light text-dark">
+                                            {{ log.fromLocation.roomNumber }}
+                                        </span>
+                                        <i class="bi bi-arrow-right text-muted mx-1"></i>
+                                    {% endif %}
+                                    {% if log.toLocation %}
+                                        <span class="badge bg-primary">
+                                            {{ log.toLocation.roomNumber }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                {% if log.reason %}
+                                    <small class="text-muted">{{ log.reason }}</small>
+                                {% endif %}
+                                <small class="d-block text-muted">
+                                    <i class="bi bi-person"></i> {{ log.movedBy }}
+                                </small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if item.movementLogs|length > 5 %}
+                        <div class="card-footer text-center">
+                            <a href="{{ path('app_inventory_show', {'id': item.id}) }}" class="btn btn-sm btn-link">
+                                {{ 'move.history.show_all'|trans({'%count%': item.movementLogs|length}) }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

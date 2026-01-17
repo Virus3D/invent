@@ -1,0 +1,37 @@
+<!-- Модальное окно удаления -->
+<div class="modal fade"
+     data-controller="delete-modal"
+     data-delete-modal-target="modal"
+     id="deleteModal"
+     tabindex="-1"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-exclamation-triangle"></i> {{ 'location.form.confirm_delete_title'|trans }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'location.form.confirm_delete_message'|trans }} <strong data-delete-modal-target="locationName"></strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong> {{ 'location.form.attention'|trans }}</strong>  {{ 'location.form.delete_warning'|trans }}
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.actions.cancel'|trans }}</button>
+                <form method="post"
+                      action=""
+                      data-delete-modal-target="form"
+                      class="d-inline">
+                    <input type="hidden" name="_token" data-delete-modal-target="token">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

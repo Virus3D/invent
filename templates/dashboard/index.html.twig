@@ -1,0 +1,316 @@
+{# templates/dashboard/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.dashboard'|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2">
+                <i class="bi bi-speedometer2"></i> {{ title }}
+            </h1>
+            <p class="text-muted">{{ 'dashboard.description'|trans }}</p>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {{ 'inventory_item.all'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_items }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-box-seam fa-2x text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {{ 'location.all'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_locations }}
+                            </div>
+                            <div class="mt-2 mb-0 text-muted text-xs">
+                                <i class="bi bi-building"></i> {{ 'location.description'|trans }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-geo-alt fa-2x text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                {{ 'move.all'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ stats.total_movements }}
+                            </div>
+                            <div class="mt-2 mb-0 text-muted text-xs">
+                                {% if stats.last_movement %}
+                                    <i class="bi bi-calendar-event"></i>
+                                    {{ 'common.last'|trans }}: {{ stats.last_movement|date('d.m.Y') }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-arrow-left-right fa-2x text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {{ 'placement.without_binding'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ itemsWithoutLocation|length }}
+                            </div>
+                            <div class="mt-2 mb-0 text-muted text-xs">
+                                <i class="bi bi-exclamation-triangle"></i> {{ 'placement.require'|trans }}
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-question-circle fa-2x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="row">
+        <!-- Недавние перемещения -->
+        <div class="col-xl-8 col-lg-7 mb-4">
+            <div class="card shadow h-100">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="bi bi-clock-history"></i> {{ 'move.last'|trans }}
+                    </h6>
+                    <a href="{{ path('app_inventory_index') }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-arrow-right"></i> {{ 'common.all'|trans }}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'move.date'|trans }}</th>
+                                    <th>{{ 'move.inventory'|trans }}</th>
+                                    <th>{{ 'move.from'|trans }} → {{ 'move.to'|trans }}</th>
+                                    <th>{{ 'move.who'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for movement in recentMovements %}
+                                    <tr>
+                                        <td>
+                                            <small class="text-muted">
+                                                {{ movement.movedAt|date('d.m.Y H:i') }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <a href="{{ path('app_inventory_show', {'id': movement.inventoryItem.id}) }}"
+                                               class="text-decoration-none">
+                                                {{ movement.inventoryItem.name }}
+                                            </a>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ movement.inventoryItem.inventoryNumber }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            {% if movement.fromLocation %}
+                                                <span class="badge bg-light text-dark">
+                                                    {{ movement.fromLocation.roomNumber }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
+                                            {% endif %}
+                                            <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                                            {% if movement.toLocation %}
+                                                <span class="badge bg-primary">
+                                                    {{ movement.toLocation.roomNumber }}
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <small>{{ movement.movedBy }}</small>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-3">
+                                            <i class="bi bi-inbox"></i> {{ 'move.not_data'|trans }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Быстрые действия и объекты без привязки -->
+        <div class="col-xl-4 col-lg-5">
+            <!-- Быстрые действия -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-success">
+                        <i class="bi bi-lightning-charge"></i> {{ 'common.actions.quick'|trans }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_inventory_new') }}" class="btn btn-success btn-lg">
+                            <i class="bi bi-plus-circle"></i> {{ 'common.actions.inventory_new'|trans }}
+                        </a>
+                        <a href="{{ path('app_location_new') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-geo-alt"></i> {{ 'common.actions.location_new'|trans }}
+                        </a>
+                        <a href="{{ path('app_inventory_search') }}" class="btn btn-outline-info">
+                            <i class="bi bi-search"></i> {{ 'common.actions.inventory_search'|trans }}
+                        </a>
+                        {# <a href="#" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#moveMultipleModal">
+                            <i class="bi bi-arrow-left-right"></i> {{ 'common.actions.mass_move'|trans }}
+                        </a> #}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Объекты без привязки -->
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="bi bi-exclamation-triangle"></i> {{ 'placement.without_binding'|trans }}
+                    </h6>
+                    <span class="badge bg-warning">{{ itemsWithoutLocation|length }}</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for item in itemsWithoutLocation|slice(0, 5) %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ item.name }}</h6>
+                                        <small class="text-muted">{{ item.inventoryNumber }}</small>
+                                    </div>
+                                    <div class="btn-group">
+                                        <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
+                                           class="btn btn-sm btn-outline-primary" title="{{ 'common.actions.edit'|trans }}">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
+                                           class="btn btn-sm btn-outline-warning" title="{{ 'common.actions.post'|trans }}">
+                                            <i class="bi bi-geo-alt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="list-group-item text-center text-muted py-4">
+                                <i class="bi bi-check-circle display-6"></i>
+                                <p class="mt-2 mb-0">{{ 'placement.all_placed'|trans }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% if itemsWithoutLocation|length > 5 %}
+                        <div class="card-footer text-center">
+                            <a href="{{ path('app_inventory_index') }}?filter=unassigned" class="btn btn-sm btn-link">
+                                {{ 'placement.all_placed'|trans({count: itemsWithoutLocation|length}) }}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Распределение по категориям -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="bi bi-pie-chart"></i> {{ 'dashboard.categorization'|trans }}
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div style="height: 300px;">
+                                <canvas
+                                    data-controller="chart"
+                                    data-chart-categories-value="{{ stats.chart_categories|map(category => ('inventory_item.category.' ~ category)|trans)|json_encode|e('html_attr') }}"
+                                    data-chart-counts-value="{{ stats.chart_counts|json_encode|e('html_attr') }}"
+                                    data-chart-total-value="{{ stats.total_items }}"
+                                ></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tbody>
+                                        {% for item in stats.items_by_category %}
+                                            <tr>
+                                                <td>
+                                                    {{ ('inventory_item.category.' ~ item.category.value)|trans }}
+                                                </td>
+                                                <td class="text-end">{{ item.count }}</td>
+                                                <td class="text-end">
+                                                    {% if stats.total_items > 0 %}
+                                                        {{ ((item.count / stats.total_items) * 100)|round(1) }}%
+                                                    {% else %}
+                                                        0%
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# {% include 'modal/_mass_move.html.twig' %} #}
+{% endblock %}

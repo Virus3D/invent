@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "BD",
+            "database": "${workspaceFolder:invent}/var/data.db"
+        }
+    ],
+    "php.version": "8.4.11"
+}

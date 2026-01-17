@@ -1,0 +1,260 @@
+{% extends 'base.html.twig' %}
+
+{% set title = location.name %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    {% include '_breadcrumb.html.twig' with {
+        'item': location,
+        'type': 'location'
+    } %}
+
+    <div class="row">
+        <!-- Основная информация -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-building"></i> {{ location.name }}
+                        </h4>
+                        <span class="badge bg-light text-dark fs-6">
+                            {{ 'location.show.room_number_badge'|trans({'%number%': location.roomNumber}) }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">{{ 'location.show.name_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ location.name }}</dd>
+
+                        <dt class="col-sm-3">{{ 'location.show.room_number_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-secondary fs-6">{{ location.roomNumber }}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'location.show.objects_count_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-success rounded-pill fs-6">
+                                {{ location.inventoryItems|length }}
+                            </span>
+                        </dd>
+                    </dl>
+
+                    {% if location.description %}
+                        <hr>
+                        <h5><i class="bi bi-card-text"></i> {{ 'location.show.description_label'|trans }}</h5>
+                        <div class="bg-light p-3 rounded">
+                            {{ location.description|nl2br }}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <a href="{{ path('app_location_edit', {'id': location.id}) }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                        </a>
+                        <a href="{{ path('app_inventory_new') }}?location={{ location.id }}"
+                           class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> {{ 'location.show.add_new_object'|trans }}
+                        </a>
+                        <a href="{{ path('app_location_index') }}"
+                           class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> {{ 'common.navigation.back'|trans }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Объекты в этом местоположении -->
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-box-seam"></i> {{ 'location.show.objects_in_location'|trans }}
+                        </h5>
+                        <span class="badge bg-primary">{{ location.inventoryItems|length }}</span>
+                    </div>
+                </div>
+
+                {% if location.inventoryItems|length > 0 %}
+
+                {{ include('inventory/_list.html.twig', {
+                    items: location.inventoryItems,
+                    columns: ['inventory_number', 'status', 'serial_number', 'created_at', 'actions']
+                }) }}
+
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            {{ 'location.show.shown_objects'|trans({'%count%': location.inventoryItems|length}) }}
+                        </small>
+                        <a href="{{ path('app_inventory_index') }}?location={{ location.id }}"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye"></i> {{ 'location.show.show_all_objects'|trans }}
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">{{ 'location.show.no_objects'|trans }}</h4>
+                    <p class="text-muted mb-4">{{ 'location.show.no_objects_desc'|trans }}</p>
+                    <a href="{{ path('app_inventory_new') }}?location={{ location.id }}" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> {{ 'location.show.add_first_object'|trans }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-md-4">
+            <!-- Статистика -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> {{ 'location.show.category_stats'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set stats = {} %}
+
+                    {% for item in location.inventoryItems %}
+                        {% set category = item.category.value %}
+                        {% set stats = stats|merge({(category): stats[category]|default(0) + 1}) %}
+                    {% endfor %}
+
+                    <div class="row text-center">
+                        {% for categoryKey, count in stats %}
+                            {% if count > 0 %}
+                                {% set categoryEnum = get_category_enum(categoryKey) %}
+                                {% if categoryEnum %}
+                                    <div class="col-6 mb-3">
+                                        <div class="bg-{{ categoryEnum.color }} bg-opacity-10 rounded-circle p-3 mx-auto mb-2"
+                                            style="width: 70px; height: 70px;">
+                                            <i class="bi {{ categoryEnum.icon }} fs-4 text-{{ categoryEnum.color }}"></i>
+                                        </div>
+                                        <h5>{{ count }}</h5>
+                                        <small class="text-muted">{{ ('inventory_item.category.' ~ categoryEnum.value)|trans }}</small>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p class="text-muted mb-0">{{ 'location.show.no_data'|trans }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-charge"></i> {{ 'location.show.quick_actions'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('app_inventory_new') }}?location={{ location.id }}"
+                           class="btn btn-outline-success">
+                            <i class="bi bi-plus-circle"></i> {{ 'location.show.add_new_object'|trans }}
+                        </a>
+                        <a href="{{ path('app_inventory_move', {'id': location.id} ) }}"
+                           class="btn btn-outline-warning">
+                            <i class="bi bi-arrow-left-right"></i> {{ 'location.show.move_objects_from_here'|trans }}
+                        </a>
+                        <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#exportModal">
+                            <i class="bi bi-download"></i> {{ 'location.show.export_list'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Последние перемещения -->
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> {{ 'location.show.recent_movements'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% set recentLogs = [] %}
+                    {% for item in location.inventoryItems %}
+                        {% for log in item.movementLogs|slice(0, 3) %}
+                            {% set recentLogs = recentLogs|merge([log]) %}
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% if recentLogs|length > 0 %}
+                        {% set recentLogs = recentLogs|sort((a, b) => b.movedAt <=> a.movedAt)|slice(0, 5) %}
+
+                        <div class="list-group list-group-flush">
+                            {% for log in recentLogs %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <small class="text-muted">
+                                            {{ log.movedAt|date('d.m.Y H:i') }}
+                                        </small>
+                                    </div>
+                                    <div class="mb-1">
+                                        <a href="{{ path('app_inventory_show', {'id': log.inventoryItem.id}) }}"
+                                           class="text-decoration-none">
+                                            {{ log.inventoryItem.name }}
+                                        </a>
+                                    </div>
+                                    {% if log.reason %}
+                                        <small class="text-muted">{{ log.reason|slice(0, 50) }}{% if log.reason|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                    <small class="d-block text-muted">
+                                        <i class="bi bi-person"></i> {{ log.movedBy }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock-history text-muted"></i>
+                            <p class="text-muted mt-2 mb-0">{{ 'location.show.no_movement_history'|trans }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно экспорта -->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="bi bi-download"></i> {{ 'common.modals.export_title'|trans }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ 'common.modals.export_description'|trans({'%name%': location.name}) }}</p>
+                <div class="d-grid gap-2">
+                    {# <a href="{{ path('app_location_export_csv', {'id': location.id}) }}"
+                       class="btn btn-outline-primary" target="_blank">
+                        <i class="bi bi-filetype-csv"></i> CSV формат
+                    </a>
+                    <a href="{{ path('app_location_export_excel', {'id': location.id}) }}"
+                       class="btn btn-outline-success" target="_blank">
+                        <i class="bi bi-filetype-xlsx"></i> Excel формат
+                    </a>
+                    <a href="{{ path('app_location_export_pdf', {'id': location.id}) }}"
+                       class="btn btn-outline-danger" target="_blank">
+                        <i class="bi bi-filetype-pdf"></i> PDF формат
+                    </a> #}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

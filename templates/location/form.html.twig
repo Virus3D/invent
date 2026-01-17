@@ -1,0 +1,235 @@
+{% extends 'base.html.twig' %}
+{% import _self as macros %}
+{% set title = page_title|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    {% include '_breadcrumb.html.twig' with {
+        'item': location,
+        'type': 'location',
+        'action': (location.id) ? 'edit' : 'create'
+    } %}
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {
+                        'attr': {
+                            'id': 'locationForm',
+                            'class': 'needs-validation',
+                            'novalidate': 'novalidate',
+                            'data-controller': 'location-form',
+                            'data-location-form-target': 'form',
+                            'data-location-form-update-url-value': location.id ? path('api_location_update', {'id': location.id}) : '',
+                            'data-location-form-create-url-value': path('api_location_create'),
+                            'data-location-form-location-id-value': location.id|default(0)
+                        }
+                    }) }}
+
+                    <div data-location-form-target="formErrors"
+                        class="alert alert-danger d-none"
+                        role="alert"></div>
+
+                    <div class="mb-3">
+                        {{ macros.form_label_with_icon(form.name, 'bi bi-building') }}
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.name) ? ' is-invalid' : ''),
+                                'autofocus': 'autofocus'
+                            }
+                        }) }}
+                        {{ form_errors(form.name) }}
+                        <small class="form-text text-muted">
+                            {{ 'location.form.name_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ macros.form_label_with_icon(form.roomNumber, 'bi bi-123') }}
+                        {{ form_widget(form.roomNumber, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.roomNumber) ? ' is-invalid' : '')
+                            }
+                        }) }}
+                        {{ form_errors(form.roomNumber) }}
+                        <small class="form-text text-muted">
+                            {{ 'location.form.room_number_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ macros.form_label_with_icon(form.description, 'bi bi-card-text') }}
+                        {{ form_widget(form.description, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.description) ? ' is-invalid' : '')
+                            }
+                        }) }}
+                        {{ form_errors(form.description) }}
+                        <small class="form-text text-muted">
+                            {{ 'location.form.description_hint'|trans }}
+                        </small>
+                    </div>
+
+                    <!-- Статистика местоположения -->
+                    {% if location.id %}
+                    <div class="alert alert-info">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <div>
+                                <strong>{{ 'location.form.info'|trans }}:</strong>
+                                <div class="small">
+                                    <div>{{ 'location.form.objects_in_location_info'|trans({count: location.inventoryItems|length}) }}</div>
+                                    {% if location.inventoryItems|length > 0 %}
+                                        <a href="{{ path('app_inventory_index') }}?location={{ location.id }}"
+                                           class="btn btn-sm btn-outline-info mt-1">
+                                            {{ 'location.form.show_objects'|trans }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            {% if location.id %}
+                            <a href="{{ path('app_location_show', {'id': location.id}) }}"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> {{ 'form.cancel'|trans }}
+                            </a>
+                            <!-- Кнопка удаления с подтверждением -->
+                            <button type="button"
+                                    class="btn btn-outline-danger ms-2"
+                                    data-action="click->delete-modal#open"
+                                    data-location-id="{{ location.id }}"
+                                    data-location-name="{{ location.name }}"
+                                    data-delete-url="{{ path('app_location_delete', {'id': location.id}) }}"
+                                    data-csrf-token="{{ csrf_token('delete' ~ location.id) }}">
+                                <i class="bi bi-trash"></i> {{ 'form.delete'|trans }}
+                            </button>
+                            {% else %}
+                            <a href="{{ path('app_location_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> {{ 'form.cancel'|trans }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    data-location-form-target="submitButton"
+                                    data-action="location-form#submitForm">
+                                <i class="bi bi-check-circle"></i> {{ 'form.submit'|trans }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+
+            <!-- Список объектов в этом месте -->
+            {% if location.inventoryItems|length > 0 %}
+            <div class="card shadow mt-4">
+                <div class="card-header bg-warning">
+                    <h5 class="mb-0 text-white">
+                        <i class="bi bi-exclamation-triangle"></i> {{ 'location.form.attention'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ 'location.form.objects_warning'|trans }}</p>
+                    {{ include('inventory/_list.html.twig', {
+                        items: location.inventoryItems|slice(0, 5),
+                        columns: ['inventory_number']
+                    }) }}
+
+                    {% if location.inventoryItems|length > 5 %}
+                        <p class="text-muted small">
+                            {{ 'location.form.and_more'|trans({count: location.inventoryItems|length - 5}) }}
+                        </p>
+                    {% endif %}
+
+                    <div class="alert alert-warning mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>{{ 'common.messages.warning'|trans }}:</strong> {{ 'location.form.delete_warning'|trans }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Подсказки -->
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb"></i> {{ 'location.form.recommendations_title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-check-circle text-success"></i> {{ 'location.form.do_title'|trans }}:</h6>
+                            <ul class="small">
+                                <li>{{ 'location.form.do_name'|trans }}</li>
+                                <li>{{ 'location.form.do_room_number'|trans }}</li>
+                                <li>{{ 'location.form.do_warehouse'|trans }}</li>
+                                <li>{{ 'location.form.do_responsible'|trans }}</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-exclamation-triangle text-warning"></i> {{ 'location.form.dont_title'|trans }}:</h6>
+                            <ul class="small">
+                                <li>{{ 'location.form.dont_ambiguous'|trans }}</li>
+                                <li>{{ 'location.form.dont_inaccurate'|trans }}</li>
+                                <li>{{ 'location.form.dont_long_desc'|trans }}</li>
+                                <li>{{ 'location.form.dont_duplicate'|trans }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <hr class="my-3">
+
+                    <h6 class="text-primary">{{ 'location.form.examples_title'|trans }}:</h6>
+                    <div class="row small text-muted">
+                        <div class="col-md-4 mb-2">
+                            <div class="border rounded p-2">
+                                <strong>{{ 'location.form.example1_name'|trans }}</strong><br>
+                                {{ 'location.form.example1_room'|trans }}<br>
+                                <em>{{ 'location.form.example1_desc'|trans }}</em>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="border rounded p-2">
+                                <strong>{{ 'location.form.example2_name'|trans }}</strong><br>
+                                {{ 'location.form.example2_room'|trans }}<br>
+                                <em>{{ 'location.form.example2_desc'|trans }}</em>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <div class="border rounded p-2">
+                                <strong>{{ 'location.form.example3_name'|trans }}</strong><br>
+                                {{ 'location.form.example3_room'|trans }}<br>
+                                <em>{{ 'location.form.example3_desc'|trans }}</em>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if location.id %}
+{% include 'modal/_location_delete.html.twig' %}
+{% endif %}
+
+{% include 'modal/_success.html.twig' %}
+
+{% endblock %}

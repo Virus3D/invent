@@ -1,0 +1,135 @@
+{# templates/components/inventory_table.html.twig #}
+
+{#
+Параметры:
+- items: массив объектов инвентаря
+- columns: массив колонок для отображения (опционально)
+Доступные колонки: inventory_number, name, category, status, serial_number, location, created_at, actions
+#}
+
+{% set defaultColumns = ['inventory_number', 'status', 'serial_number', 'location', 'created_at', 'actions'] %}
+{% set columns = columns|default(defaultColumns) %}
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                {% if 'inventory_number' in columns %}
+                    <th>{{ 'inventory_item.form.inventory_number_short'|trans }}</th>
+                {% endif %}
+
+                <th>{{ 'inventory_item.form.name'|trans }}</th>
+
+                {% if 'serial_number' in columns %}
+                    <th>{{ 'inventory_item.form.serial_number'|trans }}</th>
+                {% endif %}
+
+                {% if 'location' in columns %}
+                    <th>{{ 'inventory_item.form.location'|trans }}</th>
+                {% endif %}
+
+                {% if 'created_at' in columns %}
+                    <th>{{ 'common.messages.added'|trans }}</th>
+                {% endif %}
+
+                {% if 'actions' in columns %}
+                    <th>{{ 'common.actions.actions'|trans }}</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    {% if 'inventory_number' in columns %}
+                        <td>
+                            {% if item.isOnBalance() %}
+                                <strong>{{ item.inventoryNumber }}</strong>
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    <i class="bi bi-x-circle"></i> {{ 'inventory_item.balance_type.off_balance'|trans }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+
+                    <td>
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="me-3">
+                                <div class="fw-medium">{{ item.name }}</div>
+                                {% if item.description %}
+                                    <small class="text-muted d-block mt-1">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</small>
+                                {% endif %}
+                            </div>
+                            <div class="flex-shrink-0">
+                                <span class="{{ item.categoryBadgeClass }} badge-sm">
+                                    <i class="bi {{ item.categoryIcon }}"></i> {{ ('inventory_item.category.' ~ item.category.value)|trans }}
+                                </span>
+                            </div>
+                        </div>
+                        {% if 'status' in columns %}
+                        <span class="badge bg-{{ item.status.color }}">
+                            <i class="bi {{ item.status.icon }}"></i> {{ ('inventory_item.status.' ~ item.status.value)|trans }}
+                        </span>
+                        {% endif %}
+                    </td>
+
+                    {% if 'serial_number' in columns %}
+                        <td>{{ item.serialNumber }}</td>
+                    {% endif %}
+
+                    {% if 'location' in columns %}
+                        <td>
+                            {% if item.location %}
+                                <a href="{{ path('app_location_show', {'id': item.location.id}) }}">
+                                    {{ item.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'inventory_item.not_location'|trans }}</span>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+
+                    {% if 'created_at' in columns %}
+                        <td>
+                            <small title="{{ item.createdAt|date('d.m.Y H:i:s') }}">
+                                {{ item.createdAt|date('d.m.Y') }}
+                            </small>
+                        </td>
+                    {% endif %}
+
+                    {% if 'actions' in columns %}
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_inventory_show', {'id': item.id}) }}"
+                                   class="btn btn-outline-info" title="{{ 'common.actions.view'|trans }}"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
+                                   class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans }}"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
+                                   class="btn btn-outline-warning" title="{{ 'common.actions.move'|trans }}"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </a>
+                            </div>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="{{ columns|length }}" class="text-center text-muted py-4">
+                        <i class="bi bi-inbox display-6"></i>
+                        <p class="mt-2">{{ 'inventory_item.not'|trans }}</p>
+                        <a href="{{ path('app_inventory_new') }}" class="btn btn-sm btn-outline-primary mt-2">
+                            <i class="bi bi-plus-circle"></i> {{ 'inventory_item.add_first'|trans }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

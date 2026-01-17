@@ -1,0 +1,5 @@
+                                    data-action="click->delete-modal#open"
+                                    data-location-id="{{ location.id }}"
+                                    data-location-name="{{ location.name }}"
+                                    data-delete-url="{{ path('app_location_delete', {'id': location.id}) }}"
+                                    data-csrf-token="{{ csrf_token('delete' ~ location.id) }}">

@@ -1,0 +1,243 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.inventory_search'|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    {% include '_breadcrumb.html.twig' with {
+        'action': 'search'
+    } %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h2">
+                <i class="bi bi-search"></i> {{ title }}
+            </h1>
+            <p class="text-muted">Расширенный поиск по системе инвентаризации</p>
+        </div>
+    </div>
+
+    <!-- Форма поиска -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-funnel"></i> Параметры поиска
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" action="{{ path('app_inventory_search') }}" id="searchForm">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Поисковый запрос</label>
+                                <input type="text"
+                                       name="q"
+                                       class="form-control"
+                                       placeholder="Введите текст для поиска..."
+                                       value="{{ query }}"
+                                       autofocus>
+                                <small class="form-text text-muted">
+                                    Поиск по наименованию, инвентарному номеру, серийному номеру, описанию
+                                </small>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Категория</label>
+                                <select name="category" class="form-select">
+                                    <option value="">Все категории</option>
+                                    {% for category in ['computer', 'monitor', 'printer', 'speakers', 'headset', 'phone', 'other'] %}
+                                        {% set categoryEnum = get_category_enum(category) %}
+                                        {% if categoryEnum %}
+                                            <option value="{{ category }}" {{ app.request.query.get('category') == category ? 'selected' : '' }}>
+                                                {{ ('inventory_item.category.' ~ categoryEnum.value)|trans }}
+                                            </option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Местоположение</label>
+                                <select name="location" class="form-select">
+                                    <option value="">Все местоположения</option>
+                                    {# {% for location in locations %}
+                                        <option value="{{ location.id }}" {{ app.request.query.get('location') == location.id ? 'selected' : '' }}>
+                                            {{ location.name }} (каб. {{ location.roomNumber }})
+                                        </option>
+                                    {% endfor %} #}
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Сортировка</label>
+                                <select name="sort" class="form-select">
+                                    <option value="name" {{ app.request.query.get('sort') == 'name' ? 'selected' : '' }}>По наименованию</option>
+                                    <option value="inventoryNumber" {{ app.request.query.get('sort') == 'inventoryNumber' ? 'selected' : '' }}>По инвентарному номеру</option>
+                                    <option value="createdAt" {{ app.request.query.get('sort') == 'createdAt' ? 'selected' : '' }}>По дате добавления (новые)</option>
+                                    <option value="createdAt_asc" {{ app.request.query.get('sort') == 'createdAt_asc' ? 'selected' : '' }}>По дате добавления (старые)</option>
+                                    <option value="category" {{ app.request.query.get('sort') == 'category' ? 'selected' : '' }}>По категории</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Статус</label>
+                                <select name="status" class="form-select">
+                                    <option value="">Все объекты</option>
+                                    <option value="with_location" {{ app.request.query.get('status') == 'with_location' ? 'selected' : '' }}>С местоположением</option>
+                                    <option value="without_location" {{ app.request.query.get('status') == 'without_location' ? 'selected' : '' }}>Без местоположения</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="has_serial" id="has_serial" value="1" {{ app.request.query.get('has_serial') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="has_serial">
+                                        Только с серийным номером
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="has_specs" id="has_specs" value="1" {{ app.request.query.get('has_specs') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="has_specs">
+                                        Только с характеристиками (ПК)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-3">
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ path('app_inventory_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> К списку
+                            </a>
+                            <div>
+                                <button type="reset" class="btn btn-outline-warning me-2">
+                                    <i class="bi bi-arrow-clockwise"></i> Сбросить
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-search"></i> Искать
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Результаты поиска -->
+    {% if query is not null %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-search"></i> Результаты поиска
+                            {% if items %}
+                                <span class="badge bg-primary ms-2">{{ items|length }}</span>
+                            {% endif %}
+                        </h5>
+                        {% if items %}
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="exportResults()">
+                                <i class="bi bi-download"></i> Экспорт
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if items and items|length > 0 %}
+                {{ include('inventory/_list.html.twig', { items: items }) }}
+
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            Найдено объектов: <strong>{{ items|length }}</strong>
+                        </div>
+                        <div>
+                            <a href="{{ path('app_inventory_index') }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-list"></i> Показать все объекты
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% elseif query is not null %}
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">Ничего не найдено</h4>
+                    <p class="text-muted mb-4">Попробуйте изменить параметры поиска</p>
+                    <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('searchForm').reset();">
+                        <i class="bi bi-arrow-clockwise"></i> Сбросить фильтры
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchForm = document.getElementById('searchForm');
+
+    // Автоматический поиск при изменении некоторых параметров
+    const autoSearchFields = searchForm.querySelectorAll('select[name="category"], select[name="location"], select[name="status"], input[type="checkbox"]');
+    autoSearchFields.forEach(field => {
+        field.addEventListener('change', function() {
+            // Не отправляем если пустой поисковый запрос и не выбраны другие параметры
+            const searchQuery = searchForm.querySelector('input[name="q"]').value;
+            const category = searchForm.querySelector('select[name="category"]').value;
+            const location = searchForm.querySelector('select[name="location"]').value;
+
+            if (!searchQuery && !category && !location) {
+                return;
+            }
+
+            searchForm.submit();
+        });
+    });
+
+    // Очистка формы
+    searchForm.querySelector('button[type="reset"]').addEventListener('click', function() {
+        setTimeout(() => {
+            window.location.href = '{{ path("app_inventory_search") }}';
+        }, 100);
+    });
+
+    // Сохранение истории поиска
+    {% if query %}
+    const searchHistory = JSON.parse(localStorage.getItem('searchHistory') || '[]');
+    const searchEntry = {
+        query: "{{ query }}",
+        timestamp: new Date().toISOString(),
+        results: {{ items|length|default(0) }},
+        params: {
+            category: "{{ app.request.query.get('category') }}",
+            location: "{{ app.request.query.get('location') }}"
+        }
+    };
+
+    // Добавляем в начало и ограничиваем 10 последних
+    searchHistory.unshift(searchEntry);
+    if (searchHistory.length > 10) {
+        searchHistory.pop();
+    }
+
+    localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+    {% endif %}
+});
+
+// Экспорт результатов
+function exportResults() {
+    const params = new URLSearchParams(window.location.search);
+    params.append('format', 'csv');
+
+    const exportUrl = '{{ path("app_inventory_search") }}?' + params.toString();
+    window.open(exportUrl, '_blank');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,356 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.location_index'|trans %}
+
+{% block body %}
+<div class="container-fluid py-4"
+     data-controller="location-index"
+     data-location-index-csrf-token-value="{{ csrf_token('location_index') }}"
+     data-location-index-api-urls-value="{{ {
+        'massDelete': path('api_locations_mass_delete'),
+        'massMove': path('api_objects_mass_move'),
+        'availableLocations': path('api_locations_available'),
+        'export': path('api_locations_export')
+     }|json_encode|raw }}"
+     data-location-index-sort-field-value="{{ app.request.query.get('sort') }}"
+     data-location-index-sort-order-value="{{ app.request.query.get('order', 'asc') }}"
+     data-location-index-search-query-value="{{ app.request.query.get('q', '') }}">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2">
+                <i class="bi bi-geo-alt"></i> {{ title }}
+            </h1>
+            <p class="text-muted mb-0">{{ 'location.index.subtitle'|trans }}</p>
+        </div>
+        <div>
+            <a href="{{ path('app_location_new') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> {{ 'location.index.add_location'|trans }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Поиск и фильтры -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text"
+                                       id="searchInput"
+                                       class="form-control"
+                                       placeholder="{{ 'location.index.search_placeholder'|trans }}"
+                                       value="{{ app.request.query.get('q') }}"
+                                       data-location-index-target="searchInput"
+                                       data-action="keyup->location-index#quickSearch">
+                                <button class="btn btn-outline-primary"
+                                        type="button"
+                                        id="searchButton"
+                                        data-location-index-target="searchButton"
+                                        data-action="click->location-index#handleSearch">
+                                    <i class="bi bi-search"></i> {{ 'location.index.search_button'|trans }}
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-end">
+                                <div class="btn-group" role="group">
+                                    <button type="button"
+                                            class="btn btn-outline-secondary"
+                                            id="exportBtn"
+                                            data-location-index-target="exportButton"
+                                            data-action="click->location-index#handleExport">
+                                        <i class="bi bi-download"></i> {{ 'location.index.export'|trans }}
+                                    </button>
+                                    <button type="button"
+                                            class="btn btn-outline-info"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#statsCollapse">
+                                        <i class="bi bi-graph-up"></i> {{ 'location.index.statistics'|trans }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="collapse mb-4" id="statsCollapse">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary rounded-circle p-3 me-3">
+                                <i class="bi bi-building text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ locations|length }}</h5>
+                                <small class="text-muted">{{ 'location.index.total_locations'|trans }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-success rounded-circle p-3 me-3">
+                                <i class="bi bi-box-seam text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ totalObjects }}</h5>
+                                <small class="text-muted">{{ 'location.index.total_objects'|trans }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-warning rounded-circle p-3 me-3">
+                                <i class="bi bi-geo-alt text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ occupiedLocations|length }}</h5>
+                                <small class="text-muted">{{ 'location.index.occupied_locations'|trans }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-info rounded-circle p-3 me-3">
+                                <i class="bi bi-pie-chart text-white fs-4"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">{{ avgObjectsPerLocation|number_format(1) }}</h5>
+                                <small class="text-muted">{{ 'location.index.avg_objects_per_location'|trans }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Основная таблица -->
+    <div class="card shadow">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list"></i> {{ 'location.index.list_title'|trans }}
+                </h5>
+                <div class="text-muted">
+                    {{ locations|length }} {{ 'common.of'|trans }} {{ totalLocations }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Контейнер для ошибок -->
+        <div data-location-index-target="errorContainer"
+             class="alert alert-danger d-none m-3"
+             role="alert"></div>
+
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th width="30">
+                            <input type="checkbox"
+                                   id="selectAll"
+                                   class="form-check-input"
+                                   data-location-index-target="selectAll">
+                        </th>
+                        <th>
+                            <a href="#"
+                               class="text-decoration-none sort-link"
+                               data-sort="name"
+                               data-action="click->location-index#handleSort">
+                                {{ 'location.index.name'|trans }} <i class="bi bi-arrow-down-up"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="#"
+                               class="text-decoration-none sort-link"
+                               data-sort="roomNumber"
+                               data-action="click->location-index#handleSort">
+                                {{ 'location.index.room_number'|trans }} <i class="bi bi-arrow-down-up"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="#"
+                               class="text-decoration-none sort-link"
+                               data-sort="objectCount"
+                               data-action="click->location-index#handleSort">
+                                {{ 'location.index.objects'|trans }} <i class="bi bi-arrow-down-up"></i>
+                            </a>
+                        </th>
+                        <th>{{ 'location.index.last_update'|trans }}</th>
+                        <th class="text-end">{{ 'location.index.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody data-location-index-target="tableBody">
+                    {% for location in locations %}
+                        <tr data-id="{{ location.id }}"
+                            data-name="{{ location.name }}"
+                            data-room="{{ location.roomNumber }}">
+                            <td>
+                                <input type="checkbox"
+                                       class="form-check-input location-checkbox"
+                                       value="{{ location.id }}"
+                                       data-location-index-target="locationCheckbox"
+                                       data-action="change->location-index#toggleLocationSelection">
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                                        <i class="bi bi-building text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <strong>{{ location.name }}</strong>
+                                        {% if location.description %}
+                                            <span class="text-truncate d-inline-block" style="max-width: 200px;"
+                                                data-bs-toggle="tooltip"
+                                                title="{{ location.description }}">
+                                                {{ location.description|length > 50 ? location.description|slice(0, 50) ~ '...' : location.description }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if location.roomNumber %}
+                                    <span class="badge bg-secondary fs-6 location-room-number">
+                                        {{ location.roomNumber }}
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set object_count = location.inventoryItems|length %}
+                                {% if object_count > 0 %}
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-success rounded-pill me-2 location-object-count">
+                                            {{ object_count }}
+                                        </span>
+                                        <a href="{{ path('app_inventory_index') }}?location={{ location.id }}"
+                                           class="text-decoration-none small"
+                                           data-bs-toggle="tooltip"
+                                           title="{{ 'location.index.show_objects'|trans }}">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <span class="badge bg-light text-dark">0</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if location.inventoryItems|length > 0 %}
+                                    {% set last_item = location.inventoryItems|sort((a, b) => b.updatedAt <=> a.updatedAt)|first %}
+                                    {% if last_item %}
+                                        <small class="text-muted">
+                                            {{ last_item.updatedAt|date('d.m.Y') }}
+                                        </small>
+                                    {% else %}
+                                        <small class="text-muted">—</small>
+                                    {% endif %}
+                                {% else %}
+                                    <small class="text-muted">—</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ path('app_location_show', {'id': location.id}) }}"
+                                       class="btn btn-outline-info"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ 'common.actions.view'|trans }}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_location_edit', {'id': location.id}) }}"
+                                       class="btn btn-outline-primary"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ 'common.actions.edit'|trans }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <button type="button"
+                                            class="btn btn-outline-danger delete-location-btn"
+                                            data-action="click->delete-modal#open"
+                                            data-location-id="{{ location.id }}"
+                                            data-location-name="{{ location.name }}"
+                                            data-delete-url="{{ path('app_location_delete', {'id': location.id}) }}"
+                                            data-csrf-token="{{ csrf_token('delete' ~ location.id) }}"
+                                            data-bs-toggle="tooltip"
+                                            title="{{ 'common.actions.delete'|trans }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="bi bi-geo-alt text-muted display-1"></i>
+                                    <h4 class="mt-3 text-muted">{{ 'location.index.no_locations'|trans }}</h4>
+                                    <p class="text-muted mb-4">{{ 'location.index.no_locations_desc'|trans }}</p>
+                                    <a href="{{ path('app_location_new') }}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle"></i> {{ 'location.index.add_location'|trans }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if locations|length > 0 %}
+        <div class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           id="showEmptyLocations"
+                           data-location-index-target="showEmptyCheckbox"
+                           data-action="change->location-index#toggleEmptyLocations">
+                    <label class="form-check-label small" for="showEmptyLocations">
+                        {{ 'location.index.show_empty'|trans }}
+                    </label>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="me-3">
+                        <span class="small text-muted">{{ 'location.index.selected'|trans }}</span>
+                        <span id="selectedCount"
+                              class="badge bg-primary"
+                              data-location-index-target="selectedCount">0</span>
+                    </div>
+                    <div class="btn-group">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-secondary"
+                                id="massMoveBtn"
+                                data-location-index-target="massMoveButton"
+                                data-action="click->location-index#handleMassMove"
+                                disabled>
+                            <i class="bi bi-arrow-left-right"></i> {{ 'location.index.mass_move'|trans }}
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger"
+                                id="massDeleteBtn"
+                                data-location-index-target="massDeleteButton"
+                                data-action="click->location-index#handleMassDelete"
+                                disabled>
+                            <i class="bi bi-trash"></i> {{ 'location.index.mass_delete'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% include 'modal/_location_delete.html.twig' %}
+
+{% include 'modal/_mass.html.twig' %}
+
+{% endblock %}

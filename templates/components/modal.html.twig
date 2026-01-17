@@ -1,0 +1,56 @@
+<div class="modal fade"
+     data-controller="modal"
+     data-modal-show-value="{{ show|default(false) }}"
+     data-modal-type-value="{{ type|default('confirm') }}"
+     tabindex="-1"
+     aria-labelledby="{{ id }}-title"
+     aria-hidden="true">
+    <div class="modal-dialog {{ size|default('') }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" data-modal-target="title">
+                    {% if title is defined %}
+                        {{ title|trans }}
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body" data-modal-target="body">
+                {% if message is defined %}
+                    {% if html|default(false) %}
+                        {{ message|raw }}
+                    {% else %}
+                        {{ message|trans }}
+                    {% endif %}
+                {% endif %}
+
+                {% block modal_body %}{% endblock %}
+            </div>
+
+            <div class="modal-footer">
+                {% if type|default('confirm') == 'alert' %}
+                    <button type="button"
+                            class="btn btn-primary"
+                            data-modal-target="confirmButton"
+                            data-action="modal#confirm">
+                        {{ confirmText|default('common.actions.ok'|trans) }}
+                    </button>
+                {% else %}
+                    <button type="button"
+                            class="btn btn-{{ cancelClass|default('secondary') }}"
+                            data-modal-target="cancelButton"
+                            data-action="modal#cancel">
+                        {{ cancelText|default('common.actions.cancel'|trans) }}
+                    </button>
+                    <button type="button"
+                            class="btn btn-{{ confirmClass|default('primary') }}"
+                            data-modal-target="confirmButton"
+                            data-action="modal#confirm">
+                        {{ confirmText|default('common.actions.confirm'|trans) }}
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

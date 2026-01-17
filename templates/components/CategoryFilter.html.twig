@@ -1,0 +1,23 @@
+    <!-- Фильтры по категориям -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">{{ 'filter.title'|trans }}:</h6>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <a href="{{ path('app_inventory_index') }}"
+                           class="btn {{ app.request.query.get('category') ? 'btn-outline-primary' : 'btn-primary' }}">
+                            {{ 'common.all'|trans }} ({{ coutnAll }})
+                        </a>
+                        {% for item in list %}
+                            <a href="{{ path('app_inventory_index', {'category': item.category.value}) }}"
+                               class="btn {{ app.request.query.get('category') == item.category.value ? 'btn-' ~ item.category.color : 'btn-outline-' ~ item.category.color }}">
+                                <i class="bi {{ item.category.icon }}"></i>
+                                {{ ('inventory_item.category.' ~ item.category.value)|trans }} ({{ item.count }})
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

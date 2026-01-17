@@ -1,0 +1,150 @@
+{% extends 'base.html.twig' %}
+
+{% set title = item.name %}
+
+{% block body %}
+    {% include '_breadcrumb.html.twig' with {
+        'item': item,
+        'type': 'inventory'
+    } %}
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> {{ 'inventory_item.show.main_info'|trans }}
+                    </h5>
+                    <span class="{{ item.categoryBadgeClass }}">
+                        <i class="bi {{ item.categoryIcon }}"></i> {{ ('inventory_item.category.' ~ item.category.value)|trans }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">{{ 'inventory_item.show.name_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ item.name }}</dd>
+
+                        <dt class="col-sm-3">{{ 'inventory_item.info.inventory_number_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            <code>{{ item.inventoryNumber }}</code>
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'inventory_item.show.serial_number_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ item.serialNumber|default('—') }}</dd>
+
+                        <dt class="col-sm-3">{{ 'inventory_item.info.current_location_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            {% if item.location %}
+                                <a href="{{ path('app_location_show', {'id': item.location.id}) }}">
+                                    {{ item.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'inventory_item.not_location'|trans }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'inventory_item.show.date_added_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ item.createdAt|date('d.m.Y H:i') }}</dd>
+
+                        <dt class="col-sm-3">{{ 'inventory_item.show.last_update_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ item.updatedAt|date('d.m.Y H:i') }}</dd>
+                    </dl>
+
+                    {% if item.description %}
+                        <hr>
+                        <h6>{{ 'inventory_item.show.description_label'|trans }}</h6>
+                        <p class="card-text">{{ item.description|nl2br }}</p>
+                    {% endif %}
+
+                    {% if item.specifications|length > 0 %}
+                        <hr>
+                        <h6><i class="bi bi-cpu"></i> {{ 'inventory_item.show.specifications'|trans }}</h6>
+                        <div class="row">
+                            {% for key, value in item.specifications %}
+                                {% if value %}
+                                    <div class="col-md-6 mb-2">
+                                        <small class="text-muted">{{ ('inventory_item.spec_labels.' ~ key)|default(key|replace({'_': ' '})|title)|trans }}:</small>
+                                        <br><strong>{{ value }}</strong>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="btn-group">
+                        <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                        </a>
+                        <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
+                           class="btn btn-warning">
+                            <i class="bi bi-arrow-left-right"></i> {{ 'common.actions.move'|trans }}
+                        </a>
+                    </div>
+                    <form method="post" action="{{ path('app_inventory_delete', {'id': item.id}) }}"
+                            class="d-inline" onsubmit="return confirm('{{ 'inventory_item.delete.confirm'|trans }}');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+                        <button class="btn btn-danger">
+                            <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history"></i> {{ 'move.history.title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for log in item.movementLogs|slice(0, 10) %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small class="text-muted">
+                                        {{ log.movedAt|date('d.m.Y H:i') }}
+                                    </small>
+                                </div>
+                                <div class="mb-1">
+                                    {% if log.fromLocation %}
+                                        <span class="badge bg-light text-dark">
+                                            {{ log.fromLocation.roomNumber }}
+                                        </span>
+                                        <i class="bi bi-arrow-right text-muted"></i>
+                                    {% endif %}
+                                    {% if log.toLocation %}
+                                        <span class="badge bg-primary">
+                                            {{ log.toLocation.roomNumber }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                {% if log.reason %}
+                                    <small class="text-muted">{{ log.reason }}</small>
+                                {% endif %}
+                                <small class="d-block text-muted">
+                                    <i class="bi bi-person"></i> {{ log.movedBy }}
+                                </small>
+                            </div>
+                        {% else %}
+                            <div class="list-group-item text-center text-muted">
+                                <i class="bi bi-clock-history"></i><br>
+                                {{ 'inventory_item.show.no_movement_history'|trans }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% if item.movementLogs|length > 10 %}
+                    <div class="card-footer text-center">
+                        <small>
+                            <a href="#">{{ 'inventory_item.show.show_all_records'|trans({'%count%': item.movementLogs|length}) }}</a>
+                        </small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!-- Модальное окно для массового перемещения -->
+<div class="modal fade" id="moveMultipleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-arrow-left-right"></i> {{ 'common.actions.mass_move'|trans }}
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form
+                {# action="{{ path('app_inventory_mass_move') }}" #}
+                method="post"
+                data-controller="mass-move"
+                data-mass-move-select-all-text-value="{{ 'common.select_all'|trans }}"
+                data-mass-move-deselect-all-text-value="{{ 'common.deselect_all'|trans }}"
+                data-mass-move-no-items-text-value="{{ 'common.no_items_selected'|trans }}"
+            >
+                <div class="modal-body">
+                    <!-- Панель выбора -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <button
+                                type="button"
+                                class="btn btn-outline-secondary btn-sm"
+                                data-action="mass-move#toggleAll"
+                                data-mass-move-target="selectAll"
+                            >
+                                <i class="bi bi-check-square"></i> {{ 'common.select_all'|trans }}
+                            </button>
+                        </div>
+                        <div data-mass-move-target="counter">
+                            <span class="text-muted">
+                                <i class="bi bi-info-circle"></i> {{ 'common.no_items_selected'|trans }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Список объектов -->
+                    <div class="border rounded p-3 mb-3" style="max-height: 300px; overflow-y: auto;">
+                        {% for item in inventory_items|slice(0, 50) %}
+                            <div class="form-check mb-2">
+                                <input
+                                    type="checkbox"
+                                    class="form-check-input"
+                                    name="items[]"
+                                    value="{{ item.id }}"
+                                    id="item_{{ item.id }}"
+                                    data-mass-move-target="checkboxes"
+                                    data-action="mass-move#updateCounter"
+                                >
+                                <label class="form-check-label d-flex justify-content-between" for="item_{{ item.id }}">
+                                    <span>
+                                        <strong>{{ item.name }}</strong>
+                                        <small class="text-muted d-block">{{ item.inventoryNumber }}</small>
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        {% if item.location %}
+                                            {{ item.location.roomNumber }}
+                                        {% else %}
+                                            {{ 'placement.without_binding'|trans }}
+                                        {% endif %}
+                                    </span>
+                                </label>
+                            </div>
+                        {% else %}
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-inbox display-6"></i>
+                                <p class="mt-2 mb-0">{{ 'common.no_data'|trans }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Выбор локации -->
+                    <div class="mb-3">
+                        <label for="targetLocation" class="form-label">
+                            <i class="bi bi-geo-alt"></i> {{ 'move.to'|trans }}
+                        </label>
+                        <select class="form-select" id="targetLocation" name="location" required>
+                            <option value="">{{ 'common.select_location'|trans }}</option>
+                            {% for location in locations %}
+                                <option value="{{ location.id }}">
+                                    {{ location.roomNumber }} - {{ location.building }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Комментарий -->
+                    <div class="mb-3">
+                        <label for="comment" class="form-label">
+                            <i class="bi bi-chat-text"></i> {{ 'common.comment'|trans }}
+                        </label>
+                        <textarea class="form-control" id="comment" name="comment" rows="2"
+                                  placeholder="{{ 'move.comment_placeholder'|trans }}"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        {{ 'common.cancel'|trans }}
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        data-action="mass-move#validateForm"
+                    >
+                        <i class="bi bi-arrow-left-right"></i> {{ 'move.execute'|trans }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

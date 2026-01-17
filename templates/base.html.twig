@@ -1,17 +1,99 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-        {% block stylesheets %}
-        {% endblock %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ "Title"|trans }}{% if title|default('') %} - {{ title }}{% endif %}</title>
+    <link rel="icon" href="/favicon.ico">
+    {% block stylesheets %}
+        {{ encore_entry_link_tags('app') }}
+    {% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ path('app_dashboard') }}">
+                <i class="bi bi-box-seam"></i> {{ "Title"|trans }}
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_inventory_index') }}">
+                            <i class="bi bi-list"></i> {{ "breadcrumb.inventory"|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_location_index') }}">
+                            <i class="bi bi-geo-alt"></i> {{ "breadcrumb.location"|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_inventory_search') }}">
+                            <i class="bi bi-search"></i> {{ "breadcrumb.search"|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item d-flex align-items-center">
+                        <form action="{{ path('app_inventory_search') }}" method="GET">
+                            <input class="form-control form-control-sm" name="q" placeholder="{{ 'search.searching'|trans }}">
+                            <input class="d-none" type="submit" value="{{ "breadcrumb.search"|trans }}">
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-        {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
-        {% endblock %}
-    </head>
-    <body>
-        {% block body %}{% endblock %}
-    </body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-3 col-lg-2 sidebar d-md-block">
+                <div class="position-sticky pt-3">
+                    <ul class="nav flex-column">
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('app_inventory_new') }}" class="btn btn-success w-100">
+                                <i class="bi bi-plus-circle"></i> {{ 'common.actions.inventory_new'|trans }}
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('app_location_new') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-geo-alt"></i> {{ 'common.actions.location_new'|trans }}
+                            </a>
+                        </li>
+                        <hr>
+                        <li class="nav-item">
+                            {{ render(controller('App\\Controller\\DashboardController::stats')) }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% block body %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    {% block javascripts %}
+        {{ encore_entry_script_tags('app') }}
+    {% endblock %}
+</body>
 </html>
+
+{% macro form_label_with_icon(field, icon, required = true) %}
+    <label
+        {% if field.vars.label_attr.class %}
+        class="{{ field.vars.label_attr.class }}"
+        {% endif %}
+        for="{{ field.vars.id }}">
+        {% if icon %}
+            <i class="{{ icon }}"></i>
+        {% endif %}
+        {{ field.vars.label }}
+    </label>
+{% endmacro %}

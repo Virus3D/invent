@@ -1,0 +1,50 @@
+{% set type = type|default('') %}
+{% set action = action|default('') %}
+{% set item = item|default({id: 0}) %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_dashboard') }}">
+                        <i class="bi bi-house-door"></i> {{ 'breadcrumb.home'|trans }}
+                    </a>
+                </li>
+                {% if type == 'inventory' %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_inventory_index') }}">
+                        <i class="bi bi-box-seam"></i> {{ 'breadcrumb.inventory'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if type == 'location' %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_location_index') }}">
+                        <i class="bi bi-geo-alt"></i> {{ 'breadcrumb.location'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if item.id %}
+                <li class="breadcrumb-item">
+                    {% set path = type == 'inventory' ? 'app_inventory_show' : 'app_location_show' %}
+                    <a href="{{ path(path, {'id': item.id}) }}">
+                        {{ item.name|length > 30 ? item.name|slice(0, 30) ~ '...' : item.name }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if action == 'edit' %}
+                <li class="breadcrumb-item active">{{ 'breadcrumb.edit'|trans }}</li>
+                {% endif %}
+                {% if action == 'create' %}
+                <li class="breadcrumb-item active">{{ 'breadcrumb.create'|trans }}</li>
+                {% endif %}
+                {% if action == 'move' %}
+                <li class="breadcrumb-item active">{{ 'breadcrumb.move'|trans }}</li>
+                {% endif %}
+                {% if action == 'search' %}
+                <li class="breadcrumb-item active">{{ 'breadcrumb.search'|trans }}</li>
+                {% endif %}
+            </ol>
+        </nav>
+    </div>
+</div>
