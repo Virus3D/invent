@@ -7,7 +7,7 @@
 Доступные колонки: inventory_number, name, category, status, serial_number, location, created_at, actions
 #}
 
-{% set defaultColumns = ['inventory_number', 'status', 'serial_number', 'location', 'created_at', 'actions'] %}
+{% set defaultColumns = ['inventory_number', 'status', 'serial_number', 'location', 'checked', 'created_at', 'actions'] %}
 {% set columns = columns|default(defaultColumns) %}
 
 <div class="table-responsive">
@@ -30,6 +30,10 @@
 
                 {% if 'created_at' in columns %}
                     <th>{{ 'common.messages.added'|trans }}</th>
+                {% endif %}
+
+                {% if 'checked' in columns %}
+                    <th class="text-center">{{ 'inventory_item.check.label'|trans }}</th>
                 {% endif %}
 
                 {% if 'actions' in columns %}
@@ -94,6 +98,18 @@
                             <small title="{{ item.createdAt|date('d.m.Y H:i:s') }}">
                                 {{ item.createdAt|date('d.m.Y') }}
                             </small>
+                        </td>
+                    {% endif %}
+
+                    {% if 'checked' in columns %}
+                        <td class="text-center">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   data-controller="inventory-check"
+                                   data-action="inventory-check#toggle"
+                                   data-inventory-check-id-value="{{ item.id }}"
+                                   data-inventory-check-toggle-url-value="{{ path('api_inventory_check_toggle', {'id': item.id}) }}"
+                                   {% if item.checked %}checked{% endif %}>
                         </td>
                     {% endif %}
 

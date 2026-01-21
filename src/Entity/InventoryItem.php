@@ -62,6 +62,9 @@ class InventoryItem
     #[ORM\Column(type: 'decimal', precision: 15, scale: 2, nullable: true)]
     private ?string $purchasePrice = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $checked = false;
+
     #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTimeInterface $purchaseDate = null;
 
@@ -105,6 +108,7 @@ class InventoryItem
         $this->balanceType      = BalanceType::ON_BALANCE;
         $this->status           = ItemStatus::NEW;
         $this->type             = ItemType::FIXED_ASSET;
+        $this->checked          = false;
     }// end __construct()
 
     /**
@@ -205,6 +209,18 @@ class InventoryItem
 
         return $this;
     }// end setInventoryNumber()
+
+    public function isChecked(): bool
+    {
+        return $this->checked;
+    }
+
+    public function setChecked(bool $checked): static
+    {
+        $this->checked = $checked;
+
+        return $this;
+    }
 
     /**
      * Get the serial number of the inventory item.

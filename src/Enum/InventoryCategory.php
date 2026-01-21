@@ -15,6 +15,7 @@ enum InventoryCategory: string
     case NETWORK = 'network';
     case WEBCAM = 'webcam';
     case UPS = 'ups';
+    case TABLET = 'tablet';
     case OTHER = 'other';
 
     /**
@@ -34,6 +35,7 @@ enum InventoryCategory: string
             self::NETWORK => 'bi-router',
             self::WEBCAM => 'bi-camera-video',
             self::UPS => 'bi-lightning-charge',
+            self::TABLET => 'bi-tablet',
             self::OTHER => 'bi-box',
         };
     }// end getIcon()
@@ -55,6 +57,7 @@ enum InventoryCategory: string
             self::NETWORK => 'indigo',
             self::WEBCAM => 'pink',
             self::UPS => 'orange',
+            self::TABLET => 'teal',
             self::OTHER => 'dark',
         };
     }// end getColor()
@@ -149,6 +152,17 @@ enum InventoryCategory: string
                 'output_power',
                 'battery_type',
                 'management',
+                'other',
+            ],
+            self::TABLET => [
+                'screen_size',
+                'operating_system',
+                'storage',
+                'ram',
+                'processor',
+                'camera',
+                'battery_capacity',
+                'connectivity',
                 'other',
             ],
             default => [],

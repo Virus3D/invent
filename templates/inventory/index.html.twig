@@ -16,6 +16,16 @@
 
     <twig:CategoryFilter />
 
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-controller="inventory-check"
+                data-action="inventory-check#resetAll"
+                data-inventory-check-reset-url-value="{{ path('api_inventory_check_reset') }}">
+            <i class="bi bi-arrow-counterclockwise"></i> {{ 'inventory_item.check.reset_all'|trans }}
+        </button>
+    </div>
+
     {{ include('inventory/_list.html.twig', { items: items }) }}
 
 {% endblock %}

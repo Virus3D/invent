@@ -7,27 +7,38 @@ namespace App\Controller\Api;
 use App\Entity\InventoryItem;
 use App\Entity\Location;
 use App\Entity\MovementLog;
-use App\Form\InventoryItemType;
 use App\Enum\InventoryCategory;
+use App\Form\InventoryItemType;
 use App\Trait\SpecificationTrait;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use ValueError;
+
+use function count;
+use function in_array;
+use function is_array;
+
+use const FILTER_VALIDATE_BOOLEAN;
+use const JSON_ERROR_NONE;
 
 #[Route('/api/inventory')]
-class InventoryApiController extends AbstractController
+final class InventoryApiController extends AbstractController
 {
     use SpecificationTrait;
 
     public function __construct(
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
-        private readonly ValidatorInterface $validator
+        private readonly ValidatorInterface $validator,
     ) {
     }// end __construct()
 
@@ -51,11 +62,42 @@ class InventoryApiController extends AbstractController
         Request $request,
         InventoryItem $item,
     ): JsonResponse {
-        $oldLocation = $item->getLocation();
+        $oldLocation       = $item->getLocation();
         $oldSpecifications = $item->getSpecifications();
 
         return $this->save($request, $item, $oldLocation, $oldSpecifications);
     }// end updateInventoryItem()
+
+    /**
+     * Установить/снять отметку проверки.
+     */
+    #[Route('/check/{id}', name: 'api_inventory_check_toggle', methods: ['POST'])]
+    public function toggleCheck(InventoryItem $item, Request $request): JsonResponse
+    {
+        $checked = filter_var($request->request->get('checked', false), FILTER_VALIDATE_BOOLEAN);
+
+        $item->setChecked($checked);
+        $this->entityManager->flush();
+
+        return $this->json(
+            [
+                'success' => true,
+                'checked' => $item->isChecked(),
+            ],
+            Response::HTTP_OK
+        );
+    }// end toggleCheck()
+
+    /**
+     * Сбросить отметку проверки у всех объектов.
+     */
+    #[Route('/check/reset', name: 'api_inventory_check_reset', methods: ['POST'])]
+    public function resetCheck(): JsonResponse
+    {
+        $this->entityManager->getConnection()->executeStatement('UPDATE inventory_item SET checked = 0');
+
+        return $this->json(['success' => true], Response::HTTP_OK);
+    }// end resetCheck()
 
     /**
      * Save or update an inventory item.
@@ -66,9 +108,9 @@ class InventoryApiController extends AbstractController
         Request $request,
         InventoryItem $item,
         ?Location $oldLocation = null,
-        ?array $oldSpecifications = null
+        ?array $oldSpecifications = null,
     ): JsonResponse {
-        $new = $oldLocation == null;
+        $new  = null == $oldLocation;
         $form = $this->createForm(
             InventoryItemType::class,
             $item,
@@ -98,8 +140,8 @@ class InventoryApiController extends AbstractController
                 );
             }
 
-            if (!$new) {
-                $newLocation = $item->getLocation();
+            if (! $new) {
+                $newLocation       = $item->getLocation();
                 $newSpecifications = $item->getSpecifications();
 
                 // Проверяем изменения спецификаций.
@@ -144,7 +186,7 @@ class InventoryApiController extends AbstractController
                     ],
                     $new ? 201 : 200
                 );
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 return $this->json(
                     [
                         'success' => false,
@@ -171,7 +213,7 @@ class InventoryApiController extends AbstractController
         $specsJson = $request->request->get('specifications');
         if ($specsJson) {
             $decoded = json_decode($specsJson, true);
-            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            if (JSON_ERROR_NONE === json_last_error() && is_array($decoded)) {
                 $specifications = $decoded;
             }
         }
@@ -179,10 +221,10 @@ class InventoryApiController extends AbstractController
         // Также пробуем получить спецификации из отдельных полей.
         $allParameters = $request->request->all();
         foreach ($allParameters as $key => $value) {
-            if (strpos($key, 'spec_') === 0) {
+            if (str_starts_with($key, 'spec_')) {
                 // Убираем 'spec_' префикс.
-                $specKey = substr($key, 5);
-                if (!empty($value)) {
+                $specKey = mb_substr($key, 5);
+                if (! empty($value)) {
                     $specifications[$specKey] = $value;
                 }
             }
@@ -190,12 +232,12 @@ class InventoryApiController extends AbstractController
 
         // Если есть категория, фильтруем только разрешенные спецификации.
         if ($category instanceof InventoryCategory) {
-            $allowedSpecs = $category->getAllowedSpecifications();
+            $allowedSpecs  = $category->getAllowedSpecifications();
             $filteredSpecs = [];
 
             foreach ($specifications as $key => $value) {
-                if (in_array($key, $allowedSpecs, true) && !empty(trim($value))) {
-                    $filteredSpecs[$key] = trim($value);
+                if (in_array($key, $allowedSpecs, true) && ! empty(mb_trim($value))) {
+                    $filteredSpecs[$key] = mb_trim($value);
                 }
             }
 
@@ -210,7 +252,7 @@ class InventoryApiController extends AbstractController
      *
      * @return array<int, array{field: string, message: string, invalidValue: mixed}>
      */
-    private function formatValidationErrors(\Symfony\Component\Validator\ConstraintViolationList $errors): array
+    private function formatValidationErrors(ConstraintViolationList $errors): array
     {
         $formattedErrors = [];
         foreach ($errors as $error) {
@@ -220,6 +262,7 @@ class InventoryApiController extends AbstractController
                 'invalidValue' => $error->getInvalidValue(),
             ];
         }
+
         return $formattedErrors;
     }// end formatValidationErrors()
 
@@ -252,7 +295,7 @@ class InventoryApiController extends AbstractController
                     'template'          => $template,
                 ]
             );
-        } catch (\ValueError $e) {
+        } catch (ValueError $e) {
             return $this->json(
                 [
                     'success' => false,
@@ -271,7 +314,7 @@ class InventoryApiController extends AbstractController
         // Собираем ошибки валидации формы.
         $errors = [];
         foreach ($form->getErrors(true) as $error) {
-            $field = $error->getOrigin() ? $error->getOrigin()->getName() : 'global';
+            $field          = $error->getOrigin() ? $error->getOrigin()->getName() : 'global';
             $errors[$field] = $error->getMessage();
         }
 

@@ -1,0 +1,101 @@
+// Вспомогательная функция для извлечения RGB из hex-цвета
+@function hex-to-rgb($color) {
+    @return red($color), green($color), blue($color);
+}
+
+// Миксин для генерации всех CSS-классов для кастомного цвета
+@mixin generate-custom-color($name, $color) {
+    // Определяем CSS-переменные для цвета
+    --bs-#{$name}: #{$color};
+    --bs-#{$name}-rgb: #{hex-to-rgb($color)};
+
+    // Базовые классы
+    .bg-#{$name} {
+        --bs-bg-opacity: 1;
+        background-color: rgba(var(--bs-#{$name}-rgb), var(--bs-bg-opacity)) !important;
+    }
+
+    .text-#{$name} {
+        color: var(--bs-#{$name}) !important;
+    }
+
+    .border-#{$name} {
+        border-color: var(--bs-#{$name}) !important;
+    }
+
+    // Badge
+    .badge.bg-#{$name} {
+        background-color: var(--bs-#{$name}) !important;
+    }
+
+    // Light background variant
+    .bg-#{$name}-light {
+        background-color: rgba(var(--bs-#{$name}-rgb), 0.1) !important;
+    }
+
+    // Buttons
+    .btn-#{$name} {
+        color: #fff;
+        background-color: var(--bs-#{$name});
+        border-color: var(--bs-#{$name});
+    }
+
+    .btn-#{$name}:hover {
+        color: #fff;
+        background-color: var(--bs-#{$name});
+        border-color: var(--bs-#{$name});
+    }
+
+    .btn-outline-#{$name} {
+        color: var(--bs-#{$name});
+        border-color: var(--bs-#{$name});
+    }
+
+    .btn-outline-#{$name}:hover {
+        background-color: var(--bs-#{$name});
+        color: white;
+    }
+
+    // Badge outline
+    .badge-outline-#{$name} {
+        color: var(--bs-#{$name});
+        border: 1px solid var(--bs-#{$name});
+        background-color: transparent;
+    }
+
+    // Progress bar
+    .progress-bar-#{$name} {
+        background-color: var(--bs-#{$name});
+    }
+
+    // Alert
+    .alert-#{$name} {
+        color: var(--bs-#{$name});
+        background-color: rgba(var(--bs-#{$name}-rgb), 0.1);
+        border-color: rgba(var(--bs-#{$name}-rgb), 0.3);
+    }
+
+    // Text with background
+    .text-bg-#{$name} {
+        color: #fff !important;
+        background-color: var(--bs-#{$name}) !important;
+    }
+
+    // Table
+    .table-#{$name} {
+        --bs-table-bg: rgba(var(--bs-#{$name}-rgb), 0.05);
+        --bs-table-striped-bg: rgba(var(--bs-#{$name}-rgb), 0.1);
+        --bs-table-hover-bg: rgba(var(--bs-#{$name}-rgb), 0.075);
+        color: var(--bs-#{$name});
+    }
+}
+
+// Применение миксина для всех ваших цветов
+:root {
+    @include generate-custom-color('purple', #6f42c1);
+    @include generate-custom-color('telegram', #08c);
+    @include generate-custom-color('indigo', #6610f2);
+    @include generate-custom-color('pink', #e83e8c);
+    @include generate-custom-color('orange', #fd7e14);
+    @include generate-custom-color('teal', #20c997);
+}

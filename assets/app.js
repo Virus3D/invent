@@ -6,7 +6,7 @@
  */
 import './styles/app.css';
 import './styles/components/sidebar.css';
-import './styles/components/color.css';
+import './styles/components/color.scss';
 import './styles/components/form.css';
 
 import './bootstrap.js';

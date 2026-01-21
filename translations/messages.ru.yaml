@@ -10,6 +10,11 @@ inventory_item:
   all: 'Всего объектов'
   not: 'Нет объектов'
   not_location: 'Не назначено'
+  check:
+    label: 'Проверка'
+    reset_all: 'Сбросить проверки'
+    set: 'Отметка сохранена'
+    unset: 'Отметка снята'
   show:
     main_info: 'Основная информация'
     name_label: 'Наименование:'
@@ -100,6 +105,7 @@ inventory_item:
     network: 'Сетевое обр.'
     webcam: 'Камера'
     ups: 'ИБП'
+    tablet: 'Планшет'
     other: 'Прочее'
   spec_labels:
     processor: 'Процессор'
