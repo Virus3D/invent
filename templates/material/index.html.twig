@@ -1,0 +1,111 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.material'|trans %}
+
+{% block body %}
+    {% include '_breadcrumb.html.twig' %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-boxes"></i> {{ title }}
+        </h1>
+        <a href="{{ path('app_material_new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> {{ 'common.actions.add'|trans }}
+        </a>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button"
+                class="btn btn-outline-secondary btn-sm"
+                data-controller="material-check"
+                data-action="material-check#resetAll"
+                data-material-check-reset-url-value="{{ path('api_material_check_reset') }}">
+            <i class="bi bi-arrow-counterclockwise"></i> {{ 'material.check.reset_all'|trans }}
+        </button>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ 'material.form.name'|trans }}</th>
+                    <th>{{ 'material.form.quantity'|trans }}</th>
+                    <th>{{ 'material.form.location'|trans }}</th>
+                    <th class="text-center">{{ 'material.check.label'|trans }}</th>
+                    <th>{{ 'common.messages.added'|trans }}</th>
+                    <th>{{ 'common.actions.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for material in materials %}
+                    <tr>
+                        <td>
+                            <div class="fw-medium">{{ material.name }}</div>
+                            {% if material.description %}
+                                <small class="text-muted d-block mt-1">{{ material.description|slice(0, 100) }}{% if material.description|length > 100 %}...{% endif %}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-primary fs-6">{{ material.quantity }}</span>
+                        </td>
+                        <td>
+                            {% if material.location %}
+                                <a href="{{ path('app_location_show', {'id': material.location.id}) }}">
+                                    {{ material.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'material.not_location'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   data-controller="material-check"
+                                   data-action="material-check#toggle"
+                                   data-material-check-id-value="{{ material.id }}"
+                                   data-material-check-toggle-url-value="{{ path('api_material_check_toggle', {'id': material.id}) }}"
+                                   {% if material.checked %}checked{% endif %}>
+                        </td>
+                        <td>
+                            <small title="{{ material.createdAt|date('d.m.Y H:i:s') }}">
+                                {{ material.createdAt|date('d.m.Y') }}
+                            </small>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_material_show', {'id': material.id}) }}"
+                                   class="btn btn-outline-info" title="{{ 'common.actions.view'|trans }}"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_material_edit', {'id': material.id}) }}"
+                                   class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans }}"
+                                   data-bs-toggle="tooltip">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_material_delete', {'id': material.id}) }}"
+                                      class="d-inline" onsubmit="return confirm('{{ 'material.delete.confirm'|trans }}');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ material.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger" title="{{ 'common.actions.delete'|trans }}"
+                                            data-bs-toggle="tooltip">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox display-6"></i>
+                            <p class="mt-2">{{ 'material.not'|trans }}</p>
+                            <a href="{{ path('app_material_new') }}" class="btn btn-sm btn-outline-primary mt-2">
+                                <i class="bi bi-plus-circle"></i> {{ 'material.add_first'|trans }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

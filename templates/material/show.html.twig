@@ -1,0 +1,79 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ material.name }}{% endblock %}
+
+{% block body %}
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_material_index') }}">{{ 'breadcrumb.material'|trans }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ material.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> {{ 'material.show.main_info'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">{{ 'material.show.name_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ material.name }}</dd>
+
+                        <dt class="col-sm-3">{{ 'material.show.quantity_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary fs-6">{{ material.quantity }}</span>
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'material.show.location_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            {% if material.location %}
+                                <a href="{{ path('app_location_show', {'id': material.location.id}) }}">
+                                    {{ material.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'material.not_location'|trans }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'material.show.date_added_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ material.createdAt|date('d.m.Y H:i') }}</dd>
+
+                        <dt class="col-sm-3">{{ 'material.show.last_update_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ material.updatedAt|date('d.m.Y H:i') }}</dd>
+                    </dl>
+
+                    {% if material.description %}
+                        <hr>
+                        <h6>{{ 'material.show.description_label'|trans }}</h6>
+                        <p class="card-text">{{ material.description|nl2br }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <a href="{{ path('app_material_edit', {'id': material.id}) }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                        </a>
+                        <form method="post" action="{{ path('app_material_delete', {'id': material.id}) }}"
+                              class="d-inline" onsubmit="return confirm('{{ 'material.delete.confirm'|trans }}');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ material.id) }}">
+                            <button class="btn btn-danger">
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -37,10 +37,14 @@ class Location
     #[ORM\OneToMany(mappedBy: 'toLocation', targetEntity: MovementLog::class)]
     private Collection $movementLogs;
 
+    #[ORM\OneToMany(mappedBy: 'location', targetEntity: Material::class)]
+    private Collection $materials;
+
     public function __construct()
     {
         $this->inventoryItems = new ArrayCollection();
         $this->movementLogs = new ArrayCollection();
+        $this->materials = new ArrayCollection();
     }// end __construct()
 
     /**
@@ -121,6 +125,16 @@ class Location
     {
         return $this->movementLogs;
     }// end getMovementLogs()
+
+    /**
+     * Get all materials associated with this location.
+     *
+     * @return Collection<int, Material>
+     */
+    public function getMaterials(): Collection
+    {
+        return $this->materials;
+    }// end getMaterials()
 
     /**
      * Returns the string representation of the location.

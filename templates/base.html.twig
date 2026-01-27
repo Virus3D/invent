@@ -32,6 +32,11 @@
                             <i class="bi bi-search"></i> {{ "breadcrumb.search"|trans }}
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_material_index') }}">
+                            <i class="bi bi-boxes"></i> {{ "breadcrumb.material"|trans }}
+                        </a>
+                    </li>
                     <li class="nav-item d-flex align-items-center">
                         <form action="{{ path('app_inventory_search') }}" method="GET">
                             <input class="form-control form-control-sm" name="q" placeholder="{{ 'search.searching'|trans }}">
@@ -56,6 +61,11 @@
                         <li class="nav-item mb-2">
                             <a href="{{ path('app_location_new') }}" class="btn btn-outline-primary w-100">
                                 <i class="bi bi-geo-alt"></i> {{ 'common.actions.location_new'|trans }}
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('app_material_new') }}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-boxes"></i> {{ 'common.actions.material_new'|trans }}
                             </a>
                         </li>
                         <hr>

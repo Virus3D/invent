@@ -1,0 +1,128 @@
+{% extends 'base.html.twig' %}
+
+{% set title = page_title|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_dashboard') }}">
+                            <i class="bi bi-house-door"></i> {{ 'breadcrumb.home'|trans }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_material_index') }}">
+                            <i class="bi bi-boxes"></i> {{ 'breadcrumb.material'|trans }}
+                        </a>
+                    </li>
+                    {% if material.id %}
+                        <li class="breadcrumb-item">
+                            <a href="{{ path('app_material_show', {'id': material.id}) }}">
+                                {{ material.name }}
+                            </a>
+                        </li>
+                        <li class="breadcrumb-item active">{{ 'breadcrumb.edit'|trans }}</li>
+                    {% else %}
+                        <li class="breadcrumb-item active">{{ 'breadcrumb.create'|trans }}</li>
+                    {% endif %}
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-pencil"></i> {{ page_title|trans }}
+                    </h4>
+                    {% if material.id %}
+                    <span class="badge bg-light text-dark">
+                        ID: {{ material.id }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    {{ form_start(form, {
+                        'attr': {
+                            'id': 'materialForm',
+                            'class': 'needs-validation',
+                            'novalidate': 'novalidate'
+                        }
+                    }) }}
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+
+                    <div class="mb-3">
+                        {{ form_label(form.name, null, {
+                            'label_attr': {'class': 'form-label required-field'}
+                        }) }}
+                        {{ form_widget(form.name, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.name) ? ' is-invalid' : ''),
+                                'autofocus': 'autofocus'
+                            }
+                        }) }}
+                        {{ form_errors(form.name) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.description) }}
+                        {{ form_widget(form.description, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.description) ? ' is-invalid' : '')
+                            }
+                        }) }}
+                        {{ form_errors(form.description) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.quantity, null, {
+                            'label_attr': {'class': 'form-label required-field'}
+                        }) }}
+                        {{ form_widget(form.quantity, {
+                            'attr': {
+                                'class': 'form-control' ~ (form_errors(form.quantity) ? ' is-invalid' : '')
+                            }
+                        }) }}
+                        {{ form_errors(form.quantity) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.location) }}
+                        {{ form_widget(form.location, {
+                            'attr': {
+                                'class': 'form-select' ~ (form_errors(form.location) ? ' is-invalid' : '')
+                            }
+                        }) }}
+                        {{ form_errors(form.location) }}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ path('app_material_index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans }}
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> {{ 'common.actions.save'|trans }}
+                        </button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

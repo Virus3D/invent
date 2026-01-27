@@ -440,6 +440,7 @@ common:
     quick: 'Быстрые действия'
     inventory_new: 'Новый объект'
     location_new: 'Новое местоположение'
+    material_new: 'Новый материал'
     inventory_search: 'Поиск объектов'
     mass_move: 'Массовое перемещение'
     add: 'Добавить'
@@ -495,6 +496,7 @@ breadcrumb:
   home: 'Главная'
   inventory: 'Объекты'
   location: 'Места'
+  material: 'Материалы'
   search: 'Поиск'
   edit: 'Редактировать'
   create: 'Создать'
@@ -512,12 +514,57 @@ page_title:
   location_index: 'Список местоположений'
   location_new: 'Новое местоположение'
   location_edit: 'Редактировать местоположение'
+  material: 'Материалы'
+  material_create: 'Создать материал'
+  material_edit: 'Редактировать материал'
+  material_view: 'Просмотр материала'
+  material_search: 'Поиск материалов'
 
 # Static
 static:
   title: 'Статистика'
   inventorys: 'Объектов'
   locations: 'Перемещений'
+
+# Material
+material:
+  all: 'Всего материалов'
+  not: 'Нет материалов'
+  not_location: 'Не назначено'
+  add_first: 'Добавить первый материал'
+  check:
+    label: 'Проверка'
+    reset_all: 'Сбросить проверки'
+    set: 'Отметка сохранена'
+    unset: 'Отметка снята'
+  show:
+    main_info: 'Основная информация'
+    name_label: 'Наименование:'
+    quantity_label: 'Количество:'
+    location_label: 'Местоположение:'
+    date_added_label: 'Дата добавления:'
+    last_update_label: 'Последнее обновление:'
+    description_label: 'Описание:'
+  form:
+    name: 'Наименование'
+    name_placeholder: 'Например: Бумага офисная'
+    description: 'Описание'
+    description_placeholder: 'Подробное описание материала...'
+    quantity: 'Количество'
+    location: 'Местоположение'
+    location_placeholder: 'Не назначено'
+  create:
+    success: 'Материал успешно создан'
+    error: 'Ошибка при создании материала'
+    validation_error: 'Ошибки валидации'
+  update:
+    success: 'Изменения успешно сохранены'
+    error: 'Ошибка при сохранении'
+    validation_error: 'Ошибка валидации'
+  delete:
+    confirm: 'Удалить материал? Это действие необратимо.'
+    success: 'Материал успешно удалён'
+    error: 'Ошибка при удалении'
 
 # Form
 form:
