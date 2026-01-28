@@ -33,7 +33,7 @@
                     <th>{{ 'material.form.location'|trans }}</th>
                     <th class="text-center">{{ 'material.check.label'|trans }}</th>
                     <th>{{ 'common.messages.added'|trans }}</th>
-                    <th>{{ 'common.actions.actions'|trans }}</th>
+                    <th class="text-end">{{ 'common.actions.actions'|trans }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -71,8 +71,8 @@
                                 {{ material.createdAt|date('d.m.Y') }}
                             </small>
                         </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
                                 <a href="{{ path('app_material_show', {'id': material.id}) }}"
                                    class="btn btn-outline-info" title="{{ 'common.actions.view'|trans }}"
                                    data-bs-toggle="tooltip">
