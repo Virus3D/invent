@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\InventoryItem;
+use App\Entity\Location;
 use App\Enum\InventoryCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -159,4 +160,40 @@ final class InventoryItemRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }// end findByCategory()
+
+    /**
+     * Finds locations by given Location entity and optional filters.
+     *
+     * @param Location             $location The Location entity to filter by.
+     * @param array<string, mixed> $filters  Optional associative array of additional filters:
+     *      - name: string (partial match)
+     *      - category: string (exact match)
+     *      - status: string (exact match)
+     *
+     * @return array<int, Location> Returns an array of Location objects.
+     */
+    public function findByLocationAndFilters(Location $location, array $filters = []): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->andWhere('i.location = :location')
+            ->setParameter('location', $location)
+            ->orderBy('i.name', 'ASC');
+
+        if (!empty($filters['name'])) {
+            $qb->andWhere('i.name LIKE :name')
+                ->setParameter('name', '%' . $filters['name'] . '%');
+        }
+
+        if (!empty($filters['category'])) {
+            $qb->andWhere('i.category = :category')
+                ->setParameter('category', $filters['category']);
+        }
+
+        if (!empty($filters['status'])) {
+            $qb->andWhere('i.status = :status')
+                ->setParameter('status', $filters['status']);
+        }
+
+        return $qb->getQuery()->getResult();
+    }// end findByLocationAndFilters()
 }// end class

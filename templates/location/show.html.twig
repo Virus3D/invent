@@ -3,7 +3,11 @@
 {% set title = location.name %}
 
 {% block body %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-4"
+     data-controller="inventory-filter"
+     data-inventory-filter-url-value="{{ path('app_location_show', {'id': location.id}) }}"
+     data-inventory-filter-location-id-value="{{ location.id }}">
+
     {% include '_breadcrumb.html.twig' with {
         'item': location,
         'type': 'location'
@@ -35,7 +39,8 @@
 
                         <dt class="col-sm-3">{{ 'location.show.objects_count_label'|trans }}</dt>
                         <dd class="col-sm-9">
-                            <span class="badge bg-success rounded-pill fs-6">
+                            <span class="badge bg-success rounded-pill fs-6"
+                                  id="total-objects-count">
                                 {{ location.inventoryItems|length }}
                             </span>
                         </dd>
@@ -74,21 +79,78 @@
                         <h5 class="mb-0">
                             <i class="bi bi-box-seam"></i> {{ 'location.show.objects_in_location'|trans }}
                         </h5>
-                        <span class="badge bg-primary">{{ location.inventoryItems|length }}</span>
+                        <span class="badge bg-primary"
+                              data-inventory-filter-target="count"
+                              id="filtered-objects-count">
+                            {{ inventoryItems|length }}
+                        </span>
                     </div>
                 </div>
 
                 {% if location.inventoryItems|length > 0 %}
+                <div class="position-relative">
+                    <!-- Индикатор загрузки -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none justify-content-center align-items-center z-3"
+                         data-inventory-filter-target="loading"
+                         style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                    </div>
 
-                {{ include('inventory/_list.html.twig', {
-                    items: location.inventoryItems,
-                    columns: ['inventory_number', 'status', 'serial_number', 'created_at', 'actions']
-                }) }}
+                    {# Форма фильтрации #}
+                    <form method="get"
+                          class="m-4 filter-form"
+                          data-inventory-filter-target="form"
+                          data-action="submit->filter#filter">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.name, {attr: {
+                                    'class': 'form-control',
+                                    'data-action': 'input->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.category, {attr: {
+                                    'class': 'form-select category-selector',
+                                    'data-action': 'change->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.status, {attr: {
+                                    'class': 'form-select',
+                                    'data-action': 'change->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3 d-flex">
+                                <button type="submit"
+                                        class="btn btn-primary filter-btn me-2"
+                                        data-action="click->inventory-filter#filter">
+                                    <i class="bi bi-funnel"></i> {{ 'common.actions.filter'|trans }}
+                                </button>
+                                <button type="button"
+                                        class="btn btn-outline-secondary reset-btn"
+                                        data-action="click->inventory-filter#reset">
+                                    <i class="bi bi-x-circle"></i> {{ 'common.actions.reset'|trans }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Контейнер для контента -->
+                    <div data-inventory-filter-target="container"
+                         id="inventory-items-container">
+                        {{ include('inventory/_list.html.twig', {
+                            items: inventoryItems,
+                            columns: ['inventory_number', 'status', 'serial_number', 'checked', 'created_at', 'actions']
+                        }) }}
+                    </div>
+                </div>
 
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            {{ 'location.show.shown_objects'|trans({'%count%': location.inventoryItems|length}) }}
+                        <small class="text-muted" id="shown-objects-text">
+                            {{ 'location.show.shown_objects'|trans({'%count%': inventoryItems|length}) }}
                         </small>
                         <a href="{{ path('app_inventory_index') }}?location={{ location.id }}"
                            class="btn btn-sm btn-outline-primary">

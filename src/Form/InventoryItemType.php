@@ -27,7 +27,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class InventoryItemType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator) {}// end __construct()
+    public function __construct(private readonly TranslatorInterface $translator)
+    {
+    }// end __construct()
 
     /**
      * {@inheritDoc}
@@ -219,8 +221,7 @@ final class InventoryItemType extends AbstractType
                     'placeholder'  => $this->translator->trans('inventory_item.form.location_placeholder'),
                     'attr'         => ['class' => 'form-select'],
                 ]
-            )
-        ;
+            );
         // Добавляем событие для динамического изменения обязательности полей.
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
@@ -249,9 +250,10 @@ final class InventoryItemType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => InventoryItem::class,
-                'specs_url'  => null,
-                'empty_data' => static function () {
+                'data_class'      => InventoryItem::class,
+                'csrf_protection' => false,
+                'specs_url'       => null,
+                'empty_data'      => static function () {
                     $item = new InventoryItem();
                     $item->setCategory(InventoryCategory::OTHER);
                     $item->setBalanceType(BalanceType::ON_BALANCE);

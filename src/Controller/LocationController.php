@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Location;
 use App\Form\LocationType;
+use App\Form\InventoryItemFilterType;
 use App\Repository\InventoryItemRepository;
 use App\Repository\LocationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -98,14 +99,66 @@ final class LocationController extends AbstractController
     }// end new()
 
     /**
-     * Display a Location entity.
+     * Display a Location entity with filtered inventory items.
      */
     #[Route('/{id}', name: 'app_location_show', methods: ['GET'])]
-    public function show(Location $location): Response
-    {
+    public function show(
+        Location $location,
+        Request $request,
+        InventoryItemRepository $inventoryItemRepository
+    ): Response {
+        $filterForm = $this->createForm(InventoryItemFilterType::class);
+        $filterForm->handleRequest($request);
+
+        $filters = [];
+        if ($filterForm->isSubmitted() && $filterForm->isValid()) {
+            $filters = $filterForm->getData();
+        } else if ($request->query->has('name') || $request->query->has('category') || $request->query->has('status')) {
+            // Если есть параметры в GET запросе, заполняем форму.
+            $filterForm->submit($request->query->all());
+            if ($filterForm->isValid()) {
+                $filters = $filterForm->getData();
+            }
+        }
+
+        // Получаем отфильтрованные объекты.
+        $inventoryItems = $inventoryItemRepository->findByLocationAndFilters($location, $filters);
+        $filteredCount = count($inventoryItems);
+
+        // Если AJAX запрос - возвращаем JSON.
+        if ($request->isXmlHttpRequest()) {
+            // Рендерим HTML таблицы.
+            $html = $this->renderView(
+                'inventory/_list.html.twig',
+                [
+                    'items'   => $inventoryItems,
+                    'columns' => [
+                        'inventory_number',
+                        'status',
+                        'serial_number',
+                        'checked',
+                        'created_at',
+                        'actions',
+                    ],
+                ]
+            );
+
+            return new JsonResponse(
+                [
+                    'html'  => $html,
+                    'count' => $filteredCount,
+                ]
+            );
+        }// end if
+
         return $this->render(
             'location/show.html.twig',
-            ['location' => $location]
+            [
+                'location'       => $location,
+                'inventoryItems' => $inventoryItems,
+                'filteredCount'  => $filteredCount,
+                'filterForm'     => $filterForm->createView(),
+            ]
         );
     }// end show()
 

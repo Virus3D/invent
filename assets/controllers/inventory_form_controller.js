@@ -13,6 +13,7 @@ export default class extends Controller {
     }
 
     static targets = [
+        'inventoryNumberField',
         'categorySelector',
         'specificationsSection',
         'submitButton',
@@ -43,6 +44,22 @@ export default class extends Controller {
         }
     }
 
+    onBalanceTypeChange(event) {
+        const isOnBalance = event.target.value === 'on_balance';
+        const inventoryNumberField = this.inventoryNumberFieldTarget;
+
+        if (isOnBalance) {
+            inventoryNumberField.setAttribute('required', 'required');
+            inventoryNumberField.setAttribute('aria-required', 'true');
+            inventoryNumberField.classList.add('required-field');
+        } else {
+            inventoryNumberField.value = '';
+            inventoryNumberField.setAttribute('disable', 'disable');
+            inventoryNumberField.removeAttribute('required');
+            inventoryNumberField.removeAttribute('aria-required');
+            inventoryNumberField.classList.remove('required-field');
+        }
+    }
     // Обработчик изменения категории
     async onCategoryChange(event) {
         const newCategory = event.target.value;
