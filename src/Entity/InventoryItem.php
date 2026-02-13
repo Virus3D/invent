@@ -169,7 +169,7 @@ class InventoryItem
      */
     public function setName(string $name): static
     {
-        $this->name = $name;
+        $this->name = trim(str_replace('  ', ' ', $name));
 
         return $this;
     }// end setName()
@@ -187,7 +187,7 @@ class InventoryItem
      */
     public function setDescription(?string $description): static
     {
-        $this->description = $description;
+        $this->description = trim(str_replace('  ', ' ', $description));
 
         return $this;
     }// end setDescription()
