@@ -44,11 +44,10 @@
                                 <label class="form-label">Категория</label>
                                 <select name="category" class="form-select">
                                     <option value="">Все категории</option>
-                                    {% for category in ['computer', 'monitor', 'printer', 'speakers', 'headset', 'phone', 'other'] %}
-                                        {% set categoryEnum = get_category_enum(category) %}
-                                        {% if categoryEnum %}
-                                            <option value="{{ category }}" {{ app.request.query.get('category') == category ? 'selected' : '' }}>
-                                                {{ ('inventory_item.category.' ~ categoryEnum.value)|trans }}
+                                    {% for category in categories %}
+                                        {% if category %}
+                                            <option value="{{ category.value }}" {{ app.request.query.get('category') == category.value ? 'selected' : '' }}>
+                                                {{ ('inventory_item.category.' ~ category.value)|trans }}
                                             </option>
                                         {% endif %}
                                     {% endfor %}
@@ -61,11 +60,13 @@
                                 <label class="form-label">Местоположение</label>
                                 <select name="location" class="form-select">
                                     <option value="">Все местоположения</option>
-                                    {# {% for location in locations %}
+                                    <option value="without_location" {{ app.request.query.get('location') == 'without_location' ? 'selected' : '' }}>Без местоположения</option>
+                                    <option value="with_location" {{ app.request.query.get('location') == 'with_location' ? 'selected' : '' }}>С местоположением</option>
+                                    {% for location in locations %}
                                         <option value="{{ location.id }}" {{ app.request.query.get('location') == location.id ? 'selected' : '' }}>
                                             {{ location.name }} (каб. {{ location.roomNumber }})
                                         </option>
-                                    {% endfor %} #}
+                                    {% endfor %}
                                 </select>
                             </div>
                             <div class="col-md-4 mb-3">
@@ -84,6 +85,17 @@
                                     <option value="">Все объекты</option>
                                     <option value="with_location" {{ app.request.query.get('status') == 'with_location' ? 'selected' : '' }}>С местоположением</option>
                                     <option value="without_location" {{ app.request.query.get('status') == 'without_location' ? 'selected' : '' }}>Без местоположения</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Тип баланса</label>
+                                <select name="balance_type" class="form-select">
+                                    <option value="">Все типы</option>
+                                    {% for type in balance_types %}
+                                        <option value="{{ type.value }}" {{ app.request.query.get('balance_type') == type.value ? 'selected' : '' }}>
+                                            {{ ('inventory_item.balance_type.' ~ type.value)|trans }}
+                                        </option>
+                                    {% endfor %}
                                 </select>
                             </div>
                         </div>

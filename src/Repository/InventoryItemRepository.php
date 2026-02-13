@@ -196,4 +196,95 @@ final class InventoryItemRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }// end findByLocationAndFilters()
+
+    /**
+     * Advanced search with multiple filters and sorting.
+     *
+     * @param array<string, mixed> $criteria  Search criteria:
+     *       - query: string (search in name, inventoryNumber, serialNumber, description)
+     *       - category: InventoryCategory|string|null
+     *       - location: Location|int|null (entity or ID)
+     *       - hasLocation: bool|null (true = with location, false = without location)
+     *       - hasSerial: bool|null (true = serialNumber IS NOT NULL)
+     *       - hasSpecifications: bool|null (true = specifications IS NOT NULL AND category = 'pc')
+     *       - status: string|null (exact match on i.status field, if needed)
+     *       - balanceType: BalanceType|string|null (exact match)
+     * @param string|null          $sort      Field name (e.g., 'name', 'inventoryNumber', 'createdAt', 'category')
+     * @param string               $direction 'ASC' or 'DESC'
+     *
+     * @return InventoryItem[]
+     */
+    public function searchByCriteria(array $criteria = [], ?string $sort = null, string $direction = 'ASC'): array
+    {
+        $qb = $this->createQueryBuilder('i')
+            ->orderBy('i.name', 'ASC');
+
+        // Text search.
+        if (!empty($criteria['query'])) {
+            $qb->andWhere(
+                'i.name LIKE :query OR
+                i.inventoryNumber LIKE :query OR
+                i.serialNumber LIKE :query OR
+                i.description LIKE :query'
+            )
+                ->setParameter('query', '%' . $criteria['query'] . '%');
+        }
+
+        // Category filter.
+        if (!empty($criteria['category'])) {
+            $qb->andWhere('i.category = :category')
+                ->setParameter('category', $criteria['category']);
+        }
+
+        // Location filter (by entity or ID).
+        if (!empty($criteria['location'])) {
+            $qb->andWhere('i.location = :location')
+                ->setParameter('location', $criteria['location']);
+        }
+
+        // Location presence filter.
+        if (array_key_exists('hasLocation', $criteria) && $criteria['hasLocation'] !== null) {
+            if ($criteria['hasLocation']) {
+                $qb->andWhere('i.location IS NOT NULL');
+            } else {
+                $qb->andWhere('i.location IS NULL');
+            }
+        }
+
+        // Serial number presence.
+        if (array_key_exists('hasSerial', $criteria) && $criteria['hasSerial']) {
+            $qb->andWhere('i.serialNumber IS NOT NULL');
+        }
+
+        // Specifications presence.
+        if (array_key_exists('hasSpecifications', $criteria) && $criteria['hasSpecifications']) {
+            $qb->andWhere('i.specifications IS NOT NULL');
+        }
+
+        // Exact status match (if needed).
+        if (!empty($criteria['status'])) {
+            $qb->andWhere('i.status = :status')
+                ->setParameter('status', $criteria['status']);
+        }
+
+        // Balance type filter.
+        if (!empty($criteria['balanceType'])) {
+            $qb->andWhere('i.balanceType = :balanceType')
+                ->setParameter('balanceType', $criteria['balanceType']);
+        }
+
+        // Sorting.
+        $allowedSortFields = [
+            'name',
+            'inventoryNumber',
+            'createdAt',
+            'category',
+        ];
+        if ($sort && in_array($sort, $allowedSortFields, true)) {
+            $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+            $qb->orderBy('i.' . $sort, $direction);
+        }
+
+        return $qb->getQuery()->getResult();
+    }// end searchByCriteria()
 }// end class

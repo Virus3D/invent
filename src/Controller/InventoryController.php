@@ -6,18 +6,22 @@ namespace App\Controller;
 
 use App\Entity\InventoryItem;
 use App\Entity\MovementLog;
+use App\Enum\BalanceType;
+use App\Enum\InventoryCategory;
 use App\Form\InventoryItemType;
 use App\Form\MovementLogType;
 use App\Repository\InventoryItemRepository;
-use App\Repository\MovementLogRepository;
+use App\Repository\LocationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+use function in_array;
+
 #[Route('/inventory')]
-class InventoryController extends AbstractController
+final class InventoryController extends AbstractController
 {
     /**
      * Displays a list of inventory items.
@@ -67,16 +71,63 @@ class InventoryController extends AbstractController
      * Handles inventory search requests.
      */
     #[Route('/search', name: 'app_inventory_search', methods: ['GET'])]
-    public function search(Request $request, InventoryItemRepository $repository): Response
-    {
-        $query = $request->query->get('q');
-        $items = $query ? $repository->search($query) : [];
+    public function search(
+        Request $request,
+        InventoryItemRepository $inventoryRepository,
+        LocationRepository $locationRepository,
+    ): Response {
+        // Build criteria array from request.
+        $criteria = [
+            'query'             => $request->query->get('q'),
+            'category'          => $request->query->get('category'),
+            'hasSerial'         => $request->query->getBoolean('has_serial'),
+            'hasSpecifications' => $request->query->getBoolean('has_specs'),
+            'balanceType'       => $request->query->get('balance_type'),
+        ];
+
+        // Location: either ID or special flag.
+        $locationParam = $request->query->get('location');
+        if ('without_location' === $locationParam) {
+            $criteria['hasLocation'] = false;
+        } else if ('with_location' === $locationParam) {
+            $criteria['hasLocation'] = true;
+        } else if (is_numeric($locationParam)) {
+            $criteria['location'] = $locationParam;
+        }
+
+        // Status flag – mapping from UI to actual repository field.
+        $statusParam = $request->query->get('status');
+        if (in_array($statusParam, ['with_location', 'without_location'])) {
+            // These are already handled by 'hasLocation' above, so ignore here.
+        } else if ($statusParam) {
+            // If you have a direct 'status' field on InventoryItem, pass it as exact match.
+            $criteria['status'] = $statusParam;
+        }
+
+        // Sorting.
+        $sort      = $request->query->get('sort', 'name');
+        $direction = 'ASC';
+        if ('createdAt_asc' === $sort) {
+            $sort      = 'createdAt';
+            $direction = 'ASC';
+        } else if ('createdAt' === $sort) {
+            $direction = 'DESC';
+        }
+
+        // Get results.
+        $items = $inventoryRepository->searchByCriteria($criteria, $sort, $direction);
+
+        // Fetch all locations for the dropdown (uncomment and pass).
+        $locations = $locationRepository->findBy([], ['roomNumber' => 'ASC']);
 
         return $this->render(
             'inventory/search.html.twig',
             [
-                'items' => $items,
-                'query' => $query,
+                'items'         => $items,
+                'query'         => $criteria['query'],
+                'locations'     => $locations,
+                'balance_types' => BalanceType::cases(),
+                'categories'    => InventoryCategory::cases(),
             ]
         );
     }// end search()
@@ -122,7 +173,7 @@ class InventoryController extends AbstractController
     public function move(
         Request $request,
         InventoryItem $item,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): Response {
         $log = new MovementLog();
         $log->setInventoryItem($item);
@@ -139,6 +190,7 @@ class InventoryController extends AbstractController
             $entityManager->flush();
 
             $this->addFlash('success', 'Перемещение зарегистрировано');
+
             return $this->redirectToRoute('app_inventory_show', ['id' => $item->getId()]);
         }
 
@@ -158,7 +210,7 @@ class InventoryController extends AbstractController
     public function delete(
         Request $request,
         InventoryItem $item,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
     ): Response {
         if ($this->isCsrfTokenValid('delete' . $item->getId(), $request->getPayload()->get('_token'))) {
             $entityManager->remove($item);
