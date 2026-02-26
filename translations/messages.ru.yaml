@@ -498,6 +498,7 @@ breadcrumb:
   home: 'Главная'
   inventory: 'Объекты'
   location: 'Места'
+  license: 'Лицензии'
   material: 'Материалы'
   search: 'Поиск'
   edit: 'Редактировать'
@@ -516,6 +517,10 @@ page_title:
   location_index: 'Список местоположений'
   location_new: 'Новое местоположение'
   location_edit: 'Редактировать местоположение'
+  license: 'Лицензии ПО'
+  license_create: 'Добавить лицензию'
+  license_edit: 'Редактировать лицензию'
+  license_view: 'Просмотр лицензии'
   material: 'Материалы'
   material_create: 'Создать материал'
   material_edit: 'Редактировать материал'
@@ -567,6 +572,42 @@ material:
     confirm: 'Удалить материал? Это действие необратимо.'
     success: 'Материал успешно удалён'
     error: 'Ошибка при удалении'
+
+# Software license
+license:
+  not: 'Нет лицензий'
+  perpetual: 'Бессрочная'
+  not_location: 'Не привязана к месту'
+  valid:
+    yes: 'Действительна'
+    no: 'Недействительна'
+  show:
+    main_info: 'Информация о лицензии'
+    name_label: 'Наименование:'
+    key_label: 'Лицензионный ключ:'
+    start_date_label: 'Дата начала:'
+    end_date_label: 'Дата окончания:'
+    location_label: 'Местоположение:'
+    valid_label: 'Статус:'
+    date_added_label: 'Дата добавления:'
+    last_update_label: 'Последнее обновление:'
+    description_label: 'Описание:'
+  form:
+    name: 'Наименование'
+    name_placeholder: 'Например: Microsoft Office 365'
+    key: 'Лицензионный ключ'
+    key_placeholder: 'XXXXX-XXXXX-XXXXX-XXXXX'
+    start_date: 'Дата начала действия'
+    end_date: 'Дата окончания'
+    end_date_placeholder: 'Оставьте пустым для бессрочной лицензии'
+    end_date_hint: 'Если лицензия бессрочная — оставьте поле пустым'
+    valid: 'Лицензия действительна'
+    location: 'Местоположение'
+    location_placeholder: 'Не привязана'
+    description: 'Описание'
+    description_placeholder: 'Дополнительная информация о лицензии...'
+  delete:
+    confirm: 'Удалить лицензию? Это действие необратимо.'
 
 # Form
 form:

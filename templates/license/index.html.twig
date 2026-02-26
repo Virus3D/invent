@@ -1,0 +1,89 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'page_title.license'|trans %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-shield-lock"></i> {{ title }}
+        </h1>
+        <a href="{{ path('app_license_new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> {{ 'common.actions.add'|trans }}
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>{{ 'license.form.name'|trans }}</th>
+                    <th>{{ 'license.form.key'|trans }}</th>
+                    <th>{{ 'license.form.start_date'|trans }}</th>
+                    <th>{{ 'license.form.end_date'|trans }}</th>
+                    <th>{{ 'license.form.location'|trans }}</th>
+                    <th>{{ 'license.form.valid'|trans }}</th>
+                    <th>{{ 'common.actions.actions'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for license in licenses %}
+                    <tr>
+                        <td>{{ license.name }}</td>
+                        <td>{{ license.licenseKey ?? '—' }}</td>
+                        <td>{{ license.startDate|date('d.m.Y') }}</td>
+                        <td>
+                            {% if license.endDate %}
+                                {{ license.endDate|date('d.m.Y') }}
+                            {% else %}
+                                <span class="badge bg-info">{{ 'license.perpetual'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if license.location %}
+                                <a href="{{ path('app_location_show', {'id': license.location.id}) }}">
+                                    {{ license.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'license.not_location'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if license.valid %}
+                                <span class="badge bg-success">{{ 'license.valid.yes'|trans }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ 'license.valid.no'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_license_show', {'id': license.id}) }}"
+                                   class="btn btn-outline-info" title="{{ 'common.actions.view'|trans }}">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{{ path('app_license_edit', {'id': license.id}) }}"
+                                   class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans }}">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form method="post" action="{{ path('app_license_delete', {'id': license.id}) }}"
+                                      class="d-inline" onsubmit="return confirm('{{ 'license.delete.confirm'|trans }}');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ license.id) }}">
+                                    <button type="submit" class="btn btn-outline-danger" title="{{ 'common.actions.delete'|trans }}">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox display-6"></i>
+                            <p class="mt-2">{{ 'license.not'|trans }}</p>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+

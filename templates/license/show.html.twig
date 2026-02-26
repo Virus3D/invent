@@ -1,0 +1,99 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ license.name }}{% endblock %}
+
+{% block body %}
+    <div class="row mb-4">
+        <div class="col">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_license_index') }}">{{ 'breadcrumb.license'|trans }}</a>
+                    </li>
+                    <li class="breadcrumb-item active">{{ license.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle"></i> {{ 'license.show.main_info'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-3">{{ 'license.show.name_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ license.name }}</dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.key_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ license.licenseKey ?? '—' }}</dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.start_date_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ license.startDate|date('d.m.Y') }}</dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.end_date_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            {% if license.endDate %}
+                                {{ license.endDate|date('d.m.Y') }}
+                            {% else %}
+                                <span class="badge bg-info">{{ 'license.perpetual'|trans }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.location_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            {% if license.location %}
+                                <a href="{{ path('app_location_show', {'id': license.location.id}) }}">
+                                    {{ license.location }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">{{ 'license.not_location'|trans }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.valid_label'|trans }}</dt>
+                        <dd class="col-sm-9">
+                            {% if license.valid %}
+                                <span class="badge bg-success">{{ 'license.valid.yes'|trans }}</span>
+                            {% else %}
+                                <span class="badge bg-danger">{{ 'license.valid.no'|trans }}</span>
+                            {% endif %}
+                        </dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.date_added_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ license.createdAt|date('d.m.Y H:i') }}</dd>
+
+                        <dt class="col-sm-3">{{ 'license.show.last_update_label'|trans }}</dt>
+                        <dd class="col-sm-9">{{ license.updatedAt|date('d.m.Y H:i') }}</dd>
+                    </dl>
+
+                    {% if license.description %}
+                        <hr>
+                        <h6>{{ 'license.show.description_label'|trans }}</h6>
+                        <p class="card-text">{{ license.description|nl2br }}</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <div class="btn-group">
+                        <a href="{{ path('app_license_edit', {'id': license.id}) }}"
+                           class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                        </a>
+                        <form method="post" action="{{ path('app_license_delete', {'id': license.id}) }}"
+                              class="d-inline" onsubmit="return confirm('{{ 'license.delete.confirm'|trans }}');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ license.id) }}">
+                            <button class="btn btn-danger">
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
