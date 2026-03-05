@@ -38,7 +38,7 @@ class MaterialController extends AbstractController
                 'materials' => $repository->findBy($criteria, $orderBy),
             ]
         );
-    }
+    }// end index()
 
     /**
      * Creates a new material.
@@ -50,23 +50,15 @@ class MaterialController extends AbstractController
         $form = $this->createForm(MaterialType::class, $material);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($material);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Материал успешно создан');
-            return $this->redirectToRoute('app_material_index');
-        }
-
         return $this->render(
             'material/form.html.twig',
             [
-                'page_title' => 'page_title.material_create',
+                'page_title' => 'page.create',
                 'material'   => $material,
                 'form'       => $form->createView(),
             ]
         );
-    }
+    }// end new()
 
     /**
      * Handles material search requests.
@@ -81,10 +73,10 @@ class MaterialController extends AbstractController
             'material/search.html.twig',
             [
                 'materials' => $materials,
-                'query'    => $query,
+                'query'     => $query,
             ]
         );
-    }
+    }// end search()
 
     /**
      * Displays the details of a specific material.
@@ -96,7 +88,7 @@ class MaterialController extends AbstractController
             'material/show.html.twig',
             ['material' => $material]
         );
-    }
+    }// end show()
 
     /**
      * Handles editing a material.
@@ -110,22 +102,15 @@ class MaterialController extends AbstractController
         $form = $this->createForm(MaterialType::class, $material);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Изменения успешно сохранены');
-            return $this->redirectToRoute('app_material_show', ['id' => $material->getId()]);
-        }
-
         return $this->render(
             'material/form.html.twig',
             [
-                'page_title' => 'page_title.material_edit',
+                'page_title' => 'page.edit',
                 'material'   => $material,
                 'form'       => $form->createView(),
             ]
         );
-    }
+    }// end edit()
 
     /**
      * Deletes a material.
@@ -144,5 +129,5 @@ class MaterialController extends AbstractController
         }
 
         return $this->redirectToRoute('app_material_index');
-    }
-}
+    }// end delete()
+}// end class

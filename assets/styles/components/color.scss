@@ -1,6 +1,7 @@
+@use 'sass:color';
 // Вспомогательная функция для извлечения RGB из hex-цвета
 @function hex-to-rgb($color) {
-    @return red($color), green($color), blue($color);
+    @return color.channel($color, "red"), color.channel($color, "green"), color.channel($color, "blue");
 }
 
 // Миксин для генерации всех CSS-классов для кастомного цвета

@@ -1,0 +1,54 @@
+{% if totalPages > 1 %}
+    <div class="pagination btn-group btn-group-sm">
+        {% if page > 1 %}
+            <a
+                href="{{ path(path, app.request.query.all|merge({'page': 1})) }}"
+                class="btn btn-outline-primary"
+            >{{ 'pagination.first'|trans }}</a>
+        {% else %}
+            <span class="btn btn-outline-primary disabled">{{ 'pagination.first'|trans }}</span>
+        {% endif %}
+
+        {% if page > 1 %}
+            <a
+                href="{{ path(path, app.request.query.all|merge({'page': page - 1})) }}"
+                class="btn btn-outline-primary"
+            >{{ 'pagination.previous'|trans }}</a>
+        {% else %}
+            <span class="btn btn-outline-primary disabled">{{ 'pagination.previous'|trans }}</span>
+        {% endif %}
+
+        {% for i in 1..totalPages %}
+            {% if i >= page - 2 and i <= page + 2 %}
+                {% if i == page %}
+                    <span class="btn btn-primary">{{ i }}</span>
+                {% else %}
+                    <a
+                        href="{{ path(path, app.request.query.all|merge({'page': i})) }}"
+                        class="btn btn-outline-primary"
+                    >{{ i }}</a>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+
+        {% if page < totalPages %}
+            <a
+                href="{{ path(path, app.request.query.all|merge({'page': page + 1})) }}"
+                class="btn btn-outline-primary"
+            >{{ 'pagination.next'|trans }}</a>
+        {% else %}
+            <span class="btn btn-outline-primary disabled">{{ 'pagination.next'|trans }}</span>
+        {% endif %}
+
+        {% if page < totalPages %}
+            <a
+                href="{{ path(path, app.request.query.all|merge({'page': totalPages})) }}"
+                class="btn btn-outline-primary"
+            >{{ 'pagination.last'|trans }}</a>
+        {% else %}
+            <span class="btn btn-outline-primary disabled">{{ 'pagination.last'|trans }}</span>
+        {% endif %}
+    </div>
+
+    <p>{{ 'pagination.info'|trans({'%page%': page, '%totalPages%': totalPages, '%items%': items|length, '%count%': count}) }}</p>
+{% endif %}

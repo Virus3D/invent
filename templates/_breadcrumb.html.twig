@@ -1,3 +1,4 @@
+{% trans_default_domain 'messages' %}
 {% set type = type|default('') %}
 {% set action = action|default('') %}
 {% set item = item|default({id: 0}) %}
@@ -21,6 +22,27 @@
                 <li class="breadcrumb-item">
                     <a href="{{ path('app_location_index') }}">
                         <i class="bi bi-geo-alt"></i> {{ 'breadcrumb.location'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if type == 'material' %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_material_index') }}">
+                        <i class="bi bi-boxes"></i> {{ 'breadcrumb.material'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if type == 'license' %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_license_index') }}">
+                        <i class="bi bi-shield-lock"></i> {{ 'breadcrumb.license'|trans }}
+                    </a>
+                </li>
+                {% endif %}
+                {% if type == 'cartridge' %}
+                <li class="breadcrumb-item">
+                    <a href="{{ path('app_cartridge_index') }}">
+                        <i class="bi bi-printer"></i> {{ 'breadcrumb.cartridge'|trans }}
                     </a>
                 </li>
                 {% endif %}

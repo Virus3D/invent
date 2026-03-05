@@ -1,5 +1,7 @@
 {% extends 'base.html.twig' %}
-{% import _self as macros %}
+
+{% form_theme form 'form/fields.html.twig' %}
+{% trans_default_domain 'location' %}
 {% set title = page_title|trans %}
 
 {% block body %}
@@ -22,59 +24,21 @@
                     {{ form_start(form, {
                         'attr': {
                             'id': 'locationForm',
-                            'class': 'needs-validation',
+                            'class': 'needs-validation was-validated',
                             'novalidate': 'novalidate',
-                            'data-controller': 'location-form',
-                            'data-location-form-target': 'form',
-                            'data-location-form-update-url-value': location.id ? path('api_location_update', {'id': location.id}) : '',
-                            'data-location-form-create-url-value': path('api_location_create'),
-                            'data-location-form-location-id-value': location.id|default(0)
+                            'data-controller': 'edit-form',
+                            'data-edit-form-target': 'form',
+                            'data-edit-form-url-value': location.id ? path('api_location_update', {'id': location.id}) : path('api_location_create'),
                         }
                     }) }}
 
-                    <div data-location-form-target="formErrors"
+                    <div data-edit-form-target="errorContainer"
                         class="alert alert-danger d-none"
                         role="alert"></div>
 
-                    <div class="mb-3">
-                        {{ macros.form_label_with_icon(form.name, 'bi bi-building') }}
-                        {{ form_widget(form.name, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.name) ? ' is-invalid' : ''),
-                                'autofocus': 'autofocus'
-                            }
-                        }) }}
-                        {{ form_errors(form.name) }}
-                        <small class="form-text text-muted">
-                            {{ 'location.form.name_hint'|trans }}
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ macros.form_label_with_icon(form.roomNumber, 'bi bi-123') }}
-                        {{ form_widget(form.roomNumber, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.roomNumber) ? ' is-invalid' : '')
-                            }
-                        }) }}
-                        {{ form_errors(form.roomNumber) }}
-                        <small class="form-text text-muted">
-                            {{ 'location.form.room_number_hint'|trans }}
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ macros.form_label_with_icon(form.description, 'bi bi-card-text') }}
-                        {{ form_widget(form.description, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.description) ? ' is-invalid' : '')
-                            }
-                        }) }}
-                        {{ form_errors(form.description) }}
-                        <small class="form-text text-muted">
-                            {{ 'location.form.description_hint'|trans }}
-                        </small>
-                    </div>
+                    {{ form_row(form.name, {icon: 'bi bi-building'}) }}
+                    {{ form_row(form.roomNumber, {icon: 'bi bi-123'}) }}
+                    {{ form_row(form.description, {icon: 'bi bi-card-text'}) }}
 
                     <!-- Статистика местоположения -->
                     {% if location.id %}
@@ -84,7 +48,7 @@
                             <div>
                                 <strong>{{ 'location.form.info'|trans }}:</strong>
                                 <div class="small">
-                                    <div>{{ 'location.form.objects_in_location_info'|trans({count: location.inventoryItems|length}) }}</div>
+                                    <div>{{ 'location.form.objects_in_location_info'|trans({'%count%': location.inventoryItems|length}) }}</div>
                                     {% if location.inventoryItems|length > 0 %}
                                         <a href="{{ path('app_inventory_index') }}?location={{ location.id }}"
                                            class="btn btn-sm btn-outline-info mt-1">
@@ -104,30 +68,27 @@
                             {% if location.id %}
                             <a href="{{ path('app_location_show', {'id': location.id}) }}"
                                class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle"></i> {{ 'form.cancel'|trans }}
+                                <i class="bi bi-x-circle"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
                             </a>
                             <!-- Кнопка удаления с подтверждением -->
                             <button type="button"
                                     class="btn btn-outline-danger ms-2"
-                                    data-action="click->delete-modal#open"
-                                    data-location-id="{{ location.id }}"
-                                    data-location-name="{{ location.name }}"
-                                    data-delete-url="{{ path('app_location_delete', {'id': location.id}) }}"
-                                    data-csrf-token="{{ csrf_token('delete' ~ location.id) }}">
-                                <i class="bi bi-trash"></i> {{ 'form.delete'|trans }}
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
                             </button>
                             {% else %}
                             <a href="{{ path('app_location_index') }}" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left"></i> {{ 'form.cancel'|trans }}
+                                <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
                             </a>
                             {% endif %}
                         </div>
                         <div>
                             <button type="submit"
                                     class="btn btn-primary"
-                                    data-location-form-target="submitButton"
-                                    data-action="location-form#submitForm">
-                                <i class="bi bi-check-circle"></i> {{ 'form.submit'|trans }}
+                                    data-edit-form-target="submitButton"
+                                    data-action="edit-form#submitForm">
+                                <i class="bi bi-check-circle"></i> {{ 'common.actions.submit'|trans(domain: 'messages') }}
                             </button>
                         </div>
                     </div>
@@ -153,13 +114,14 @@
 
                     {% if location.inventoryItems|length > 5 %}
                         <p class="text-muted small">
-                            {{ 'location.form.and_more'|trans({count: location.inventoryItems|length - 5}) }}
+                            {{ 'location.form.and_more'|trans({'%count%': location.inventoryItems|length - 5}) }}
                         </p>
                     {% endif %}
 
                     <div class="alert alert-warning mt-3">
                         <i class="bi bi-info-circle"></i>
-                        <strong>{{ 'common.messages.warning'|trans }}:</strong> {{ 'location.form.delete_warning'|trans }}
+                        <strong>{{ 'common.messages.warning'|trans(domain: 'messages') }}:</strong>
+                        {{ 'location.form.delete_warning'|trans }}
                     </div>
                 </div>
             </div>
@@ -175,7 +137,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6><i class="bi bi-check-circle text-success"></i> {{ 'location.form.do_title'|trans }}:</h6>
+                            <h6><i class="bi bi-check-circle text-success"></i> {{ 'location.form.do_title'|trans }}</h6>
                             <ul class="small">
                                 <li>{{ 'location.form.do_name'|trans }}</li>
                                 <li>{{ 'location.form.do_room_number'|trans }}</li>
@@ -184,7 +146,7 @@
                             </ul>
                         </div>
                         <div class="col-md-6">
-                            <h6><i class="bi bi-exclamation-triangle text-warning"></i> {{ 'location.form.dont_title'|trans }}:</h6>
+                            <h6><i class="bi bi-exclamation-triangle text-warning"></i> {{ 'location.form.dont_title'|trans }}</h6>
                             <ul class="small">
                                 <li>{{ 'location.form.dont_ambiguous'|trans }}</li>
                                 <li>{{ 'location.form.dont_inaccurate'|trans }}</li>
@@ -196,7 +158,7 @@
 
                     <hr class="my-3">
 
-                    <h6 class="text-primary">{{ 'location.form.examples_title'|trans }}:</h6>
+                    <h6 class="text-primary">{{ 'location.form.examples_title'|trans }}</h6>
                     <div class="row small text-muted">
                         <div class="col-md-4 mb-2">
                             <div class="border rounded p-2">
@@ -227,7 +189,15 @@
 </div>
 
 {% if location.id %}
-{% include 'modal/_location_delete.html.twig' %}
+{% include 'modal/_delete.html.twig' with {
+    'message': '<p>' ~ 'location.form.confirm_delete_message'|trans ~ ' <strong>' ~ location.name ~ '</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>' ~ 'location.form.attention'|trans ~ '</strong> ' ~ 'location.form.delete_warning'|trans ~ '
+                </div>',
+    'path': path('app_location_delete', {'id': location.id}),
+    'token': csrf_token('delete' ~ location.id)
+} %}
 {% endif %}
 
 {% include 'modal/_success.html.twig' %}

@@ -144,7 +144,7 @@ class LocationApiController extends AbstractController
                 'id'              => $item->getId(),
                 'inventoryNumber' => $item->getInventoryNumber(),
                 'name'            => $item->getName(),
-                'category'        => $item->getCategory()->getLabel(),
+                'category'        => $item->getCategory(),
             ];
         }
 
@@ -155,6 +155,32 @@ class LocationApiController extends AbstractController
             ]
         );
     }// end getLocationObjects()
+
+    /**
+     * Получить список всех доступных локаций.
+     */
+    #[Route('/available', name: 'api_locations_available', methods: ['GET'])]
+    public function availableLocations(LocationRepository $locationRepository): JsonResponse
+    {
+        $locations = $locationRepository->findBy([], ['name' => 'ASC']);
+
+        $data = array_map(
+            static fn ($location) => [
+                'id'          => $location->getId(),
+                'name'        => $location->getName(),
+                'roomNumber'  => $location->getRoomNumber(),
+                'objectCount' => $location->getInventoryItems()->count(),
+            ],
+            $locations
+        );
+
+        return $this->json(
+            [
+                'success'   => true,
+                'locations' => $data,
+            ]
+        );
+    }// end availableLocations()
 
     /**
      * Mass delete locations and appropriately handle inventory items.

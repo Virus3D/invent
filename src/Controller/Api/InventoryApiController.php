@@ -9,6 +9,7 @@ use App\Entity\Location;
 use App\Entity\MovementLog;
 use App\Enum\InventoryCategory;
 use App\Form\InventoryItemType;
+use App\Form\MovementLogType;
 use App\Trait\SpecificationTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -18,6 +19,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -39,8 +41,7 @@ final class InventoryApiController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
-    ) {
-    }// end __construct()
+    ) {}// end __construct()
 
     /**
      * Создать новый инвентарный объект.
@@ -133,7 +134,7 @@ final class InventoryApiController extends AbstractController
                 return $this->json(
                     [
                         'success' => false,
-                        'message' => $this->translator->trans('inventory_item.create.validation_error'),
+                        'message' => $this->translator->trans('validation.error'),
                         'errors'  => $this->formatValidationErrors($errors),
                     ],
                     422
@@ -156,9 +157,19 @@ final class InventoryApiController extends AbstractController
                     $log->setMovedBy($this->getUser() ? $this->getUser()->getUserIdentifier() : 'Система');
 
                     if ($oldLocation !== $newLocation) {
-                        $log->setReason($this->translator->trans('movement_log.reason.location_change'));
+                        $log->setReason(
+                            $this->translator->trans(
+                                'movement_log.reason.location_change',
+                                domain: 'move'
+                            )
+                        );
                     } else {
-                        $log->setReason($this->translator->trans('movement_log.reason.specifications_update'));
+                        $log->setReason(
+                            $this->translator->trans(
+                                'movement_log.reason.specifications_update',
+                                domain: 'inventory'
+                            )
+                        );
                     }
 
                     $this->entityManager->persist($log);
@@ -176,7 +187,8 @@ final class InventoryApiController extends AbstractController
                     [
                         'success'         => true,
                         'message'         => $this->translator->trans(
-                            $new ? 'inventory_item.create.success' : 'inventory_item.update.success'
+                            $new ? 'inventory_item.create.success' : 'inventory_item.update.success',
+                            domain: 'inventory'
                         ),
                         'id'              => $item->getId(),
                         'name'            => $item->getName(),
@@ -190,7 +202,10 @@ final class InventoryApiController extends AbstractController
                 return $this->json(
                     [
                         'success' => false,
-                        'message' => $this->translator->trans('inventory_item.create.error') . ': ' . $e->getMessage(),
+                        'message' => $this->translator->trans(
+                            $new ? 'inventory_item.create.error' : 'inventory_item.update.error',
+                            domain: 'inventory'
+                        ) . ': ' . $e->getMessage(),
                     ],
                     500
                 );
@@ -287,7 +302,7 @@ final class InventoryApiController extends AbstractController
                 [
                     'success'           => true,
                     'category'          => $categoryEnum->value,
-                    'label'             => $this->translator->trans('inventory_item.category.' . $categoryEnum->value),
+                    'label'             => $categoryEnum,
                     'hasSpecifications' => $categoryEnum->hasSpecifications(),
                     'requiredSpecs'     => $categoryEnum->getRequiredSpecifications(),
                     'allowedSpecs'      => $categoryEnum->getAllowedSpecifications(),
@@ -299,7 +314,10 @@ final class InventoryApiController extends AbstractController
             return $this->json(
                 [
                     'success' => false,
-                    'message' => $this->translator->trans('inventory_item.validation.category_not_found'),
+                    'message' => $this->translator->trans(
+                        'inventory_item.validation.category_not_found',
+                        domain: 'inventory'
+                    ),
                 ],
                 404
             );
@@ -321,10 +339,48 @@ final class InventoryApiController extends AbstractController
         return $this->json(
             [
                 'success' => false,
-                'message' => $this->translator->trans('inventory_item.update.validation_error'),
+                'message' => $this->translator->trans('validation.error'),
                 'errors'  => $errors,
             ],
             422
         );
     }// end responseError()
+
+    /**
+     * Handles the movement of an inventory item to a new location,
+     * logging the movement event in the system.
+     */
+    #[Route('/{id}/move', name: 'api_inventory_move', methods: ['POST'])]
+    public function move(
+        Request $request,
+        InventoryItem $item,
+        EntityManagerInterface $entityManager,
+        UrlGeneratorInterface $urlGenerator,
+    ): Response {
+        $log = new MovementLog();
+        $log->setInventoryItem($item);
+        $log->setFromLocation($item->getLocation());
+
+        $form = $this->createForm(MovementLogType::class, $log);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Обновляем местоположение объекта.
+            $item->setLocation($log->getToLocation());
+
+            $entityManager->persist($log);
+            $entityManager->flush();
+
+            return $this->json(
+                [
+                    'success'     => true,
+                    'message'     => $this->translator->trans('move.form.success', domain: 'move'),
+                    'redirectUrl' => $urlGenerator->generate('app_inventory_show', ['id' => $item->getId()]),
+                ],
+                200
+            );
+        }
+
+        return $this->responseError($form);
+    }// end move()
 }// end class

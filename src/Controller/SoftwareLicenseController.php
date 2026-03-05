@@ -23,11 +23,9 @@ final class SoftwareLicenseController extends AbstractController
 
         return $this->render(
             'license/index.html.twig',
-            [
-                'licenses' => $licenses,
-            ]
+            ['licenses' => $licenses]
         );
-    }
+    }// end index()
 
     #[Route('/new', name: 'app_license_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
@@ -36,35 +34,24 @@ final class SoftwareLicenseController extends AbstractController
         $form    = $this->createForm(SoftwareLicenseType::class, $license);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($license);
-            $entityManager->flush();
-
-            $this->addFlash('success', 'Лицензия сохранена');
-
-            return $this->redirectToRoute('app_license_index');
-        }
-
         return $this->render(
             'license/form.html.twig',
             [
-                'page_title' => 'page_title.license_create',
+                'page_title' => 'page.create',
                 'license'    => $license,
                 'form'       => $form->createView(),
             ]
         );
-    }
+    }// end new()
 
     #[Route('/{id}', name: 'app_license_show', methods: ['GET'])]
     public function show(SoftwareLicense $license): Response
     {
         return $this->render(
             'license/show.html.twig',
-            [
-                'license' => $license,
-            ]
+            ['license' => $license]
         );
-    }
+    }// end show()
 
     #[Route('/{id}/edit', name: 'app_license_edit', methods: ['GET', 'POST'])]
     public function edit(
@@ -75,22 +62,15 @@ final class SoftwareLicenseController extends AbstractController
         $form = $this->createForm(SoftwareLicenseType::class, $license);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-            $this->addFlash('success', 'Лицензия обновлена');
-
-            return $this->redirectToRoute('app_license_show', ['id' => $license->getId()]);
-        }
-
         return $this->render(
             'license/form.html.twig',
             [
-                'page_title' => 'page_title.license_edit',
+                'page_title' => 'page.edit',
                 'license'    => $license,
                 'form'       => $form->createView(),
             ]
         );
-    }
+    }// end edit()
 
     #[Route('/{id}', name: 'app_license_delete', methods: ['POST'])]
     public function delete(
@@ -105,6 +85,5 @@ final class SoftwareLicenseController extends AbstractController
         }
 
         return $this->redirectToRoute('app_license_index');
-    }
-}
-
+    }// end delete()
+}// end class

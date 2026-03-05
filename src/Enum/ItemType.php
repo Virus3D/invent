@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
-enum ItemType: string
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+enum ItemType: string implements TranslatableInterface
 {
     // Основное средство.
     case FIXED_ASSET = 'fixed_asset';
@@ -12,6 +15,18 @@ enum ItemType: string
     case TOOL = 'tool';
     // Материал.
     case MATERIAL = 'material';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function trans(TranslatorInterface $translator, ?string $locale = null): string
+    {
+        return $translator->trans(
+            "inventory_item.type.{$this->value}",
+            domain: 'inventory',
+            locale: $locale
+        );
+    }// end trans()
 
     /**
      * Для основных средств требуются дополнительные поля.

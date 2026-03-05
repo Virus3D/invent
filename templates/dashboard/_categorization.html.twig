@@ -1,0 +1,45 @@
+<div class="card shadow">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-pie-chart"></i> {{ 'dashboard.categorization'|trans }}
+        </h6>
+    </div>
+    <div class="card-body">
+        {% trans_default_domain 'inventory' %}
+        <div class="row">
+            <div class="col-md-8">
+                <div style="height: 300px;">
+                    <canvas
+                        data-controller="chart"
+                        data-chart-categories-value="{{ stats.chart_categories|map(category => ('inventory_item.category.' ~ category)|trans)|json_encode|e('html_attr') }}"
+                        data-chart-counts-value="{{ stats.chart_counts|json_encode|e('html_attr') }}"
+                        data-chart-total-value="{{ stats.total_items }}"
+                    ></canvas>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <tbody>
+                            {% for item in stats.items_by_category %}
+                                <tr>
+                                    <td>
+                                        {{ item.category|trans }}
+                                    </td>
+                                    <td class="text-end">{{ item.count }}</td>
+                                    <td class="text-end">
+                                        {% if stats.total_items > 0 %}
+                                            {{ ((item.count / stats.total_items) * 100)|round(1) }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

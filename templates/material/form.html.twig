@@ -1,37 +1,16 @@
 {% extends 'base.html.twig' %}
 
+{% form_theme form 'form/fields.html.twig' %}
+{% trans_default_domain 'material' %}
 {% set title = page_title|trans %}
 
 {% block body %}
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ path('app_dashboard') }}">
-                            <i class="bi bi-house-door"></i> {{ 'breadcrumb.home'|trans }}
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item">
-                        <a href="{{ path('app_material_index') }}">
-                            <i class="bi bi-boxes"></i> {{ 'breadcrumb.material'|trans }}
-                        </a>
-                    </li>
-                    {% if material.id %}
-                        <li class="breadcrumb-item">
-                            <a href="{{ path('app_material_show', {'id': material.id}) }}">
-                                {{ material.name }}
-                            </a>
-                        </li>
-                        <li class="breadcrumb-item active">{{ 'breadcrumb.edit'|trans }}</li>
-                    {% else %}
-                        <li class="breadcrumb-item active">{{ 'breadcrumb.create'|trans }}</li>
-                    {% endif %}
-                </ol>
-            </nav>
-        </div>
-    </div>
+    {% include '_breadcrumb.html.twig' with {
+        'item': material,
+        'type': 'material',
+        'action': (material.id) ? 'edit' : 'create'
+    } %}
 
     <div class="row">
         <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
@@ -51,72 +30,50 @@
                     {{ form_start(form, {
                         'attr': {
                             'id': 'materialForm',
-                            'class': 'needs-validation',
-                            'novalidate': 'novalidate'
+                            'class': 'needs-validation was-validated',
+                            'novalidate': 'novalidate',
+                            'data-controller': 'edit-form',
+                            'data-edit-form-target': 'form',
+                            'data-edit-form-url-value': material.id ? path('api_material_update', {'id': material.id}) : path('api_material_create'),
                         }
                     }) }}
 
-                    {% for message in app.flashes('success') %}
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
+                    <div data-edit-form-target="errorContainer"
+                        class="alert alert-danger d-none"
+                        role="alert"></div>
 
-                    <div class="mb-3">
-                        {{ form_label(form.name, null, {
-                            'label_attr': {'class': 'form-label required-field'}
-                        }) }}
-                        {{ form_widget(form.name, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.name) ? ' is-invalid' : ''),
-                                'autofocus': 'autofocus'
-                            }
-                        }) }}
-                        {{ form_errors(form.name) }}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form_label(form.description) }}
-                        {{ form_widget(form.description, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.description) ? ' is-invalid' : '')
-                            }
-                        }) }}
-                        {{ form_errors(form.description) }}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form_label(form.quantity, null, {
-                            'label_attr': {'class': 'form-label required-field'}
-                        }) }}
-                        {{ form_widget(form.quantity, {
-                            'attr': {
-                                'class': 'form-control' ~ (form_errors(form.quantity) ? ' is-invalid' : '')
-                            }
-                        }) }}
-                        {{ form_errors(form.quantity) }}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form_label(form.location) }}
-                        {{ form_widget(form.location, {
-                            'attr': {
-                                'class': 'form-select' ~ (form_errors(form.location) ? ' is-invalid' : '')
-                            }
-                        }) }}
-                        {{ form_errors(form.location) }}
-                    </div>
+                    {{ form_widget(form) }}
 
                     <hr class="my-4">
 
                     <div class="d-flex justify-content-between">
-                        <a href="{{ path('app_material_index') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans }}
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-circle"></i> {{ 'common.actions.save'|trans }}
-                        </button>
+                        <div>
+                            {% if material.id %}
+                            <a href="{{ path('app_material_show', {'id': material.id}) }}"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
+                            </a>
+                            <!-- Кнопка удаления с подтверждением -->
+                            <button type="button"
+                                    class="btn btn-outline-danger ms-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
+                            </button>
+                            {% else %}
+                            <a href="{{ path('app_material_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    data-edit-form-target="submitButton"
+                                    data-action="edit-form#submitForm">
+                                <i class="bi bi-check-circle"></i> {{ 'common.actions.submit'|trans(domain: 'messages') }}
+                            </button>
+                        </div>
                     </div>
 
                     {{ form_end(form) }}
@@ -125,4 +82,15 @@
         </div>
     </div>
 </div>
+
+{% if material.id %}
+{% include 'modal/_delete.html.twig' with {
+    'message': 'material.delete.confirm'|trans,
+    'path': path('app_material_delete', {'id': material.id}),
+    'token': csrf_token('delete' ~ material.id)
+} %}
+{% endif %}
+
+{% include 'modal/_success.html.twig' %}
+
 {% endblock %}

@@ -1,0 +1,178 @@
+{#
+    Параметры для включения:
+    - cartridge: объект Cartridge
+    - printers: список совместимых принтеров (опционально, если не передано - берётся из cartridge.printers)
+#}
+
+{% trans_default_domain 'cartridge' %}
+{% set target_printers = printers ?? cartridge.printers %}
+
+<div class="modal fade" id="installModal{{ cartridge.id }}" tabindex="-1" aria-labelledby="installModalLabel{{ cartridge.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" action="{{ path('printer_cartridge_install_quick') }}">
+                {# Заголовок #}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="installModalLabel{{ cartridge.id }}">
+                        <i class="bi bi-download me-2"></i>
+                        {{ 'cartridge.modal.install_title'|trans }}
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ 'common.actions.close'|trans(domain='messages') }}"></button>
+                </div>
+
+                {# Тело модального окна #}
+                <div class="modal-body">
+                    {# Информация о картридже #}
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body py-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1 fw-semibold">{{ cartridge.name }}</h6>
+                                </div>
+                                <div class="text-end">
+                                    {% if cartridge.color %}
+                                        <span class="badge bg-{{ cartridge.color == 'black' ? 'dark' : (cartridge.color == 'cyan' ? 'info' : (cartridge.color == 'magenta' ? 'purple' : 'warning')) }} mb-2">
+                                            {{ ('cartridge.colors.' ~ cartridge.color)|trans }}
+                                        </span>
+                                    {% endif %}
+                                    <div class="small {{ cartridge.stockQuantity > 5 ? 'text-success' : (cartridge.stockQuantity > 0 ? 'text-warning' : 'text-danger') }}">
+                                        <i class="bi bi-box-seam me-1"></i>
+                                        {{ cartridge.stockQuantity }} {{ 'cartridge.status.on_stock'|trans }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if cartridge.yieldPages %}
+                                <hr class="my-2">
+                                <div class="small text-muted">
+                                    <i class="bi bi-file-earmark-text me-1"></i>
+                                    {{ 'cartridge.table.yield'|trans }}:
+                                    <strong>{{ cartridge.yieldPages|number_format(0, ',', ' ') }} {{ 'cartridge.stats.pages'|trans }}</strong>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {# Выбор принтера #}
+                    <div class="mb-3">
+                        <label for="printerSelect{{ cartridge.id }}" class="form-label fw-semibold">
+                            {{ 'cartridge.table.printer'|trans }}
+                            <span class="text-danger">*</span>
+                        </label>
+                        <select
+                            id="printerSelect{{ cartridge.id }}"
+                            name="printer_id"
+                            class="form-select {{ target_printers|length == 0 ? 'is-invalid' : '' }}"
+                            required
+                            {{ target_printers|length == 0 ? 'disabled' : '' }}
+                        >
+                            <option value="">{{ 'cartridge.form.printer_select'|trans }}</option>
+                            {% for printer in target_printers|sort((a, b) => a.name <=> b.name) %}
+                                <option value="{{ printer.id }}">
+                                    {{ printer.name }}
+                                    {% if printer.inventoryNumber %}[{{ printer.inventoryNumber }}]{% endif %}
+                                    {% if printer.location %} — {{ printer.location.name }}{% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        {# Сообщение если нет совместимых принтеров #}
+                        {% if target_printers|length == 0 %}
+                            <div class="invalid-feedback d-block">
+                                <i class="bi bi-exclamation-triangle me-1"></i>
+                                {{ 'cartridge.messages.no_compatible_printers'|trans }}
+                            </div>
+                            <div class="form-text text-warning mt-2">
+                                <i class="bi bi-info-circle me-1"></i>
+                                {{ 'cartridge.tips.compatibility'|trans }}
+                            </div>
+                        {% endif %}
+
+                        {# Сообщение если нет картриджей на складе #}
+                        {% if cartridge.stockQuantity == 0 %}
+                            <div class="alert alert-danger small mt-3 mb-0">
+                                <i class="bi bi-exclamation-octagon me-1"></i>
+                                {{ 'cartridge.status.out_of_stock'|trans }}
+                            </div>
+                        {% elseif cartridge.stockQuantity < 3 %}
+                            <div class="alert alert-warning small mt-3 mb-0">
+                                <i class="bi bi-exclamation-circle me-1"></i>
+                                {{ 'cartridge.status.low_stock'|trans }}:
+                                <strong>{{ cartridge.stockQuantity }}</strong>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Комментарий #}
+                    <div class="mb-3">
+                        <label for="installComment{{ cartridge.id }}" class="form-label">
+                            {{ 'cartridge.form.comment'|trans }}
+                        </label>
+                        <textarea
+                            id="installComment{{ cartridge.id }}"
+                            name="comment"
+                            class="form-control"
+                            rows="2"
+                            placeholder="{{ 'cartridge.form.comment_placeholder'|trans }}"
+                        ></textarea>
+                        <div class="form-text">
+                            {{ 'cartridge.form.comment_help'|trans }}
+                        </div>
+                    </div>
+
+                    {# Скрытое поле с ID картриджа #}
+                    <input type="hidden" name="cartridge_id" value="{{ cartridge.id }}">
+                </div>
+
+                {# Подвал с кнопками #}
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>
+                        {{ 'common.actions.cancel'|trans(domain='messages') }}
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                        {{ cartridge.stockQuantity == 0 or target_printers|length == 0 ? 'disabled' : '' }}
+                    >
+                        <i class="bi bi-check-lg me-1"></i>
+                        {{ 'common.actions.install'|trans(domain='messages') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# Скрипт для улучшения UX #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('installModal{{ cartridge.id }}');
+    if (modal) {
+        const printerSelect = document.getElementById('printerSelect{{ cartridge.id }}');
+        const submitBtn = modal.querySelector('button[type="submit"]');
+
+        {# Автофокус на выборе принтера при открытии #}
+        modal.addEventListener('shown.bs.modal', function() {
+            printerSelect?.focus();
+        });
+
+        {# Валидация при изменении выбора #}
+        printerSelect?.addEventListener('change', function() {
+            if (this.value) {
+                this.classList.remove('is-invalid');
+                submitBtn.disabled = false;
+            }
+        });
+
+        {# Очистка формы при закрытии #}
+        modal.addEventListener('hidden.bs.modal', function() {
+            const form = modal.querySelector('form');
+            if (form) {
+                form.reset();
+                form.classList.remove('was-validated');
+            }
+        });
+    }
+});
+</script>

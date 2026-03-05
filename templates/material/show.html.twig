@@ -1,20 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ material.name }}{% endblock %}
+{% trans_default_domain 'material' %}
+{% set title = material.name %}
 
 {% block body %}
-    <div class="row mb-4">
-        <div class="col">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ path('app_material_index') }}">{{ 'breadcrumb.material'|trans }}</a>
-                    </li>
-                    <li class="breadcrumb-item active">{{ material.name }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+    {% include '_breadcrumb.html.twig' with {
+        'item': material,
+        'type': 'material'
+    } %}
 
     <div class="row">
         <div class="col-md-8">
@@ -62,18 +55,23 @@
                     <div class="btn-group">
                         <a href="{{ path('app_material_edit', {'id': material.id}) }}"
                            class="btn btn-primary">
-                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans(domain: 'messages') }}
                         </a>
-                        <form method="post" action="{{ path('app_material_delete', {'id': material.id}) }}"
-                              class="d-inline" onsubmit="return confirm('{{ 'material.delete.confirm'|trans }}');">
-                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ material.id) }}">
-                            <button class="btn btn-danger">
-                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
-                            </button>
-                        </form>
+                        <button type="button"
+                                class="btn btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+{% include 'modal/_delete.html.twig' with {
+    'message': 'material.delete.confirm'|trans,
+    'path': path('app_material_delete', {'id': material.id}),
+    'token': csrf_token('delete' ~ material.id)
+} %}
 {% endblock %}

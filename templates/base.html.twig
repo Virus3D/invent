@@ -38,13 +38,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{{ path('app_cartridge_index') }}">
+                            <i class="bi bi-printer"></i> {{ "breadcrumb.cartridge"|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{{ path('app_inventory_search') }}">
                             <i class="bi bi-search"></i> {{ "breadcrumb.search"|trans }}
                         </a>
                     </li>
                     <li class="nav-item d-flex align-items-center">
                         <form action="{{ path('app_inventory_search') }}" method="GET">
-                            <input class="form-control form-control-sm" name="q" placeholder="{{ 'search.searching'|trans }}">
+                            <input class="form-control form-control-sm" name="q" placeholder="{{ 'search.searching'|trans(domain: 'search') }}">
                             <input class="d-none" type="submit" value="{{ "breadcrumb.search"|trans }}">
                         </form>
                     </li>
@@ -57,27 +62,7 @@
         <div class="row">
             <div class="col-md-3 col-lg-2 sidebar d-md-block">
                 <div class="position-sticky pt-3">
-                    <ul class="nav flex-column">
-                        <li class="nav-item mb-2">
-                            <a href="{{ path('app_inventory_new') }}" class="btn btn-success w-100">
-                                <i class="bi bi-plus-circle"></i> {{ 'common.actions.inventory_new'|trans }}
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ path('app_location_new') }}" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-geo-alt"></i> {{ 'common.actions.location_new'|trans }}
-                            </a>
-                        </li>
-                        <li class="nav-item mb-2">
-                            <a href="{{ path('app_material_new') }}" class="btn btn-outline-info w-100">
-                                <i class="bi bi-boxes"></i> {{ 'common.actions.material_new'|trans }}
-                            </a>
-                        </li>
-                        <hr>
-                        <li class="nav-item">
-                            {{ render(controller('App\\Controller\\DashboardController::stats')) }}
-                        </li>
-                    </ul>
+                    {{ include('dashboard/_quick_actions.html.twig') }}
                 </div>
             </div>
 

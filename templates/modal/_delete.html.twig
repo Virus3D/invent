@@ -4,22 +4,21 @@
         <div class="modal-content">
             <div class="modal-header bg-danger text-white">
                 <h5 class="modal-title">
-                    <i class="bi bi-exclamation-triangle"></i> {{ 'common.modals.delete_title'|trans }}
+                    <i class="bi bi-exclamation-triangle"></i> {{ 'common.modals.delete.title'|trans }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="alert alert-warning">
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    <strong>{{ 'common.messages.warning'|trans }}</strong> {{ 'common.modals.delete_warning'|trans }}
+                    <strong>{{ 'common.messages.warning'|trans }}</strong> {{ 'common.modals.delete.warning'|trans }}
                 </div>
-                <p>{{ 'common.modals.delete_message'|trans|replace({'%name%': item.name}) }}</p>
-                <p class="text-muted small">{{ 'common.modals.delete_inventory_number'|trans }} {{ item.inventoryNumber }}</p>
+                {{ message|raw }}
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.actions.cancel'|trans }}</button>
-                <form method="post" action="{{ path('app_inventory_delete', {'id': item.id}) }}" class="d-inline">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+                <form method="post" action="{{ path }}" class="d-inline">
+                    <input type="hidden" name="_token" value="{{ token }}">
                     <button type="submit" class="btn btn-danger">
                         <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans }}
                     </button>

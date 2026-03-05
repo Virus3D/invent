@@ -6,17 +6,17 @@ namespace App\Form;
 
 use App\Enum\InventoryCategory;
 use App\Enum\ItemStatus;
-use App\Enum\ItemType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class InventoryItemFilterType extends AbstractType
 {
+    /**
+     * {@inheritDoc}
+     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -28,7 +28,7 @@ final class InventoryItemFilterType extends AbstractType
                     'label'    => 'inventory_item.form.name',
                     'attr'     => [
                         'placeholder' => 'inventory_item.form.name_placeholder',
-                        'class' => 'form-control filter-input',
+                        'class'       => 'form-control filter-input',
                     ],
                 ]
             )
@@ -36,12 +36,11 @@ final class InventoryItemFilterType extends AbstractType
                 'category',
                 EnumType::class,
                 [
-                    'label'        => 'inventory_item.form.category',
-                    'class'        => InventoryCategory::class,
-                    'choice_label' => fn (InventoryCategory $category) => "inventory_item.category.{$category->value}",
-                    'required'     => false,
-                    'placeholder'  => 'Все категории',
-                    'attr'         => [
+                    'label'       => 'inventory_item.form.category',
+                    'class'       => InventoryCategory::class,
+                    'required'    => false,
+                    'placeholder' => 'inventory_item.form.all_categories',
+                    'attr'        => [
                         'class'          => 'form-select category-selector filter-input',
                         'data-specs-url' => $options['specs_url'] ?? null,
                     ],
@@ -51,18 +50,18 @@ final class InventoryItemFilterType extends AbstractType
                 'status',
                 EnumType::class,
                 [
-                    'label'        => 'inventory_item.form.status',
-                    'class'        => ItemStatus::class,
-                    'choice_label' => fn (ItemStatus $status) => "inventory_item.status.{$status->value}",
-                    'required'     => false,
-                    'placeholder'  => 'Все статусы',
-                    'attr'         => [
-                        'class' => 'form-select filter-input',
-                    ],
+                    'label'       => 'inventory_item.form.status',
+                    'class'       => ItemStatus::class,
+                    'required'    => false,
+                    'placeholder' => 'inventory_item.form.all_statuses',
+                    'attr'        => ['class' => 'filter-input'],
                 ]
             );
     }// end buildForm()
 
+    /**
+     * {@inheritDoc}
+     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
@@ -70,12 +69,8 @@ final class InventoryItemFilterType extends AbstractType
                 'method'             => 'GET',
                 'csrf_protection'    => false,
                 'allow_extra_fields' => true,
+                'translation_domain' => 'inventory',
             ]
         );
     }// end configureOptions()
-
-    public function getBlockPrefix(): string
-    {
-        return '';
-    }// end getBlockPrefix()
 }// end class

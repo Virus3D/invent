@@ -1,0 +1,73 @@
+{% trans_default_domain 'move' %}
+
+<div class="card shadow h-100">
+    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">
+            <i class="bi bi-clock-history"></i> {{ 'move.last'|trans }}
+        </h6>
+        <a href="{{ path('app_inventory_index') }}" class="btn btn-sm btn-primary">
+            <i class="bi bi-arrow-right"></i> {{ 'common.all'|trans(domain: 'massages') }}
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover">
+                <thead>
+                    <tr>
+                        <th>{{ 'move.date'|trans }}</th>
+                        <th>{{ 'move.inventory'|trans }}</th>
+                        <th>{{ 'move.from'|trans }} → {{ 'move.to'|trans }}</th>
+                        <th>{{ 'move.who'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movement in recentMovements %}
+                        <tr>
+                            <td>
+                                <small class="text-muted">
+                                    {{ movement.movedAt|date('d.m.Y H:i') }}
+                                </small>
+                            </td>
+                            <td>
+                                <a href="{{ path('app_inventory_show', {'id': movement.inventoryItem.id}) }}"
+                                    class="text-decoration-none">
+                                    {{ movement.inventoryItem.name }}
+                                </a>
+                                <br>
+                                <small class="text-muted">
+                                    {{ movement.inventoryItem.inventoryNumber }}
+                                </small>
+                            </td>
+                            <td>
+                                {% if movement.fromLocation %}
+                                    <span class="badge bg-light text-dark">
+                                        {{ movement.fromLocation.roomNumber }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
+                                {% endif %}
+                                <i class="bi bi-arrow-right mx-1 text-muted"></i>
+                                {% if movement.toLocation %}
+                                    <span class="badge bg-primary">
+                                        {{ movement.toLocation.roomNumber }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small>{{ movement.movedBy }}</small>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-3">
+                                <i class="bi bi-inbox"></i> {{ 'move.not_data'|trans }}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
-enum ItemStatus: string
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+enum ItemStatus: string implements TranslatableInterface
 {
     case AVAILABLE = 'available';
     case IN_USE = 'in_use';
@@ -16,6 +19,18 @@ enum ItemStatus: string
     case NEW = 'new';
     case BROKEN = 'broken';
     case FOR_PARTS = 'for_parts';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function trans(TranslatorInterface $translator, ?string $locale = null): string
+    {
+        return $translator->trans(
+            "inventory_item.status.{$this->value}",
+            domain: 'inventory',
+            locale: $locale
+        );
+    }// end trans()
 
     /**
      * Returns the color code associated with the item status.

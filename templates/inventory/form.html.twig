@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+{% trans_default_domain 'inventory' %}
 {% set title = page_title|trans %}
 
 {% block body %}
@@ -15,7 +16,7 @@
             <div class="card shadow">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">
-                        <i class="bi bi-pencil"></i> {{ page_title|trans }}
+                        <i class="bi bi-pencil"></i> {{ title }}
                     </h4>
                     {% if item.id %}
                     <span class="badge bg-light text-dark">
@@ -28,7 +29,7 @@
                     {{ form_start(form, {
                         'attr': {
                             'id': 'inventoryForm',
-                            'class': 'needs-validation',
+                            'class': 'needs-validation was-validated',
                             'novalidate': 'novalidate',
                             'data-controller': 'inventory-form',
                             'data-inventory-form-target': 'form',
@@ -41,7 +42,7 @@
                         }
                     }) }}
 
-                    <div data-inventory-form-target="formErrors"
+                    <div data-inventory-form-target="errorContainer"
                         class="alert alert-danger d-none"
                         role="alert"></div>
 
@@ -54,32 +55,13 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="mb-3">
-                                    {{ form_label(form.name, null, {
-                                        'label_attr': {'class': 'form-label required-field'}
-                                    }) }}
-                                    {{ form_widget(form.name, {
-                                        'attr': {
-                                            'class': 'form-control' ~ (form_errors(form.name) ? ' is-invalid' : ''),
-                                            'autofocus': 'autofocus'
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.name) }}
+                                    {{ form_row(form.name) }}
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.category, null, {
-                                        'label_attr': {'class': 'form-label required-field'}
-                                    }) }}
-                                    {{ form_widget(form.category, {
-                                        'attr': {
-                                            'class': 'form-select category-selector' ~ (form_errors(form.category) ? ' is-invalid' : ''),
-                                            'data-inventory-form-target': 'categorySelector',
-                                            'data-action': 'change->inventory-form#onCategoryChange'
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.category) }}
+                                    {{ form_row(form.category) }}
                                 </div>
                             </div>
                         </div>
@@ -87,31 +69,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form_label(form.inventoryNumber, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.inventoryNumber, {
-                                        'attr': {
-                                            'class': 'form-control' ~ (form_errors(form.inventoryNumber) ? ' is-invalid' : ''),
-                                            'data-inventory-form-target': 'inventoryNumberField'
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.inventoryNumber) }}
-                                    <div class="form-text">{{ 'inventory_item.form.inventory_number_help'|trans }}</div>
+                                    {{ form_row(form.inventoryNumber) }}
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form_label(form.serialNumber, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.serialNumber, {
-                                        'attr': {
-                                            'class': 'form-control' ~ (form_errors(form.serialNumber) ? ' is-invalid' : ''),
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.serialNumber) }}
+                                    {{ form_row(form.serialNumber) }}
                                 </div>
                             </div>
                         </div>
@@ -119,16 +83,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-3">
-                                    {{ form_label(form.description, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.description, {
-                                        'attr': {
-                                            'class': 'form-control' ~ (form_errors(form.description) ? ' is-invalid' : ''),
-                                            'rows': 3
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.description) }}
+                                    {{ form_row(form.description) }}
                                 </div>
                             </div>
                         </div>
@@ -143,45 +98,19 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.balanceType, null, {
-                                        'label_attr': {'class': 'form-label required-field'}
-                                    }) }}
-                                    {{ form_widget(form.balanceType, {
-                                        'attr': {
-                                            'class': 'form-select balance-type-selector' ~ (form_errors(form.balanceType) ? ' is-invalid' : ''),
-                                            'data-action': 'change->inventory-form#onBalanceTypeChange',
-                                            'data-inventory-form-target': 'balanceTypeSelector'
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.balanceType) }}
+                                    {{ form_row(form.balanceType) }}
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.status, null, {
-                                        'label_attr': {'class': 'form-label required-field'}
-                                    }) }}
-                                    {{ form_widget(form.status, {
-                                        'attr': {
-                                            'class': 'form-select' ~ (form_errors(form.status) ? ' is-invalid' : '')
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.status) }}
+                                    {{ form_row(form.status) }}
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.type, null, {
-                                        'label_attr': {'class': 'form-label required-field'}
-                                    }) }}
-                                    {{ form_widget(form.type, {
-                                        'attr': {
-                                            'class': 'form-select' ~ (form_errors(form.type) ? ' is-invalid' : '')
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.type) }}
+                                    {{ form_row(form.type) }}
                                 </div>
                             </div>
                         </div>
@@ -196,48 +125,19 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.purchasePrice, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    <div class="input-group money-input-group">
-                                        {{ form_widget(form.purchasePrice, {
-                                            'attr': {
-                                                'class': 'form-control' ~ (form_errors(form.purchasePrice) ? ' is-invalid' : ''),
-                                                'placeholder': '0.00',
-                                                'inputmode': 'decimal'
-                                            }
-                                        }) }}
-                                        <span class="input-group-text">₽</span>
-                                    </div>
-                                    {{ form_errors(form.purchasePrice) }}
+                                    {{ form_row(form.purchasePrice) }}
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.purchaseDate, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.purchaseDate, {
-                                        'attr': {
-                                            'class': 'form-control datepicker-input' ~ (form_errors(form.purchaseDate) ? ' is-invalid' : '')
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.purchaseDate) }}
+                                    {{ form_row(form.purchaseDate) }}
                                 </div>
                             </div>
 
                             <div class="col-md-4">
                                 <div class="mb-3">
-                                    {{ form_label(form.commissioningDate, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.commissioningDate, {
-                                        'attr': {
-                                            'class': 'form-control datepicker-input' ~ (form_errors(form.commissioningDate) ? ' is-invalid' : '')
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.commissioningDate) }}
+                                    {{ form_row(form.commissioningDate) }}
                                 </div>
                             </div>
                         </div>
@@ -252,39 +152,13 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form_label(form.location, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    <div class="input-group">
-                                        {{ form_widget(form.location, {
-                                            'attr': {
-                                                'class': 'form-select location-selector' ~ (form_errors(form.location) ? ' is-invalid' : '')
-                                            }
-                                        }) }}
-                                        <a href="{{ path('app_location_new') }}"
-                                           class="btn btn-outline-secondary"
-                                           target="_blank"
-                                           title="{{ 'inventory_item.form.add_location'|trans }}"
-                                           data-bs-toggle="tooltip">
-                                            <i class="bi bi-plus-lg"></i>
-                                        </a>
-                                    </div>
-                                    {{ form_errors(form.location) }}
+                                    {{ form_row(form.location) }}
                                 </div>
                             </div>
 
                             <div class="col-md-6">
                                 <div class="mb-3">
-                                    {{ form_label(form.responsiblePerson, null, {
-                                        'label_attr': {'class': 'form-label'}
-                                    }) }}
-                                    {{ form_widget(form.responsiblePerson, {
-                                        'attr': {
-                                            'class': 'form-control' ~ (form_errors(form.responsiblePerson) ? ' is-invalid' : ''),
-                                            'placeholder': 'Иванов И.И.'
-                                        }
-                                    }) }}
-                                    {{ form_errors(form.responsiblePerson) }}
+                                    {{ form_row(form.responsiblePerson) }}
                                 </div>
                             </div>
                         </div>
@@ -319,19 +193,19 @@
                             {% if item.id %}
                             <a href="{{ path('app_inventory_show', {'id': item.id}) }}"
                                class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle"></i> {{ 'form.cancel'|trans }}
+                                <i class="bi bi-x-circle"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
                             </a>
                             <!-- Кнопка удаления с подтверждением -->
                             <button type="button"
                                     class="btn btn-outline-danger ms-2"
                                     data-bs-toggle="modal"
                                     data-bs-target="#deleteModal">
-                                <i class="bi bi-trash"></i> {{ 'form.delete'|trans }}
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
                             </button>
                             {% else %}
                             <a href="{{ path('app_inventory_index') }}"
                                class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle"></i> {{ 'form.cancel'|trans }}
+                                <i class="bi bi-x-circle"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
                             </a>
                             {% endif %}
                         </div>
@@ -340,7 +214,7 @@
                                     class="btn btn-primary"
                                     data-inventory-form-target="submitButton"
                                     data-action="inventory-form#submitForm">
-                                <i class="bi bi-check-circle"></i> {{ 'form.submit'|trans }}
+                                <i class="bi bi-check-circle"></i> {{ 'common.actions.submit'|trans(domain: 'messages') }}
                             </button>
                         </div>
                     </div>
@@ -357,7 +231,7 @@
                         <i class="bi bi-info-circle"></i> {{ 'inventory_item.info.title'|trans }}
                     </h5>
                     <span class="badge {{ item.category.badgeClass }}">
-                        <i class="bi {{ item.category.icon }}"></i> {{ ('inventory_item.category.' ~ item.category.value)|trans }}
+                        <i class="bi {{ item.category.icon }}"></i> {{ item.category|trans }}
                     </span>
                 </div>
                 <div class="card-body">
@@ -380,25 +254,16 @@
                                     <th>{{ 'inventory_item.info.type'|trans }}:</th>
                                     <td>
                                         <span class="badge bg-secondary">
-                                            {{ ('inventory_item.type.' ~ item.type.value)|trans }}
+                                            {{ item.type|trans }}
                                         </span>
                                     </td>
                                 </tr>
                                 <tr>
                                     <th>{{ 'inventory_item.info.status'|trans }}:</th>
                                     <td>
-                                        {% if item.status.value == 'new' %}
-                                            <span class="badge bg-success">
-                                        {% elseif item.status.value == 'in_use' %}
-                                            <span class="badge bg-primary">
-                                        {% elseif item.status.value == 'under_repair' %}
-                                            <span class="badge bg-warning">
-                                        {% elseif item.status.value == 'written_off' %}
-                                            <span class="badge bg-danger">
-                                        {% else %}
-                                            <span class="badge bg-secondary">
-                                        {% endif %}
-                                        {{ ('inventory_item.status.' ~ item.status.value)|trans }}
+                                        <span class="badge bg-{{ item.status.color }}">
+                                            <i class="bi {{ item.status.icon }}"></i>
+                                            {{ item.status|trans }}
                                         </span>
                                     </td>
                                 </tr>
@@ -446,7 +311,7 @@
                         <div class="row">
                             {% for key, value in item.specifications %}
                             <div class="col-md-6 mb-2">
-                                <span class="specification-key">{{ key|trans }}:</span>
+                                <span class="specification-key">{{ ('inventory_item.spec_labels.' ~ key)|trans }}:</span>
                                 <span class="specification-value">{{ value }}</span>
                             </div>
                             {% endfor %}
@@ -535,7 +400,11 @@
 </div>
 
 {% if item.id %}
-{% include 'modal/_inventor_delete.html.twig' %}
+{% include 'modal/_delete.html.twig' with {
+    'message': '<p>' ~ 'inventory.modals.delete_message'|trans|replace({'%name%': item.name}) ~ '</p><p class="text-muted small">' ~  'common.modals.delete_inventory_number'|trans ~ ' ' ~ item.inventoryNumber ~ '</p>',
+    'path': path('app_inventory_delete', {'id': item.id}),
+    'token': csrf_token('delete' ~ item.id)
+} %}
 {% endif %}
 
 {% include 'modal/_success.html.twig' %}

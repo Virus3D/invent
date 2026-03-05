@@ -1,5 +1,6 @@
 {% extends 'base.html.twig' %}
 
+{% trans_default_domain 'location' %}
 {% set title = location.name %}
 
 {% block body %}
@@ -58,15 +59,21 @@
                     <div class="btn-group">
                         <a href="{{ path('app_location_edit', {'id': location.id}) }}"
                            class="btn btn-primary">
-                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans }}
+                            <i class="bi bi-pencil"></i> {{ 'common.actions.edit'|trans(domain: 'messages') }}
                         </a>
+                        <button type="button"
+                                class="btn btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteModal">
+                            <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
+                        </button>
                         <a href="{{ path('app_inventory_new') }}?location={{ location.id }}"
                            class="btn btn-success">
                             <i class="bi bi-plus-circle"></i> {{ 'location.show.add_new_object'|trans }}
                         </a>
                         <a href="{{ path('app_location_index') }}"
                            class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> {{ 'common.navigation.back'|trans }}
+                            <i class="bi bi-arrow-left"></i> {{ 'common.navigation.back'|trans(domain: 'messages') }}
                         </a>
                     </div>
                 </div>
@@ -94,7 +101,7 @@
                          data-inventory-filter-target="loading"
                          style="display: none;">
                         <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Загрузка...</span>
+                            <span class="visually-hidden">{{ 'common.messages.loading'|trans(domain: 'messages') }}</span>
                         </div>
                     </div>
 
@@ -126,12 +133,12 @@
                                 <button type="submit"
                                         class="btn btn-primary filter-btn me-2"
                                         data-action="click->inventory-filter#filter">
-                                    <i class="bi bi-funnel"></i> {{ 'common.actions.filter'|trans }}
+                                    <i class="bi bi-funnel"></i> {{ 'common.actions.filter'|trans(domain: 'messages') }}
                                 </button>
                                 <button type="button"
                                         class="btn btn-outline-secondary reset-btn"
                                         data-action="click->inventory-filter#reset">
-                                    <i class="bi bi-x-circle"></i> {{ 'common.actions.reset'|trans }}
+                                    <i class="bi bi-x-circle"></i> {{ 'common.actions.reset'|trans(domain: 'messages') }}
                                 </button>
                             </div>
                         </div>
@@ -199,7 +206,7 @@
                                             <i class="bi {{ categoryEnum.icon }} fs-4 text-{{ categoryEnum.color }}"></i>
                                         </div>
                                         <h5>{{ count }}</h5>
-                                        <small class="text-muted">{{ ('inventory_item.category.' ~ categoryEnum.value)|trans }}</small>
+                                        <small class="text-muted">{{ categoryEnum|trans }}</small>
                                     </div>
                                 {% endif %}
                             {% endif %}
@@ -288,6 +295,15 @@
         </div>
     </div>
 </div>
+{% include 'modal/_delete.html.twig' with {
+    'message': '<p>' ~ 'location.form.confirm_delete_message'|trans ~ ' <strong>' ~ location.name ~ '</strong>?</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>' ~ 'location.form.attention'|trans ~ '</strong> ' ~ 'location.form.delete_warning'|trans ~ '
+                </div>',
+    'path': path('app_location_delete', {'id': location.id}),
+    'token': csrf_token('delete' ~ location.id)
+} %}
 
 <!-- Модальное окно экспорта -->
 <div class="modal fade" id="exportModal" tabindex="-1" aria-hidden="true">
@@ -295,12 +311,12 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title">
-                    <i class="bi bi-download"></i> {{ 'common.modals.export_title'|trans }}
+                    <i class="bi bi-download"></i> {{ 'common.modals.export_title'|trans(domain: 'messages') }}
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>{{ 'common.modals.export_description'|trans({'%name%': location.name}) }}</p>
+                <p>{{ 'common.modals.export_description'|trans({'%name%': location.name}, domain: 'messages') }}</p>
                 <div class="d-grid gap-2">
                     {# <a href="{{ path('app_location_export_csv', {'id': location.id}) }}"
                        class="btn btn-outline-primary" target="_blank">

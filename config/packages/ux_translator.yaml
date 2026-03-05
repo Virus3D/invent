@@ -2,9 +2,14 @@ ux_translator:
     # The directory where the JavaScript translations are dumped
     dump_directory: '%kernel.project_dir%/var/translations'
 
-when@prod:
-    ux_translator:
-        domains: ['messages']
-        # Control whether TypeScript types are dumped alongside translations.
-        # Disable this if you do not use TypeScript (e.g. in production when using AssetMapper), to speed up cache warmup.
-        dump_typescript: false
+    domains: ['messages']
+    # Control whether TypeScript types are dumped alongside translations.
+    # Disable this if you do not use TypeScript (e.g. in production when using AssetMapper), to speed up cache warmup.
+    dump_typescript: false
+    keys_patterns: [
+        'form.*',
+        'common.*',
+        'move.form.*',
+        'inventory_item.specifications.load_error',
+        'inventory_item.validation.required'
+    ]

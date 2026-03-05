@@ -1,0 +1,43 @@
+page:
+  index: 'Материалы'
+  create: 'Создать материал'
+  edit: 'Редактировать материал'
+  view: 'Просмотр материала'
+  search: 'Поиск материалов'
+
+material:
+  all: 'Всего материалов'
+  not: 'Нет материалов'
+  not_location: 'Не назначено'
+  add_first: 'Добавить первый материал'
+  check:
+    label: 'Проверка'
+    reset_all: 'Сбросить проверки'
+    set: 'Отметка сохранена'
+    unset: 'Отметка снята'
+  show:
+    main_info: 'Основная информация'
+    name_label: 'Наименование:'
+    quantity_label: 'Количество:'
+    location_label: 'Местоположение:'
+    date_added_label: 'Дата добавления:'
+    last_update_label: 'Последнее обновление:'
+    description_label: 'Описание:'
+  form:
+    name: 'Наименование'
+    name_placeholder: 'Например: Бумага офисная'
+    description: 'Описание'
+    description_placeholder: 'Подробное описание материала...'
+    quantity: 'Количество'
+    location: 'Местоположение'
+    location_placeholder: 'Не назначено'
+  create:
+    success: 'Материал успешно создан'
+    error: 'Ошибка при создании материала'
+  update:
+    success: 'Изменения успешно сохранены'
+    error: 'Ошибка при сохранении'
+  delete:
+    confirm: 'Удалить материал?'
+    success: 'Материал успешно удалён'
+    error: 'Ошибка при удалении'

@@ -23,14 +23,9 @@ use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\PositiveOrZero;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class InventoryItemType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
-    }// end __construct()
-
     /**
      * {@inheritDoc}
      */
@@ -41,10 +36,10 @@ final class InventoryItemType extends AbstractType
                 'name',
                 TextType::class,
                 [
-                    'label' => $this->translator->trans('inventory_item.form.name'),
+                    'label' => 'inventory_item.form.name',
                     'attr'  => [
-                        'class'       => 'form-control',
-                        'placeholder' => $this->translator->trans('inventory_item.form.name_placeholder'),
+                        'placeholder' => 'inventory_item.form.name_placeholder',
+                        'autofocus'   => 'autofocus',
                     ],
                 ]
             )
@@ -52,12 +47,11 @@ final class InventoryItemType extends AbstractType
                 'description',
                 TextareaType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.description'),
+                    'label'    => 'inventory_item.form.description',
                     'required' => false,
                     'attr'     => [
-                        'class'       => 'form-control',
-                        'rows'        => 4,
-                        'placeholder' => $this->translator->trans('inventory_item.form.description_placeholder'),
+                        'rows'        => 3,
+                        'placeholder' => 'inventory_item.form.description_placeholder',
                     ],
                 ]
             )
@@ -65,42 +59,36 @@ final class InventoryItemType extends AbstractType
                 'inventoryNumber',
                 TextType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.inventory_number'),
-                    'required' => false,
-                    'attr'     => [
-                        'class'                      => 'form-control',
-                        'placeholder'                => $this->translator->trans(
-                            'inventory_item.form.inventory_number_placeholder'
-                        ),
-                        'data-controller'            => 'inventory-form',
+                    'label'      => 'inventory_item.form.inventory_number',
+                    'label_attr' => ['data-inventory-form-target' => 'inventoryNumberLabel'],
+                    'required'   => false,
+                    'attr'       => [
+                        'placeholder'                => 'inventory_item.form.inventory_number_placeholder',
                         'data-inventory-form-target' => 'inventoryNumberField',
                     ],
+                    'help'       => 'inventory_item.form.inventory_number_help',
                 ]
             )
             ->add(
                 'serialNumber',
                 TextType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.serial_number'),
+                    'label'    => 'inventory_item.form.serial_number',
                     'required' => false,
-                    'attr'     => [
-                        'class'       => 'form-control',
-                        'placeholder' => $this->translator->trans('inventory_item.form.serial_number_placeholder'),
-                    ],
+                    'attr'     => ['placeholder' => 'inventory_item.form.serial_number_placeholder'],
                 ]
             )
             ->add(
                 'category',
                 EnumType::class,
                 [
-                    'label'        => $this->translator->trans('inventory_item.form.category'),
-                    'class'        => InventoryCategory::class,
-                    'choice_label' => fn (InventoryCategory $category) => $this->translator->trans(
-                        "inventory_item.category.{$category->value}"
-                    ),
-                    'attr'         => [
-                        'class'          => 'form-select category-selector',
-                        'data-specs-url' => $options['specs_url'] ?? null,
+                    'label' => 'inventory_item.form.category',
+                    'class' => InventoryCategory::class,
+                    'attr'  => [
+                        'class'                      => 'category-selector',
+                        'data-specs-url'             => $options['specs_url'] ?? null,
+                        'data-inventory-form-target' => 'categorySelector',
+                        'data-action'                => 'change->inventory-form#onCategoryChange',
                     ],
                 ]
             )
@@ -108,15 +96,12 @@ final class InventoryItemType extends AbstractType
                 'balanceType',
                 EnumType::class,
                 [
-                    'label'        => $this->translator->trans('inventory_item.form.balance_type'),
-                    'class'        => BalanceType::class,
-                    'choice_label' => fn (BalanceType $type) => $this->translator->trans(
-                        "inventory_item.balance_type.{$type->value}"
-                    ),
-                    'attr'         => [
-                        'class'                      => 'form-select balance-type-selector',
+                    'label' => 'inventory_item.form.balance_type',
+                    'class' => BalanceType::class,
+                    'attr'  => [
+                        'class'                      => 'balance-type-selector',
                         'data-action'                => 'change->inventory-form#onBalanceTypeChange',
-                        'data-inventory-form-target' => 'balanceTypeSelector',
+                        'data-inventory-form-target' => 'balanceType',
                     ],
                 ]
             )
@@ -124,47 +109,34 @@ final class InventoryItemType extends AbstractType
                 'status',
                 EnumType::class,
                 [
-                    'label'        => $this->translator->trans('inventory_item.form.status'),
-                    'class'        => ItemStatus::class,
-                    'choice_label' => fn (ItemStatus $status) => $this->translator->trans(
-                        "inventory_item.status.{$status->value}"
-                    ),
-                    'attr'         => ['class' => 'form-select'],
+                    'label' => 'inventory_item.form.status',
+                    'class' => ItemStatus::class,
                 ]
             )
             ->add(
                 'type',
                 EnumType::class,
                 [
-                    'label'        => $this->translator->trans('inventory_item.form.type'),
-                    'class'        => ItemType::class,
-                    'choice_label' => fn (ItemType $type) => $this->translator->trans(
-                        "inventory_item.type.{$type->value}"
-                    ),
-                    'attr'         => ['class' => 'form-select'],
+                    'label' => 'inventory_item.form.type',
+                    'class' => ItemType::class,
                 ]
             )
             ->add(
                 'purchasePrice',
                 NumberType::class,
                 [
-                    'label'       => $this->translator->trans('inventory_item.form.purchase_price'),
+                    'label'       => 'inventory_item.form.purchase_price',
                     'required'    => false,
                     'scale'       => 2,
                     'html5'       => false,
                     'attr'        => [
-                        'class'       => 'form-control',
                         'placeholder' => '0.00',
                         'inputmode'   => 'decimal',
                         'step'        => '0.01',
                         'min'         => '0',
                     ],
                     'constraints' => [
-                        new PositiveOrZero(
-                            [
-                                'message' => $this->translator->trans('validation.positive_or_zero'),
-                            ]
-                        ),
+                        new PositiveOrZero(),
                     ],
                 ]
             )
@@ -172,14 +144,14 @@ final class InventoryItemType extends AbstractType
                 'purchaseDate',
                 DateType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.purchase_date'),
+                    'label'    => 'inventory_item.form.purchase_date',
                     'required' => false,
                     'widget'   => 'single_text',
                     'html5'    => false,
                     'format'   => 'dd.MM.yyyy',
                     'attr'     => [
-                        'class'       => 'form-control datepicker',
-                        'placeholder' => $this->translator->trans('inventory_item.form.purchase_date_placeholder'),
+                        'class'       => 'datepicker',
+                        'placeholder' => 'inventory_item.form.purchase_date_placeholder',
                     ],
                 ]
             )
@@ -187,14 +159,14 @@ final class InventoryItemType extends AbstractType
                 'commissioningDate',
                 DateType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.commissioning_date'),
+                    'label'    => 'inventory_item.form.commissioning_date',
                     'required' => false,
                     'widget'   => 'single_text',
                     'html5'    => false,
                     'format'   => 'dd.MM.yyyy',
                     'attr'     => [
-                        'class'       => 'form-control datepicker',
-                        'placeholder' => $this->translator->trans('inventory_item.form.commissioning_date_placeholder'),
+                        'class'       => 'datepicker',
+                        'placeholder' => 'inventory_item.form.commissioning_date_placeholder',
                     ],
                 ]
             )
@@ -202,26 +174,23 @@ final class InventoryItemType extends AbstractType
                 'responsiblePerson',
                 TextType::class,
                 [
-                    'label'    => $this->translator->trans('inventory_item.form.responsible_person'),
+                    'label'    => 'inventory_item.form.responsible_person',
                     'required' => false,
-                    'attr'     => [
-                        'class'       => 'form-control',
-                        'placeholder' => $this->translator->trans('inventory_item.form.responsible_person_placeholder'),
-                    ],
+                    'attr'     => ['placeholder' => 'inventory_item.form.responsible_person_placeholder'],
                 ]
             )
             ->add(
                 'location',
                 EntityType::class,
                 [
-                    'label'        => $this->translator->trans('inventory_item.form.location'),
+                    'label'        => 'inventory_item.form.location',
                     'class'        => Location::class,
                     'choice_label' => 'name',
                     'required'     => false,
-                    'placeholder'  => $this->translator->trans('inventory_item.form.location_placeholder'),
-                    'attr'         => ['class' => 'form-select'],
+                    'placeholder'  => 'inventory_item.form.location_placeholder',
                 ]
             );
+
         // Добавляем событие для динамического изменения обязательности полей.
         $builder->addEventListener(
             FormEvents::PRE_SUBMIT,
@@ -236,7 +205,7 @@ final class InventoryItemType extends AbstractType
                 // Если объект на балансе, но инвентарный номер не указан.
                 if ($data->isOnBalance() && empty($data->getInventoryNumber())) {
                     $form->get('inventoryNumber')->addError(
-                        new FormError($this->translator->trans('validation.inventory_number_required'))
+                        new FormError('validation.inventory_number_required')
                     );
                 }
             }
@@ -250,10 +219,10 @@ final class InventoryItemType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class'      => InventoryItem::class,
-                'csrf_protection' => false,
-                'specs_url'       => null,
-                'empty_data'      => static function () {
+                'data_class'         => InventoryItem::class,
+                'csrf_protection'    => false,
+                'specs_url'          => null,
+                'empty_data'         => static function () {
                     $item = new InventoryItem();
                     $item->setCategory(InventoryCategory::OTHER);
                     $item->setBalanceType(BalanceType::ON_BALANCE);
@@ -262,6 +231,7 @@ final class InventoryItemType extends AbstractType
 
                     return $item;
                 },
+                'translation_domain' => 'inventory',
             ]
         );
 

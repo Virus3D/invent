@@ -7,6 +7,7 @@
 Доступные колонки: inventory_number, name, category, status, serial_number, location, created_at, actions
 #}
 
+{% trans_default_domain 'inventory' %}
 {% set defaultColumns = ['inventory_number', 'status', 'serial_number', 'location', 'checked', 'created_at', 'actions'] %}
 {% set columns = columns|default(defaultColumns) %}
 
@@ -29,7 +30,7 @@
                 {% endif %}
 
                 {% if 'created_at' in columns %}
-                    <th>{{ 'common.messages.added'|trans }}</th>
+                    <th>{{ 'common.messages.added'|trans(domain: 'messages') }}</th>
                 {% endif %}
 
                 {% if 'checked' in columns %}
@@ -37,7 +38,7 @@
                 {% endif %}
 
                 {% if 'actions' in columns %}
-                    <th>{{ 'common.actions.actions'|trans }}</th>
+                    <th>{{ 'common.actions.actions'|trans(domain: 'messages') }}</th>
                 {% endif %}
             </tr>
         </thead>
@@ -65,14 +66,14 @@
                                 {% endif %}
                             </div>
                             <div class="flex-shrink-0">
-                                <span class="{{ item.categoryBadgeClass }} badge-sm">
-                                    <i class="bi {{ item.categoryIcon }}"></i> {{ ('inventory_item.category.' ~ item.category.value)|trans }}
+                                <span class="badge bg-{{ item.category.color }} badge-sm">
+                                    <i class="bi {{ item.category.icon }}"></i> {{ item.category|trans }}
                                 </span>
                             </div>
                         </div>
                         {% if 'status' in columns %}
                         <span class="badge bg-{{ item.status.color }}">
-                            <i class="bi {{ item.status.icon }}"></i> {{ ('inventory_item.status.' ~ item.status.value)|trans }}
+                            <i class="bi {{ item.status.icon }}"></i> {{ item.status|trans }}
                         </span>
                         {% endif %}
                     </td>
@@ -117,17 +118,17 @@
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a href="{{ path('app_inventory_show', {'id': item.id}) }}"
-                                   class="btn btn-outline-info" title="{{ 'common.actions.view'|trans }}"
+                                   class="btn btn-outline-info" title="{{ 'common.actions.view'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-eye"></i>
                                 </a>
                                 <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
-                                   class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans }}"
+                                   class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
-                                   class="btn btn-outline-warning" title="{{ 'common.actions.move'|trans }}"
+                                   class="btn btn-outline-warning" title="{{ 'common.actions.move'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-arrow-left-right"></i>
                                 </a>

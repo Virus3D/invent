@@ -10,12 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class LocationType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator) {}// end __construct()
-
     /**
      * {@inheritDoc}
      */
@@ -26,47 +23,36 @@ final class LocationType extends AbstractType
                 'name',
                 TextType::class,
                 [
-                    'label'      => $this->translator->trans('location.form.name_label'),
-                    'label_attr' => [
-                        'class' => 'form-label required-field',
-                    ],
-                    'attr'       => [
-                        'class'       => 'form-control',
+                    'label' => 'location.form.name_label',
+                    'attr'  => [
                         'placeholder' => 'location.form.name_placeholder',
+                        'autofocus'   => 'autofocus',
                     ],
+                    'help'  => 'location.form.name_hint',
                 ]
             )
             ->add(
                 'roomNumber',
                 TextType::class,
                 [
-                    'label'      => $this->translator->trans('location.form.room_number_label'),
-                    'label_attr' => [
-                        'class' => 'form-label required-field',
-                    ],
-                    'attr'       => [
-                        'class'       => 'form-control',
-                        'placeholder' => 'location.form.room_number_placeholder',
-                    ],
+                    'label' => 'location.form.room_number_label',
+                    'attr'  => ['placeholder' => 'location.form.room_number_placeholder'],
+                    'help'  => 'location.form.room_number_hint',
                 ]
             )
             ->add(
                 'description',
                 TextareaType::class,
                 [
-                    'label'      => $this->translator->trans('location.form.description_label'),
-                    'label_attr' => [
-                        'class' => 'form-label required-field',
-                    ],
-                    'attr'       => [
-                        'class'       => 'form-control',
+                    'label'    => 'location.form.description_label',
+                    'attr'     => [
                         'placeholder' => 'location.form.description_placeholder',
                         'rows'        => 3,
                     ],
-                    'required'   => false,
+                    'required' => false,
+                    'help'     => 'location.form.description_hint',
                 ]
-            )
-        ;
+            );
     }// end buildForm()
 
     /**
@@ -76,10 +62,11 @@ final class LocationType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class'      => Location::class,
-                'csrf_protection' => true,
-                'csrf_field_name' => '_token',
-                'csrf_token_id'   => 'location',
+                'data_class'         => Location::class,
+                'csrf_protection'    => true,
+                'csrf_field_name'    => '_token',
+                'csrf_token_id'      => 'location',
+                'translation_domain' => 'location',
             ]
         );
     }// end configureOptions()

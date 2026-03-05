@@ -1,8 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% set title = 'page_title.location_index'|trans %}
+{% trans_default_domain 'location' %}
+{% set title = 'page.index'|trans %}
 
 {% block body %}
+{% include '_breadcrumb.html.twig' %}
+
 <div class="container-fluid py-4"
      data-controller="location-index"
      data-location-index-csrf-token-value="{{ csrf_token('location_index') }}"
@@ -141,7 +144,7 @@
                     <i class="bi bi-list"></i> {{ 'location.index.list_title'|trans }}
                 </h5>
                 <div class="text-muted">
-                    {{ locations|length }} {{ 'common.of'|trans }} {{ totalLocations }}
+                    {{ locations|length }} {{ 'common.of'|trans(domain: 'messages') }} {{ totalLocations }}
                 </div>
             </div>
         </div>
@@ -262,26 +265,15 @@
                                     <a href="{{ path('app_location_show', {'id': location.id}) }}"
                                        class="btn btn-outline-info"
                                        data-bs-toggle="tooltip"
-                                       title="{{ 'common.actions.view'|trans }}">
+                                       title="{{ 'common.actions.view'|trans(domain: 'messages') }}">
                                         <i class="bi bi-eye"></i>
                                     </a>
                                     <a href="{{ path('app_location_edit', {'id': location.id}) }}"
                                        class="btn btn-outline-primary"
                                        data-bs-toggle="tooltip"
-                                       title="{{ 'common.actions.edit'|trans }}">
+                                       title="{{ 'common.actions.edit'|trans(domain: 'messages') }}">
                                         <i class="bi bi-pencil"></i>
                                     </a>
-                                    <button type="button"
-                                            class="btn btn-outline-danger delete-location-btn"
-                                            data-action="click->delete-modal#open"
-                                            data-location-id="{{ location.id }}"
-                                            data-location-name="{{ location.name }}"
-                                            data-delete-url="{{ path('app_location_delete', {'id': location.id}) }}"
-                                            data-csrf-token="{{ csrf_token('delete' ~ location.id) }}"
-                                            data-bs-toggle="tooltip"
-                                            title="{{ 'common.actions.delete'|trans }}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -348,8 +340,6 @@
         {% endif %}
     </div>
 </div>
-
-{% include 'modal/_location_delete.html.twig' %}
 
 {% include 'modal/_mass.html.twig' %}
 

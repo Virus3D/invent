@@ -11,9 +11,11 @@ export default class extends Controller {
         console.log('Filter controller connected');
 
         // Авто-фильтрация при изменении полей с задержкой
-        this.formTarget.querySelectorAll('input[type="text"]').forEach(input => {
-            input.addEventListener('input', this.debounce(() => this.filter(), 500));
-        });
+        if (this.hasFormTarget) {
+            this.formTarget.querySelectorAll('input[type="text"]').forEach(input => {
+                input.addEventListener('input', this.debounce(() => this.filter(), 500));
+            });
+        }
     }
 
     filter(event = null) {

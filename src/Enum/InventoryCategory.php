@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
-enum InventoryCategory: string
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+enum InventoryCategory: string implements TranslatableInterface
 {
     case COMPUTER = 'computer';
     case MONITOR = 'monitor';
@@ -17,6 +20,18 @@ enum InventoryCategory: string
     case UPS = 'ups';
     case TABLET = 'tablet';
     case OTHER = 'other';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function trans(TranslatorInterface $translator, ?string $locale = null): string
+    {
+        return $translator->trans(
+            "inventory_item.category.{$this->value}",
+            domain: 'inventory',
+            locale: $locale
+        );
+    }// end trans()
 
     /**
      * Get the Bootstrap icon class for this inventory category.

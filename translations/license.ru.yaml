@@ -1,0 +1,40 @@
+page:
+  index: 'Лицензии ПО'
+  create: 'Добавить лицензию'
+  edit: 'Редактировать лицензию'
+  view: 'Просмотр лицензии'
+
+license:
+  not: 'Нет лицензий'
+  perpetual: 'Бессрочная'
+  not_location: 'Не привязана к месту'
+  valid:
+    yes: 'Действительна'
+    no: 'Недействительна'
+  show:
+    main_info: 'Информация о лицензии'
+    name_label: 'Наименование:'
+    key_label: 'Лицензионный ключ:'
+    start_date_label: 'Дата начала:'
+    end_date_label: 'Дата окончания:'
+    location_label: 'Местоположение:'
+    valid_label: 'Статус:'
+    date_added_label: 'Дата добавления:'
+    last_update_label: 'Последнее обновление:'
+    description_label: 'Описание:'
+  form:
+    name: 'Наименование'
+    name_placeholder: 'Например: Microsoft Office 365'
+    key: 'Лицензионный ключ'
+    key_placeholder: 'XXXXX-XXXXX-XXXXX-XXXXX'
+    start_date: 'Дата начала действия'
+    end_date: 'Дата окончания'
+    end_date_placeholder: 'Оставьте пустым для бессрочной лицензии'
+    end_date_hint: 'Если лицензия бессрочная — оставьте поле пустым'
+    valid: 'Лицензия действительна'
+    location: 'Местоположение'
+    location_placeholder: 'Не привязана'
+    description: 'Описание'
+    description_placeholder: 'Дополнительная информация о лицензии...'
+  delete:
+    confirm: 'Удалить лицензию?'

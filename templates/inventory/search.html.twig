@@ -47,7 +47,7 @@
                                     {% for category in categories %}
                                         {% if category %}
                                             <option value="{{ category.value }}" {{ app.request.query.get('category') == category.value ? 'selected' : '' }}>
-                                                {{ ('inventory_item.category.' ~ category.value)|trans }}
+                                                {{ category|trans }}
                                             </option>
                                         {% endif %}
                                     {% endfor %}

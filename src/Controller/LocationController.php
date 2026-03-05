@@ -45,13 +45,16 @@ final class LocationController extends AbstractController
             $locations,
             static fn ($loc) => count($loc->getInventoryItems()) > 0
         );
+
         $totalObjects          = array_sum(
             array_map(
                 static fn ($loc) => count($loc->getInventoryItems()),
                 $locations
             )
         );
+
         $avgObjectsPerLocation = count($locations) > 0 ? $totalObjects / count($locations) : 0;
+
         $maxObjects            = $locations ? max(
             array_map(
                 static fn ($loc) => count($loc->getInventoryItems()),
@@ -91,7 +94,7 @@ final class LocationController extends AbstractController
         return $this->render(
             'location/form.html.twig',
             [
-                'page_title' => 'page_title.location_new',
+                'page_title' => 'page.new',
                 'location'   => $location,
                 'form'       => $form->createView(),
             ]
@@ -177,7 +180,7 @@ final class LocationController extends AbstractController
         return $this->render(
             'location/form.html.twig',
             [
-                'page_title' => 'page_title.location_edit',
+                'page_title' => 'page.edit',
                 'location'   => $location,
                 'form'       => $form->createView(),
             ]
@@ -246,32 +249,6 @@ final class LocationController extends AbstractController
             ]
         );
     }// end massDelete()
-
-    /**
-     * Получить список всех доступных локаций.
-     */
-    #[Route('/available', name: 'api_locations_available', methods: ['GET'])]
-    public function availableLocations(LocationRepository $locationRepository): JsonResponse
-    {
-        $locations = $locationRepository->findBy([], ['name' => 'ASC']);
-
-        $data = array_map(
-            static fn ($location) => [
-                'id'          => $location->getId(),
-                'name'        => $location->getName(),
-                'roomNumber'  => $location->getRoomNumber(),
-                'objectCount' => $location->getInventoryItems()->count(),
-            ],
-            $locations
-        );
-
-        return $this->json(
-            [
-                'success'   => true,
-                'locations' => $data,
-            ]
-        );
-    }// end availableLocations()
 
     /**
      * Экспорт локаций в формате CSV.

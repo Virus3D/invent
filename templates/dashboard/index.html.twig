@@ -1,4 +1,3 @@
-{# templates/dashboard/index.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% set title = 'page_title.dashboard'|trans %}
@@ -22,7 +21,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                {{ 'inventory_item.all'|trans }}
+                                {{ 'inventory_item.all'|trans(domain: 'inventory') }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_items }}
@@ -42,13 +41,13 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ 'location.all'|trans }}
+                                {{ 'location.all'|trans(domain: 'location') }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_locations }}
                             </div>
                             <div class="mt-2 mb-0 text-muted text-xs">
-                                <i class="bi bi-building"></i> {{ 'location.description'|trans }}
+                                <i class="bi bi-building"></i> {{ 'location.description'|trans(domain: 'location') }}
                             </div>
                         </div>
                         <div class="col-auto">
@@ -65,7 +64,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                {{ 'move.all'|trans }}
+                                {{ 'move.all'|trans(domain: 'move') }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_movements }}
@@ -113,77 +112,7 @@
     <div class="row">
         <!-- Недавние перемещения -->
         <div class="col-xl-8 col-lg-7 mb-4">
-            <div class="card shadow h-100">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="bi bi-clock-history"></i> {{ 'move.last'|trans }}
-                    </h6>
-                    <a href="{{ path('app_inventory_index') }}" class="btn btn-sm btn-primary">
-                        <i class="bi bi-arrow-right"></i> {{ 'common.all'|trans }}
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead>
-                                <tr>
-                                    <th>{{ 'move.date'|trans }}</th>
-                                    <th>{{ 'move.inventory'|trans }}</th>
-                                    <th>{{ 'move.from'|trans }} → {{ 'move.to'|trans }}</th>
-                                    <th>{{ 'move.who'|trans }}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for movement in recentMovements %}
-                                    <tr>
-                                        <td>
-                                            <small class="text-muted">
-                                                {{ movement.movedAt|date('d.m.Y H:i') }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            <a href="{{ path('app_inventory_show', {'id': movement.inventoryItem.id}) }}"
-                                               class="text-decoration-none">
-                                                {{ movement.inventoryItem.name }}
-                                            </a>
-                                            <br>
-                                            <small class="text-muted">
-                                                {{ movement.inventoryItem.inventoryNumber }}
-                                            </small>
-                                        </td>
-                                        <td>
-                                            {% if movement.fromLocation %}
-                                                <span class="badge bg-light text-dark">
-                                                    {{ movement.fromLocation.roomNumber }}
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
-                                            {% endif %}
-                                            <i class="bi bi-arrow-right mx-1 text-muted"></i>
-                                            {% if movement.toLocation %}
-                                                <span class="badge bg-primary">
-                                                    {{ movement.toLocation.roomNumber }}
-                                                </span>
-                                            {% else %}
-                                                <span class="badge bg-secondary">{{ 'move.not_specified'|trans }}</span>
-                                            {% endif %}
-                                        </td>
-                                        <td>
-                                            <small>{{ movement.movedBy }}</small>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-3">
-                                            <i class="bi bi-inbox"></i> {{ 'move.not_data'|trans }}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+            {{ include('dashboard/_move_block.html.twig') }}
         </div>
 
         <!-- Быстрые действия и объекты без привязки -->
@@ -197,18 +126,7 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
-                        <a href="{{ path('app_inventory_new') }}" class="btn btn-success btn-lg">
-                            <i class="bi bi-plus-circle"></i> {{ 'common.actions.inventory_new'|trans }}
-                        </a>
-                        <a href="{{ path('app_location_new') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-geo-alt"></i> {{ 'common.actions.location_new'|trans }}
-                        </a>
-                        <a href="{{ path('app_inventory_search') }}" class="btn btn-outline-info">
-                            <i class="bi bi-search"></i> {{ 'common.actions.inventory_search'|trans }}
-                        </a>
-                        {# <a href="#" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#moveMultipleModal">
-                            <i class="bi bi-arrow-left-right"></i> {{ 'common.actions.mass_move'|trans }}
-                        </a> #}
+                        {{ include('dashboard/_quick_actions.html.twig') }}
                     </div>
                 </div>
             </div>
@@ -264,50 +182,7 @@
     <!-- Распределение по категориям -->
     <div class="row mt-4">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="bi bi-pie-chart"></i> {{ 'dashboard.categorization'|trans }}
-                    </h6>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div style="height: 300px;">
-                                <canvas
-                                    data-controller="chart"
-                                    data-chart-categories-value="{{ stats.chart_categories|map(category => ('inventory_item.category.' ~ category)|trans)|json_encode|e('html_attr') }}"
-                                    data-chart-counts-value="{{ stats.chart_counts|json_encode|e('html_attr') }}"
-                                    data-chart-total-value="{{ stats.total_items }}"
-                                ></canvas>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <tbody>
-                                        {% for item in stats.items_by_category %}
-                                            <tr>
-                                                <td>
-                                                    {{ ('inventory_item.category.' ~ item.category.value)|trans }}
-                                                </td>
-                                                <td class="text-end">{{ item.count }}</td>
-                                                <td class="text-end">
-                                                    {% if stats.total_items > 0 %}
-                                                        {{ ((item.count / stats.total_items) * 100)|round(1) }}%
-                                                    {% else %}
-                                                        0%
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{ include('dashboard/_categorization.html.twig') }}
         </div>
     </div>
 </div>

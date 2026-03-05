@@ -40,7 +40,7 @@ class InventorySpecificationsType extends AbstractType
                         'required' => $isRequired,
                         'data'     => $specifications[$specKey] ?? null,
                         'attr'     => [
-                            'class'         => 'form-control spec-input',
+                            'class'         => 'spec-input',
                             'placeholder'   => 'Введите ' . strtolower($label),
                             'data-spec-key' => $specKey,
                         ],

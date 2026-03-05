@@ -13,11 +13,14 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
-class MovementLogType extends AbstractType
+use function sprintf;
+
+final class MovementLogType extends AbstractType
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -26,68 +29,85 @@ class MovementLogType extends AbstractType
                 'inventoryItem',
                 EntityType::class,
                 [
-                    'label'        => 'Инвентарный объект',
                     'class'        => InventoryItem::class,
-                    'choice_label' => function (InventoryItem $item) {
-                        return sprintf('%s (%s)', $item->getName(), $item->getInventoryNumber());
-                    },
-                    'attr'         => ['class' => 'form-select'],
+                    'choice_label' => static fn (InventoryItem $item) => sprintf(
+                        '%s (%s)',
+                        $item->getName(),
+                        $item->getInventoryNumber()
+                    ),
                 ]
             )
             ->add(
                 'fromLocation',
                 EntityType::class,
                 [
-                    'label'        => 'Откуда',
+                    'label'        => 'move.form.from_location',
                     'class'        => Location::class,
                     'choice_label' => 'name',
+                    'placeholder'  => 'move.not_specified',
                     'required'     => false,
-                    'placeholder'  => 'Не указано',
-                    'attr'         => ['class' => 'form-select'],
+                    'attr'         => ['data-inventory-move-target' => 'fromLocation'],
+                    'help'         => 'move.form.from_location_hint',
                 ]
             )
             ->add(
                 'toLocation',
                 EntityType::class,
                 [
-                    'label'        => 'Куда',
+                    'label'        => 'move.form.to_location',
                     'class'        => Location::class,
                     'choice_label' => 'name',
+                    'placeholder'  => 'move.not_specified',
                     'required'     => false,
-                    'placeholder'  => 'Не указано',
-                    'attr'         => ['class' => 'form-select'],
+                    'attr'         => [
+                        'data-inventory-move-target' => 'toLocation',
+                        'data-action'                => 'change->inventory-move#validateToLocation',
+                    ],
+                    'help'         => 'move.form.to_location_hint',
+                    'constraints'  => [
+                        new NotBlank(message: 'move.form.to_location_required'),
+                    ],
                 ]
             )
             ->add(
                 'reason',
                 TextareaType::class,
                 [
-                    'label'    => 'Причина перемещения',
+                    'label'    => 'move.form.reason',
                     'required' => false,
                     'attr'     => [
-                        'class' => 'form-control',
-                        'rows'  => 3,
+                        'rows'        => 3,
+                        'placeholder' => 'move.form.reason_placeholder',
                     ],
+                    'help'     => 'move.form.reason_hint',
                 ]
             )
             ->add(
                 'movedBy',
                 TextType::class,
                 [
-                    'label' => 'Кто переместил',
-                    'attr'  => ['class' => 'form-control'],
+                    'label'       => 'move.form.moved_by',
+                    'attr'        => [
+                        'placeholder'                => 'move.form.moved_by_placeholder',
+                        'data-inventory-move-target' => 'movedBy',
+                        'data-action'                => 'input->inventory-move#validateMovedBy',
+                    ],
+                    'constraints' => [
+                        new NotBlank(message: 'move.form.moved_by_required'),
+                    ],
                 ]
             );
     }// end buildForm()
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
-                'data_class' => MovementLog::class,
+                'data_class'         => MovementLog::class,
+                'translation_domain' => 'move',
             ]
         );
     }// end configureOptions()

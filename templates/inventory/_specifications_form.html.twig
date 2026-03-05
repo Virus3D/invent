@@ -1,3 +1,4 @@
+{% trans_default_domain 'inventory' %}
 {% if category.hasSpecifications %}
 <div class="card card-body border-info mb-3">
     <h5 class="card-title text-info">
@@ -24,14 +25,8 @@
                        id="spec_{{ spec_key }}"
                        name="spec_{{ spec_key }}"
                        value="{{ specifications[spec_key] ?? '' }}"
-                       placeholder="{{ 'form.validation.placeholder'|trans({'%label%': ('inventory_item.spec_labels.' ~ spec_key)|default(spec_key)|lower|trans}) }}"
+                       placeholder="{{ 'form.validation.placeholder'|trans({'%label%': ('inventory_item.spec_labels.' ~ spec_key)|default(spec_key)|lower|trans}, 'messages') }}"
                        {% if is_required %}required{% endif %}>
-
-                {% if is_required %}
-                    <div class="invalid-feedback">
-                        {{ 'inventory_item.validation.required'|trans }}
-                    </div>
-                {% endif %}
             </div>
         {% endfor %}
     </div>

@@ -4,10 +4,25 @@ declare(strict_types=1);
 
 namespace App\Enum;
 
-enum BalanceType: string
+use Symfony\Contracts\Translation\TranslatableInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
+
+enum BalanceType: string implements TranslatableInterface
 {
     case ON_BALANCE = 'on_balance';
     case OFF_BALANCE = 'off_balance';
+
+    /**
+     * {@inheritDoc}
+     */
+    public function trans(TranslatorInterface $translator, ?string $locale = null): string
+    {
+        return $translator->trans(
+            "inventory_item.balance_type.{$this->value}",
+            domain: 'inventory',
+            locale: $locale
+        );
+    }// end trans()
 
     /**
      * Determine if the balance type is ON_BALANCE.

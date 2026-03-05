@@ -1,6 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% set title = 'page_title.inventory_move'|trans %}
+{% form_theme form 'form/fields.html.twig' %}
+{% trans_default_domain 'move' %}
+{% set title = 'page.move'|trans %}
 
 {% block body %}
 <div class="container-fluid py-4">
@@ -22,7 +24,7 @@
                      data-controller="inventory-move"
                      data-inventory-move-current-location-id-value="{{ item.location ? item.location.id : '' }}"
                      data-inventory-move-show-url-value="{{ path('app_inventory_show', {'id': item.id}) }}"
-                     data-inventory-move-submit-url-value="{{ path('app_inventory_move', {'id': item.id}) }}">
+                     data-inventory-move-submit-url-value="{{ path('api_inventory_move', {'id': item.id}) }}">
 
                     <!-- Контейнер для ошибок (будет создан динамически) -->
                     <div data-inventory-move-target="errorContainer"
@@ -38,12 +40,12 @@
                             <div>
                                 <h5 class="mb-1">{{ item.name }}</h5>
                                 <p class="mb-0">
-                                    <strong>{{ 'inventory_item.info.inventory_number_label'|trans }}</strong> {{ item.inventoryNumber }}<br>
-                                    <strong>{{ 'inventory_item.info.current_location_label'|trans }}</strong>
+                                    <strong>{{ 'inventory_item.info.inventory_number_label'|trans(domain: 'inventory') }}</strong> {{ item.inventoryNumber }}<br>
+                                    <strong>{{ 'inventory_item.info.current_location_label'|trans(domain: 'inventory') }}</strong>
                                     {% if item.location %}
-                                        {{ item.location.name }} ({{ 'location.room_abbreviation'|trans }} {{ item.location.roomNumber }})
+                                        {{ item.location.name }} ({{ 'location.room_abbreviation'|trans(domain: 'location') }} {{ item.location.roomNumber }})
                                     {% else %}
-                                        <span class="text-muted">{{ 'inventory_item.not_location'|trans }}</span>
+                                        <span class="text-muted">{{ 'inventory_item.not_location'|trans(domain: 'inventory') }}</span>
                                     {% endif %}
                                 </p>
                             </div>
@@ -62,79 +64,16 @@
 
                     <!-- Скрытое поле для объекта -->
                     {{ form_widget(form.inventoryItem, {'attr': {'style': 'display: none;'}}) }}
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-geo-alt"></i> {{ 'move.form.from_location'|trans }}
-                        </label>
-                        {{ form_widget(form.fromLocation, {
-                            'attr': {
-                                'class': 'form-control',
-                                'data-inventory-move-target': 'fromLocation'
-                            }
-                        }) }}
-                        <small class="form-text text-muted">
-                            {{ 'move.form.from_location_hint'|trans }}
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label required">
-                            <i class="bi bi-geo-alt-fill"></i> {{ 'move.form.to_location'|trans }}
-                        </label>
-                        {{ form_widget(form.toLocation, {
-                            'attr': {
-                                'class': 'form-select',
-                                'data-inventory-move-target': 'toLocation',
-                                'data-action': 'change->inventory-move#validateToLocation'
-                            }
-                        }) }}
-                        <div class="invalid-feedback">
-                            {{ 'move.form.to_location_required'|trans }}
-                        </div>
-                        <small class="form-text text-muted">
-                            {{ 'move.form.to_location_hint'|trans }}
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label required">
-                            <i class="bi bi-person"></i> {{ 'move.form.moved_by'|trans }}
-                        </label>
-                        {{ form_widget(form.movedBy, {
-                            'attr': {
-                                'class': 'form-control',
-                                'placeholder': 'move.form.moved_by_placeholder'|trans,
-                                'data-inventory-move-target': 'movedBy',
-                                'data-action': 'input->inventory-move#validateMovedBy'
-                            }
-                        }) }}
-                        <div class="invalid-feedback">
-                            {{ 'move.form.moved_by_required'|trans }}
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            <i class="bi bi-card-text"></i> {{ 'move.form.reason'|trans }}
-                        </label>
-                        {{ form_widget(form.reason, {
-                            'attr': {
-                                'class': 'form-control',
-                                'rows': 3,
-                                'placeholder': 'move.form.reason_placeholder'|trans
-                            }
-                        }) }}
-                        <small class="form-text text-muted">
-                            {{ 'move.form.reason_hint'|trans }}
-                        </small>
-                    </div>
+                    {{ form_row(form.fromLocation, {icon: 'bi bi-geo-alt'}) }}
+                    {{ form_row(form.toLocation, {icon: 'bi bi-geo-alt-fill'}) }}
+                    {{ form_row(form.movedBy, {icon: 'bi bi-person'}) }}
+                    {{ form_row(form.reason, {icon: 'bi bi-card-text'}) }}
 
                     <hr class="my-4">
 
                     <div class="d-flex justify-content-between">
                         <a href="{{ path('app_inventory_show', {'id': item.id}) }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans }}
+                            <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
                         </a>
                         <button type="submit"
                                 class="btn btn-warning"
@@ -199,4 +138,7 @@
         </div>
     </div>
 </div>
+
+{% include 'modal/_success.html.twig' %}
+
 {% endblock %}

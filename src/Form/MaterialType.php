@@ -14,15 +14,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\PositiveOrZero;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class MaterialType extends AbstractType
 {
-    public function __construct(private readonly TranslatorInterface $translator)
-    {
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -33,24 +27,20 @@ final class MaterialType extends AbstractType
                 'name',
                 TextType::class,
                 [
-                    'label'       => $this->translator->trans('material.form.name'),
+                    'label'       => 'material.form.name',
                     'constraints' => [new NotBlank()],
-                    'attr'        => [
-                        'class'       => 'form-control',
-                        'placeholder' => $this->translator->trans('material.form.name_placeholder'),
-                    ],
+                    'attr'        => ['placeholder' => 'material.form.name_placeholder'],
                 ]
             )
             ->add(
                 'description',
                 TextareaType::class,
                 [
-                    'label'    => $this->translator->trans('material.form.description'),
+                    'label'    => 'material.form.description',
                     'required' => false,
                     'attr'     => [
-                        'class'       => 'form-control',
                         'rows'        => 4,
-                        'placeholder' => $this->translator->trans('material.form.description_placeholder'),
+                        'placeholder' => 'material.form.description_placeholder',
                     ],
                 ]
             )
@@ -58,22 +48,13 @@ final class MaterialType extends AbstractType
                 'quantity',
                 NumberType::class,
                 [
-                    'label'       => $this->translator->trans('material.form.quantity'),
-                    'scale'       => 2,
-                    'html5'       => true,
-                    'attr'        => [
-                        'class'       => 'form-control',
-                        'placeholder' => '0.00',
-                        'inputmode'   => 'decimal',
-                        'step'        => '0.01',
-                        'min'         => '0',
-                    ],
-                    'constraints' => [
-                        new PositiveOrZero(
-                            [
-                                'message' => $this->translator->trans('validation.positive_or_zero'),
-                            ]
-                        ),
+                    'label' => 'material.form.quantity',
+                    'scale' => 2,
+                    'html5' => true,
+                    'attr'  => [
+                        'inputmode' => 'numeric',
+                        'step'      => '1',
+                        'min'       => '0',
                     ],
                 ]
             )
@@ -81,15 +62,14 @@ final class MaterialType extends AbstractType
                 'location',
                 EntityType::class,
                 [
-                    'label'        => $this->translator->trans('material.form.location'),
+                    'label'        => 'material.form.location',
                     'class'        => Location::class,
                     'choice_label' => 'name',
                     'required'     => false,
-                    'placeholder'  => $this->translator->trans('material.form.location_placeholder'),
-                    'attr'         => ['class' => 'form-select'],
+                    'placeholder'  => 'material.form.location_placeholder',
                 ]
             );
-    }
+    }// end buildForm()
 
     /**
      * {@inheritDoc}
@@ -98,8 +78,12 @@ final class MaterialType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'data_class' => Material::class,
+                'data_class'         => Material::class,
+                'csrf_protection'    => true,
+                'csrf_field_name'    => '_token',
+                'csrf_token_id'      => 'material',
+                'translation_domain' => 'material',
             ]
         );
-    }
-}
+    }// end configureOptions()
+}// end class

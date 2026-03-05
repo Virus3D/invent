@@ -29,6 +29,7 @@ final class InventoryController extends AbstractController
     #[Route('/', name: 'app_inventory_index', methods: ['GET'])]
     public function index(Request $request, InventoryItemRepository $repository): Response
     {
+        $limit   = 50;
         $orderBy = [
             'location'        => 'ASC',
             'inventoryNumber' => 'ASC',
@@ -39,10 +40,25 @@ final class InventoryController extends AbstractController
             $criteria['category'] = $category;
         }
 
+        $page = max(1, $request->query->getInt('page', 1));
+
+        $count      = $repository->count($criteria);
+        $totalPages = (int) ceil($count / $limit);
+
+        if ($page > $totalPages && $totalPages > 0) {
+            $page = $totalPages;
+        }
+
+        $offset = $limit * ($page - 1);
+
         return $this->render(
             'inventory/index.html.twig',
             [
-                'items' => $repository->findBy($criteria, $orderBy),
+                'items'      => $repository->findBy($criteria, $orderBy, $limit, $offset),
+                'page'       => $page,
+                'limit'      => $limit,
+                'count'      => $count,
+                'totalPages' => $totalPages,
             ]
         );
     }// end index()
@@ -60,7 +76,7 @@ final class InventoryController extends AbstractController
         return $this->render(
             'inventory/form.html.twig',
             [
-                'page_title' => 'page_title.inventory_create',
+                'page_title' => 'page.create',
                 'item'       => $item,
                 'form'       => $form->createView(),
             ]
@@ -89,9 +105,9 @@ final class InventoryController extends AbstractController
         $locationParam = $request->query->get('location');
         if ('without_location' === $locationParam) {
             $criteria['hasLocation'] = false;
-        } else if ('with_location' === $locationParam) {
+        } elseif ('with_location' === $locationParam) {
             $criteria['hasLocation'] = true;
-        } else if (is_numeric($locationParam)) {
+        } elseif (is_numeric($locationParam)) {
             $criteria['location'] = $locationParam;
         }
 
@@ -99,7 +115,7 @@ final class InventoryController extends AbstractController
         $statusParam = $request->query->get('status');
         if (in_array($statusParam, ['with_location', 'without_location'])) {
             // These are already handled by 'hasLocation' above, so ignore here.
-        } else if ($statusParam) {
+        } elseif ($statusParam) {
             // If you have a direct 'status' field on InventoryItem, pass it as exact match.
             $criteria['status'] = $statusParam;
         }
@@ -110,7 +126,7 @@ final class InventoryController extends AbstractController
         if ('createdAt_asc' === $sort) {
             $sort      = 'createdAt';
             $direction = 'ASC';
-        } else if ('createdAt' === $sort) {
+        } elseif ('createdAt' === $sort) {
             $direction = 'DESC';
         }
 
@@ -158,7 +174,7 @@ final class InventoryController extends AbstractController
         return $this->render(
             'inventory/form.html.twig',
             [
-                'page_title' => 'page_title.inventory_edit',
+                'page_title' => 'page.edit',
                 'item'       => $item,
                 'form'       => $form->createView(),
             ]

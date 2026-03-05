@@ -1,0 +1,53 @@
+{% trans_default_domain 'move' %}
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-clock-history"></i> {{ 'move.history.title'|trans }}
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for log in movementLogs|slice(0, 10) %}
+                <div class="list-group-item">
+                    <div class="d-flex w-100 justify-content-between">
+                        <small class="text-muted">
+                            {{ log.movedAt|date('d.m.Y H:i') }}
+                        </small>
+                    </div>
+                    <div class="mb-1">
+                        {% if log.fromLocation %}
+                            <span class="badge bg-light text-dark">
+                                {{ log.fromLocation.roomNumber }}
+                            </span>
+                            <i class="bi bi-arrow-right text-muted"></i>
+                        {% endif %}
+                        {% if log.toLocation %}
+                            <span class="badge bg-primary">
+                                {{ log.toLocation.roomNumber }}
+                            </span>
+                        {% endif %}
+                    </div>
+                    {% if log.reason %}
+                        <small class="text-muted">{{ log.reason }}</small>
+                    {% endif %}
+                    <small class="d-block text-muted">
+                        <i class="bi bi-person"></i> {{ log.movedBy }}
+                    </small>
+                </div>
+            {% else %}
+                <div class="list-group-item text-center text-muted">
+                    <i class="bi bi-clock-history"></i><br>
+                    {{ 'move.history.no_movement_history'|trans }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% if item.movementLogs|length > 10 %}
+        <div class="card-footer text-center">
+            <small>
+                <a href="#">{{ 'move.history.show_all'|trans({'%count%': movementLogs|length}) }}</a>
+            </small>
+        </div>
+    {% endif %}
+</div>

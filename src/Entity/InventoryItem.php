@@ -98,10 +98,19 @@ class InventoryItem
     #[ORM\OneToMany(mappedBy: 'inventoryItem', targetEntity: BalanceHistory::class, cascade: ['persist'])]
     private Collection $balanceHistories;
 
+    /**
+     * Какие типы картриджей совместимы с этим принтером
+     *
+     * @var Collection<int, Cartridge>
+     */
+    #[ORM\ManyToMany(targetEntity: Cartridge::class, mappedBy: 'printers')]
+    private Collection $compatibleCartridges;
+
     public function __construct()
     {
         $this->movementLogs     = new ArrayCollection();
         $this->balanceHistories = new ArrayCollection();
+        $this->compatibleCartridges = new ArrayCollection();
         $this->createdAt        = new DateTimeImmutable();
         $this->updatedAt        = new DateTimeImmutable();
         $this->category         = InventoryCategory::OTHER;
@@ -697,4 +706,27 @@ class InventoryItem
                 ->addViolation();
         }
     }// end validateInventoryNumberCallback()
+
+    public function getCompatibleCartridges(): Collection
+    {
+        return $this->compatibleCartridges;
+    }
+
+    public function addCompatibleCartridge(Cartridge $cartridge): static
+    {
+        if (!$this->compatibleCartridges->contains($cartridge)) {
+            $this->compatibleCartridges[] = $cartridge;
+            $cartridge->addPrinter($this);
+        }
+        return $this;
+    }
+
+    public function removeCompatibleCartridge(Cartridge $cartridge): static
+    {
+        if ($this->compatibleCartridges->removeElement($cartridge)) {
+            $cartridge->removePrinter($this);
+        }
+        return $this;
+    }
 }// end class
+

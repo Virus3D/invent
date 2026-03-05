@@ -1,0 +1,79 @@
+{% block form_errors %}
+    {% if errors|length > 0 %}
+        <div class="invalid-feedback">
+            {% for error in errors %}
+                <div>{{ error.message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block form_help %}
+    {% if help is not empty %}
+        {% set help_attr = help_attr|default({})|merge({'class': (help_attr.class|default('') ~ ' form-text')|trim}) %}
+        <div {% with {attr: help_attr} %}{{ block('attributes') }}{% endwith %}>
+            {% if translation_domain is same as(false) %}
+                {% if help_html is same as(true) %}
+                    {{ help|raw }}
+                {% else %}
+                    {{ help }}
+                {% endif %}
+            {% else %}
+                {% if help_html is same as(true) %}
+                    {{ help|trans(help_translation_parameters|default({}), translation_domain)|raw }}
+                {% else %}
+                    {{ help|trans(help_translation_parameters|default({}), translation_domain) }}
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block form_row %}
+<div class="mb-3">
+    {% set icon = icon|default(false) %}
+    {% set widget_class = 'select' in form.vars.block_prefixes ? 'form-select' : 'form-control' %}
+    {% if icon %}
+        {{ _self.form_label_with_icon(form, icon, form.vars.label_attr) }}
+    {% else %}
+        {{ form_label(form) }}
+    {% endif %}
+    {{ form_widget(form, {
+        'attr': {
+            'class': widget_class
+        }
+    }) }}
+    {{ form_errors(form) }}
+    {{ form_help(form) }}
+</div>
+{% endblock %}
+
+{# Строка для чекбокса (Bootstrap 5 стиль) #}
+{% block checkbox_row %}
+<div class="mb-3 form-check">
+    {% set icon = icon|default(false) %}
+    {{ form_widget(form, {'attr': {'class': 'form-check-input'}}) }}
+    {% if icon %}
+        {{ _self.form_label_with_icon(form, icon, {'class': 'form-check-label'}) }}
+    {% else %}
+        {{ form_label(form, null, {'label_attr': {'class': 'form-check-label'}}) }}
+    {% endif %}
+    {{ form_errors(form) }}
+    {{ form_help(form) }}
+</div>
+{% endblock %}
+
+{% macro form_label_with_icon(field, icon, label_attr = {}) %}
+    {% set translation_domain = field.vars.translation_domain is defined ? field.vars.translation_domain : null %}
+    {% set translation_parameters = field.vars.label_translation_parameters is defined ? field.vars.label_translation_parameters : {} %}
+
+    {% set label = field.vars.label|trans(translation_parameters, translation_domain) %}
+
+    {% set label_attr = label_attr|merge({'class': label_attr.class|default('')|trim}) %}
+    <label {% for attr, value in label_attr %} {{ attr }}="{{ value }}"{% endfor %} for="{{ field.vars.id }}">
+        {% if icon %}
+            <i class="{{ icon }}"></i>
+        {% endif %}
+        {{ label }}
+    </label>
+{% endmacro %}
