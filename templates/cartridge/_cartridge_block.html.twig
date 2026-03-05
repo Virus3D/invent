@@ -1,0 +1,98 @@
+{% trans_default_domain 'cartridge' %}
+
+{% if item.category.value == 'printer' %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+            <i class="bi bi-printer-fill me-2"></i>
+            {{ 'cartridge.title'|trans }}
+        </h5>
+        {% if not active_installation %}
+            <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#installModalPrinter{{ item.id }}">
+                <i class="bi bi-plus-lg me-1"></i>{{ 'cartridge.actions.install'|trans }}
+            </button>
+        {% endif %}
+    </div>
+
+    <div class="card-body">
+        {% if active_installation %}
+            <div class="alert alert-{{ active_installation.cartridge.stockQuantity < 2 ? 'warning' : 'info' }} mb-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h6 class="alert-heading mb-1">
+                            <i class="bi bi-check2-circle me-1"></i>
+                            {{ active_installation.cartridge.name }}
+                            {% if active_installation.cartridge.color %}
+                                <small class="text-muted">• {{ ('cartridge.colors.' ~ active_installation.cartridge.color)|trans }}</small>
+                            {% endif %}
+                        </h6>
+                        <p class="mb-2 small">
+                            {{ 'cartridge.inventory.installed_at'|trans }}: {{ active_installation.installedAt|date('d.m.Y H:i') }}
+                        </p>
+
+                        {% if replacement_prediction and replacement_prediction.date %}
+                            <div class="mt-2">
+                                <span class="badge bg-{{ replacement_prediction.confidence == 'high' ? 'success' : (replacement_prediction.confidence == 'medium' ? 'warning' : 'secondary') }}">
+                                    {% if replacement_prediction.method == 'pages_based' %}
+                                        <i class="bi bi-bar-chart me-1"></i>{{ 'cartridge.prediction.method_pages'|trans }}
+                                    {% elseif replacement_prediction.method == 'time_based' %}
+                                        <i class="bi bi-clock me-1"></i>{{ 'cartridge.prediction.method_time'|trans }}
+                                    {% else %}
+                                        <i class="bi bi-info-circle me-1"></i>{{ 'cartridge.prediction.method_estimate'|trans }}
+                                    {% endif %}
+                                </span>
+                                <span class="ms-2 fw-semibold">
+                                    {{ 'cartridge.prediction.label'|trans }}: {{ replacement_prediction.date|date('d.m.Y') }}
+                                </span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="post" action="{{ path('printer_cartridge_remove', {id: active_installation.id}) }}" class="text-end" onsubmit="return confirm('{{ 'confirm.remove_cartridge'|trans({}, 'messages') }}')">
+                        <input type="hidden" name="_token" value="{{ csrf_token('remove' ~ active_installation.id) }}">
+                        <div class="input-group input-group-sm mb-2" style="min-width: 200px;">
+                            <input type="number" name="printed_pages" class="form-control" placeholder="{{ 'cartridge.form.printed_pages_placeholder'|trans }}" min="0" value="{{ active_installation.printedPages }}">
+                            <button class="btn btn-outline-danger" type="submit" title="{{ 'common.actions.remove'|trans(domain: 'messages') }}">
+                                <i class="bi bi-eject"></i>
+                            </button>
+                        </div>
+                        <small class="text-muted d-block">{{ 'cartridge.messages.enter_pages'|trans }}</small>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted mb-3">
+                <i class="bi bi-info-circle me-1"></i>{{ 'cartridge.messages.install_prompt'|trans }}
+            </p>
+        {% endif %}
+
+        <h6 class="small text-muted text-uppercase mb-3">{{ 'cartridge.history.title'|trans }}</h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-borderless mb-0">
+                <thead>
+                    <tr class="small text-muted">
+                        <th>{{ 'cartridge.table.model'|trans }}</th>
+                        <th>{{ 'cartridge.inventory.installed'|trans }}</th>
+                        <th>{{ 'cartridge.inventory.removed'|trans }}</th>
+                        <th>{{ 'cartridge.table.page'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inst in recent_installations %}
+                    <tr class="{{ inst.installed ? 'fw-semibold' : '' }}">
+                        <td>{{ inst.cartridge.name }}{% if inst.installed %} <span class="badge bg-success badge-sm ms-1">{{ 'cartridge.status.active'|trans }}</span>{% endif %}</td>
+                        <td><small>{{ inst.installedAt|date('d.m.Y') }}</small></td>
+                        <td><small>{{ inst.removedAt ? inst.removedAt|date('d.m.Y') : '—' }}</small></td>
+                        <td><small>{{ inst.printedPages ? inst.printedPages|number_format(0, ',', ' ') : '—' }}</small></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted py-3 small">{{ 'cartridge.messages.no_history'|trans }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}

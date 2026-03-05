@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+{% set title = cartridge.name %}
+{% trans_default_domain 'cartridge' %}
+
+{% block body %}
+    {% include '_breadcrumb.html.twig' with {
+        'item': cartridge,
+        'type': 'cartridge'
+    } %}
+
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="h3 mb-1">
+                {{ cartridge.name }}
+                {% if cartridge.color %}
+                    <span class="badge bg-{{ cartridge.color == 'black' ? 'dark' : 'info' }} ms-2">
+                        {{ ('cartridge.colors.' ~ cartridge.color)|trans }}
+                    </span>
+                {% endif %}
+            </h1>
+        </div>
+        <div class="btn-group">
+            <a href="{{ path('app_cartridge_edit', {id: cartridge.id}) }}"
+               class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> {{ 'common.actions.edit'|trans(domain: 'messages') }}
+            </a>
+            <button type="button" class="btn btn-outline-danger"
+                    data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="bi bi-trash me-1"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# Левая колонка: Информация #}
+        <div class="col-lg-4">
+            {# Карточка остатка #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center py-4">
+                    <h6 class="text-muted text-uppercase small mb-3">{{ 'cartridge.form.stock_quantity'|trans }}</h6>
+                    <div class="display-4 fw-bold text-{{ cartridge.stockQuantity > 5 ? 'success' : (cartridge.stockQuantity > 0 ? 'warning' : 'danger') }}">
+                        {{ cartridge.stockQuantity }}
+                    </div>
+                    <p class="text-muted small mb-0">
+                        {% if cartridge.stockQuantity == 0 %}
+                            <i class="bi bi-exclamation-triangle text-danger"></i> {{ 'cartridge.status.out_of_stock'|trans }}
+                        {% elseif cartridge.stockQuantity < 3 %}
+                            <i class="bi bi-exclamation-circle text-warning"></i> {{ 'cartridge.status.low_stock'|trans }}
+                        {% else %}
+                            <i class="bi bi-check-circle text-success"></i> {{ 'cartridge.status.in_stock'|trans }}
+                        {% endif %}
+                    </p>
+
+                    {% if cartridge.stockQuantity > 0 %}
+                        <hr>
+                        <button class="btn btn-sm btn-primary w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#installModal{{ cartridge.id }}">
+                            <i class="bi bi-download me-1"></i> {{ 'cartridge.actions.install_printer'|trans }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Характеристики #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 small text-uppercase text-muted">{{ 'cartridge.show.specifications'|trans }}</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'cartridge.show.yield_pages'|trans }}</span>
+                        <span class="fw-semibold">
+                            {{ cartridge.yieldPages ? cartridge.yieldPages|number_format(0, ',', ' ') : 'Не указан' }}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'cartridge.show.compatible'|trans }}</span>
+                        <span class="fw-semibold">{{ cartridge.printers|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'cartridge.show.installed_all'|trans }}</span>
+                        <span class="fw-semibold">{{ cartridge.installations|length }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            {# Быстрое пополнение #}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">{{ 'cartridge.show.added'|trans }}</h6>
+                    <form method="post" action="{{ path('app_cartridge_add_stock', {id: cartridge.id}) }}">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">+<i class="bi bi-box"></i></span>
+                            <input type="number" name="quantity" class="form-control"
+                                   min="1" max="100" value="1" required>
+                            <button class="btn btn-outline-success" type="submit">{{ 'common.actions.add'|trans(domain: 'messages') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# Правая колонка: Статистика и история #}
+        <div class="col-lg-8">
+            {# Статистика использования #}
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>{{ 'cartridge.statistic.title'|trans }}
+                    </h5>
+                    <form class="d-flex gap-2" method="get">
+                        <input type="date" name="from" class="form-control form-control-sm" value="{{ date_from.format('Y-m-d') }}">
+                        <span class="text-muted">—</span>
+                        <input type="date" name="to" class="form-control form-control-sm" value="{{ date_to.format('Y-m-d') }}">
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">{{ 'common.actions.show'|trans(domain: 'messages') }}</button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4 border-end">
+                            <div class="h4 mb-0">{{ stats.installations_count }}</div>
+                            <small class="text-muted">{{ 'cartridge.statistic.installed'|trans }}</small>
+                        </div>
+                        <div class="col-4 border-end">
+                            <div class="h4 mb-0">
+                                {{ stats.total_pages|number_format(0, ',', ' ') }}
+                            </div>
+                            <small class="text-muted">{{ 'cartridge.statistic.pages'|trans }}</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 mb-0">
+                                {{ stats.avg_pages_per_install ? stats.avg_pages_per_install|round(0)|number_format(0, ',', ' ') : '—' }}
+                            </div>
+                            <small class="text-muted">{{ 'cartridge.statistic.avg_per_install'|trans }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# История установок #}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>{{ 'cartridge.history.title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>{{ 'cartridge.table.printer'|trans }}</th>
+                                    <th>{{ 'cartridge.table.installed'|trans }}</th>
+                                    <th>{{ 'cartridge.table.existing'|trans }}</th>
+                                    <th>{{ 'cartridge.table.page'|trans }}</th>
+                                    <th>{{ 'cartridge.table.comment'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for installation in cartridge.installations|sort((a, b) => b.installedAt <=> a.installedAt) %}
+                                <tr class="{{ installation.installed ? 'table-success' : '' }}">
+                                    <td>
+                                        <a href="{{ path('app_inventory_show', {id: installation.printer.id}) }}">
+                                            {{ installation.printer.name }}
+                                        </a>
+                                        {% if installation.installed %}
+                                            <span class="badge bg-success ms-1">Активен</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ installation.installedAt|date('d.m.Y H:i') }}</td>
+                                    <td>
+                                        {{ installation.removedAt ? installation.removedAt|date('d.m.Y H:i') : '—' }}
+                                    </td>
+                                    <td>
+                                        {{ installation.printedPages ? installation.printedPages|number_format(0, ',', ' ') : '—' }}
+                                    </td>
+                                    <td>
+                                        {% if installation.comment %}
+                                            <small class="text-muted">
+                                                {{ installation.comment|length > 30 ? installation.comment|slice(0, 30) ~ '...' : installation.comment }}
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        {{ 'cartridge.history.empty'|trans }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include 'modal/_delete.html.twig' with {
+    'message': '<p>' ~ 'cartridge.modal.delete_confirm'|trans({'%name%': cartridge.name}) ~ '</p>
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    ' ~ 'cartridge.modal.delete_warning'|trans({'%count%': cartridge.installations|length}) ~ '
+                </div>',
+    'path': path('app_cartridge_delete', {'id': cartridge.id}),
+    'token': csrf_token('delete' ~ cartridge.id)
+} %}
+
+{# Модальное окно быстрой установки (включается из index) #}
+{% include 'cartridge/_install_modal.html.twig' with {cartridge: cartridge} %}
+{% endblock %}

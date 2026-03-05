@@ -104,6 +104,10 @@
         <div class="col-md-4">
             {{ include('inventory/_move_history.html.twig', {movementLogs: item.movementLogs}) }}
         </div>
+
+        <div class="col-md-8">
+            {{ include('cartridge/_cartridge_block.html.twig') }}
+        </div>
     </div>
 {% include 'modal/_delete.html.twig' with {
     'message': '<p>' ~ 'inventory_item.delete.message'|trans({'%name%': item.name}) ~ '</p><p class="text-muted small">' ~  'inventory_item.delete.inventory_number'|trans({'%number%': item.inventoryNumber}) ~ '</p>',

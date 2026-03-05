@@ -10,8 +10,10 @@ use App\Enum\BalanceType;
 use App\Enum\InventoryCategory;
 use App\Form\InventoryItemType;
 use App\Form\MovementLogType;
+use App\Repository\CartridgeInstallationRepository;
 use App\Repository\InventoryItemRepository;
 use App\Repository\LocationRepository;
+use App\Service\CartridgeManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +25,12 @@ use function in_array;
 #[Route('/inventory')]
 final class InventoryController extends AbstractController
 {
+    public function __construct(
+        private readonly CartridgeManager $cartridgeManager,
+        private readonly CartridgeInstallationRepository $installationRepo
+    ) {
+    }// end __construct()
+
     /**
      * Displays a list of inventory items.
      */
@@ -154,9 +162,36 @@ final class InventoryController extends AbstractController
     #[Route('/{id}', name: 'app_inventory_show', methods: ['GET'])]
     public function show(InventoryItem $item): Response
     {
+        // ✅ Данные для блока картриджей
+        $activeInstallation = null;
+        $prediction = null;
+        $recentInstallations = [];
+
+        if ($item->getCategory()?->value === 'printer') {
+            $activeInstallation = $this->cartridgeManager->getActiveInstallation($item);
+
+            if ($activeInstallation) {
+                $prediction = $this->cartridgeManager->predictReplacementDate(
+                    $item,
+                    $activeInstallation->getCartridge()
+                );
+            }
+
+            $recentInstallations = $this->installationRepo->findBy(
+                ['printer' => $item],
+                ['installedAt' => 'DESC'],
+                5
+            );
+        }
+
         return $this->render(
             'inventory/show.html.twig',
-            ['item' => $item]
+            [
+                'item'                   => $item,
+                'active_installation'    => $activeInstallation,
+                'replacement_prediction' => $prediction,
+                'recent_installations'   => $recentInstallations,
+            ]
         );
     }// end show()
 

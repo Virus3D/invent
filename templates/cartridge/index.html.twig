@@ -1,0 +1,243 @@
+{# templates/consumables/cartridge/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% trans_default_domain 'cartridge' %}
+{% set title = 'page.index'|trans %}
+
+{% block body %}
+    {% include '_breadcrumb.html.twig' %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>
+            <i class="bi bi-boxes"></i> {{ title }}
+        </h1>
+        <a href="{{ path('app_cartridge_new') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> {{ 'common.actions.add'|trans(domain: 'messages') }}
+        </a>
+    </div>
+
+    <!-- Статистика -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                {{ 'cartridge.stats.total_models'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ cartridges|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto h2">
+                            <i class="bi bi-box-seam text-primary"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                {{ 'cartridge.stats.in_stock'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ cartridges|reduce((carry, c) => carry + c.stockQuantity, 0) }}
+                            </div>
+                        </div>
+                        <div class="col-auto h2">
+                            <i class="bi bi-check-circle text-success"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                {{ 'cartridge.stats.low_stock'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ cartridges|filter(c => c.stockQuantity < 2)|length }}
+                            </div>
+                        </div>
+                        <div class="col-auto h2">
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                {{ 'cartridge.stats.installed'|trans }}
+                            </div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ cartridges|reduce((carry, c) => carry + (c.installations|filter(i => i.installed)|length), 0) }}
+                            </div>
+                        </div>
+                        <div class="col-auto h2">
+                            <i class="bi bi-arrow-repeat text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Фильтры #}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Поиск</label>
+                    <input type="text" name="q" class="form-control"
+                           value="{{ app.request.query.get('q') }}"
+                           placeholder="Название, артикул...">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Цвет</label>
+                    <select name="color" class="form-select">
+                        <option value="">Все цвета</option>
+                        <option value="black" {{ app.request.query.get('color') == 'black' ? 'selected' : '' }}>Чёрный</option>
+                        <option value="cyan" {{ app.request.query.get('color') == 'cyan' ? 'selected' : '' }}>Голубой</option>
+                        <option value="magenta" {{ app.request.query.get('color') == 'magenta' ? 'selected' : '' }}>Пурпурный</option>
+                        <option value="yellow" {{ app.request.query.get('color') == 'yellow' ? 'selected' : '' }}>Жёлтый</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Низкий остаток</label>
+                    <select name="low_stock" class="form-select">
+                        <option value="">Все</option>
+                        <option value="1" {{ app.request.query.get('low_stock') ? 'selected' : '' }}>Только с низким остатком</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-funnel"></i> Фильтр
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Таблица #}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>{{ 'cartridge.table.model'|trans }}</th>
+                            <th>{{ 'cartridge.table.color'|trans }}</th>
+                            <th>{{ 'cartridge.table.yield'|trans }}</th>
+                            <th class="text-center">{{ 'cartridge.table.stock'|trans }}</th>
+                            <th>{{ 'cartridge.table.compatible'|trans }}</th>
+                            <th class="text-end">{{ 'common.actions.actions'|trans(domain='messages') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cartridge in cartridges %}
+                        <tr class="{{ cartridge.stockQuantity < 2 ? 'table-warning' : '' }}">
+                            <td>
+                                <div class="fw-semibold">{{ cartridge.name }}</div>
+                                {% if cartridge.installations|filter(i => i.installed)|length > 0 %}
+                                    <small class="text-muted">
+                                        <i class="bi bi-check2-circle text-success"></i>
+                                        {{ 'cartridge.table.installed_count'|trans({
+                                            '%count%': cartridge.installations|filter(i => i.installed)|length
+                                        }) }}
+                                    </small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cartridge.color %}
+                                    <span class="badge bg-{{ cartridge.color == 'black' ? 'dark' : (cartridge.color == 'cyan' ? 'info' : (cartridge.color == 'magenta' ? 'purple' : 'warning')) }}">
+                                        {{ ('cartridge.colors.' ~ cartridge.color)|trans }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cartridge.yieldPages %}
+                                    {{ cartridge.yieldPages|number_format(0, ',', ' ') }} стр.
+                                {% else %}
+                                    <span class="text-muted small">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-{{ cartridge.stockQuantity > 5 ? 'success' : (cartridge.stockQuantity > 0 ? 'warning' : 'danger') }} px-3">
+                                    {{ cartridge.stockQuantity }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if cartridge.printers|length > 0 %}
+                                    {% for printer in cartridge.printers %}
+                                    <div>{{ printer.name}}</div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted small">{{ 'cartridge.table.not_specified'|trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ path('app_cartridge_show', {'id': cartridge.id}) }}"
+                                       class="btn btn-outline-info"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ 'common.actions.view'|trans(domain: 'messages') }}">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ path('app_cartridge_edit', {'id': cartridge.id}) }}"
+                                       class="btn btn-outline-primary"
+                                       data-bs-toggle="tooltip"
+                                       title="{{ 'common.actions.edit'|trans(domain: 'messages') }}">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if cartridge.stockQuantity > 0 %}
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-success"
+                                            title="{{ 'common.actions.install'|trans(domain: 'messages') }}"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#installModal{{ cartridge.id }}">
+                                        <i class="bi bi-download"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                                {% if cartridge.stockQuantity > 0 %}
+                                {% include 'cartridge/_install_modal.html.twig' with {cartridge: cartridge} %}
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-3"></i>
+                                {{ 'cartridge.messages.no_cartridges'|trans }}
+                                <div class="mt-2">
+                                    <a href="{{ path('app_cartridges_new') }}">
+                                        {{ 'cartridge.messages.add_first'|trans }}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

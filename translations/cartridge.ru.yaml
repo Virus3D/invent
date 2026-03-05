@@ -1,0 +1,152 @@
+page:
+  index: "Картриджи"
+  edit: "Редактировать картридж"
+  create: "Создать картридж"
+
+cartridge:
+  title: "Картриджи"
+  subtitle: "Управление типами картриджей и складскими остатками"
+
+  # Поля формы
+  form:
+    name: "Модель картриджа"
+    name_placeholder: "Например: HP 83A, Canon 054H"
+    name_help: "Уникальное название модели картриджа"
+    color: "Цвет"
+    color_placeholder: "Выберите цвет"
+    yield_pages: "Ресурс (страниц)"
+    yield_pages_placeholder: "Например: 1500"
+    yield_pages_help: "Заявленное количество страниц на один картридж"
+    stock_quantity: "Остаток на складе"
+    stock_quantity_help: "Текущее количество доступных картриджей"
+    printers: "Совместимые принтеры"
+    printers_placeholder: "Выберите принтеры..."
+    printers_help: "Принтеры, которые могут использовать этот тип картриджа"
+    printed_pages: "Отпечатано страниц"
+    printed_pages_placeholder: "Показания счётчика"
+    comment: "Комментарий"
+    comment_placeholder: "Примечание об установке/снятии"
+    comment_help: 'Необязательно. Например: "Плановая замена", "Закончился тонер"'
+    printer_select: "Выберите принтер..."
+
+  # Статистика
+  stats:
+    total_models: "Всего моделей"
+    in_stock: "На складе"
+    low_stock: "Требуют заказа"
+    installed: "Установлено"
+
+  # Таблица
+  table:
+    model: "Модель"
+    color: "Цвет"
+    yield: "Ресурс"
+    stock: "На складе"
+    compatible: "Совместимые принтеры"
+    actions: "Действия"
+    not_specified: "Не указан"
+    installed_count: "Установлен: %count%"
+    printer: "Принтер"
+    installed: "Установлен"
+    existing: "Снят"
+    page: "Страниц"
+    comment: "Комментарий"
+
+  inventory:
+    installed: "Установлен"
+    removed: "Снят"
+    installed_at: "Установлен"
+
+  show:
+    specifications: "Характеристики:"
+    yield_pages: "Ресурс (страниц)"
+    compatible: "Совместимых принтеров"
+    installed_all: "Всего установок"
+    added: "Пополнить склад"
+
+  tips:
+    title: "Рекомендации"
+    name: "Указывайте полное название модели"
+    yield: "Ресурс поможет в прогнозировании"
+    printers: "Свяжите с совместимыми принтерами"
+    stock: "Актуализируйте остаток на складе"
+    compatibility: "Совместимость можно изменить позже в редактировании"
+
+  statistic:
+    title: "Статистика использования"
+    installed: "Установок"
+    pages: "Страниц"
+    avg_per_install: "Среднее за установку"
+
+  history:
+    title: "История установок"
+    empty: "История установок пуста"
+
+  # Статусы
+  status:
+    in_stock: "В наличии"
+    low_stock: "Низкий остаток"
+    out_of_stock: "Требуется заказ"
+    active: "Активен"
+    on_stock: "на складе"
+
+  actions:
+    install_printer: "Установить на принтер"
+
+  # Модальные окна
+  modal:
+    install_title: "Установить картридж"
+    delete_title: "Подтверждение удаления"
+    delete_confirm: 'Вы действительно хотите удалить картридж <strong>"%name%"</strong>?'
+    delete_warning: "У этого картриджа есть история установок (%count% записей). Удаление не затронет историю, но картридж исчезнет из справочника."
+
+  # Фильтры
+  filters:
+    search: "Поиск"
+    search_placeholder: "Название, артикул..."
+    all_colors: "Все цвета"
+    low_stock_only: "Только с низким остатком"
+    filter: "Фильтр"
+
+  # Прогноз
+  prediction:
+    label: "Прогноз замены"
+    method_pages: "По расходу"
+    method_time: "По времени"
+    method_estimate: "Оценка"
+    confidence_high: "Высокая"
+    confidence_medium: "Средняя"
+    confidence_low: "Низкая"
+
+  # Сообщения
+  messages:
+    no_cartridges: "Картриджи не найдены"
+    add_first: "Добавить первый картридж"
+    no_compatible_printers: "Для этого картриджа не указаны совместимые принтеры"
+    no_history: "История пуста"
+    no_active: "Картридж не установлен"
+    install_prompt: "Выберите тип картриджа для установки"
+    no_available: "Нет доступных картриджей"
+    add_cartridge: "Добавить картридж"
+    update_compatibility: "обновите совместимость"
+    enter_pages: "Введите страницы и нажмите ⏏"
+
+  colors:
+    black: "Чёрный"
+    cyan: "Голубой"
+    magenta: "Пурпурный"
+    yellow: "Жёлтый"
+    color: "Цветной"
+    other: "Другой"
+
+  flash:
+    invalid: "Неверные данные картриджа или принтера"
+    entity_not_found: "Сущность не найдена"
+    not_a_printer: "Можно установить картридж только на принтер"
+    cartridge_installed: 'Картридж "%name%" установлен на "%printer%"'
+    cartridge_removed: "Картридж снят с принтера"
+    cartridge_created: "Картридж успешно создан"
+    cartridge_updated: "Картридж успешно обновлён"
+    cartridge_deleted: "Картридж удалён"
+    stock_added: 'Добавлено %quantity% шт. "%name%" на склад'
+    cannot_delete_active: "Нельзя удалить картридж, который сейчас установлен на принтере"

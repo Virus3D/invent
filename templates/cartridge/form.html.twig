@@ -1,0 +1,172 @@
+{% extends 'base.html.twig' %}
+
+{% form_theme form 'form/fields.html.twig' %}
+{% trans_default_domain 'cartridge' %}
+{% set title = page_title|trans %}
+
+{% block body %}
+<div class="container-fluid py-4">
+    {% include '_breadcrumb.html.twig' with {
+        'item': cartridge,
+        'type': 'cartridge',
+        'action': (cartridge.id) ? 'edit' : 'create'
+    } %}
+
+    <div class="row">
+        <div class="col-12 col-md-8 offset-md-2 col-lg-6 offset-lg-3">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-shield-lock"></i> {{ page_title|trans }}
+                    </h4>
+                    {% if cartridge.id %}
+                        <span class="badge bg-light text-dark">
+                            ID: {{ cartridge.id }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body">
+                    {{ form_start(form, {
+                        'attr': {
+                            'id': 'cartridgeForm',
+                            'class': 'needs-validation was-validated',
+                            'novalidate': 'novalidate',
+                            'data-controller': 'edit-form',
+                            'data-edit-form-target': 'form',
+                            'data-edit-form-url-value': cartridge.id ? path('api_cartridge_update', {'id': cartridge.id}) : path('api_cartridge_create'),
+                        }
+                    }) }}
+
+                    <div data-edit-form-target="errorContainer"
+                        class="alert alert-danger d-none"
+                        role="alert"></div>
+
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Основная информация
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            {{ form_row(form.name) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.color) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.yieldPages) }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form_row(form.stockQuantity) }}
+                        </div>
+                    </div>
+
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-link-45deg me-2"></i>Совместимость
+                    </h5>
+                    {{ form_row(form.printers) }}
+
+                    {% if form.vars.data.id is defined and form.vars.data.id %}
+                        <hr>
+                        <h6 class="small text-muted text-uppercase mb-3">Статистика</h6>
+                        <dl class="row small mb-0">
+                            <dt class="col-6">Установок всего:</dt>
+                            <dd class="col-6">{{ form.vars.data.installations|length }}</dd>
+
+                            <dt class="col-6">Сейчас в работе:</dt>
+                            <dd class="col-6">
+                                {{ form.vars.data.installations|filter(i => i.installed)|length }}
+                            </dd>
+
+                            <dt class="col-6">Средний срок:</dt>
+                            <dd class="col-6">
+                                {% set completed = form.vars.data.installations|filter(i => i.removedAt) %}
+                                {% if completed|length > 0 %}
+                                    {% set avg = completed|map(i => i.lifetimeDays)|reduce((a, b) => a + b) / completed|length %}
+                                    {{ avg|round(0) }} дн.
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </dd>
+                        </dl>
+                    {% endif %}
+                     <hr class="my-4">
+
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            {% if cartridge.id %}
+                            <a href="{{ path('app_cartridge_show', {'id': cartridge.id}) }}"
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
+                            </a>
+                            <!-- Кнопка удаления с подтверждением -->
+                            <button type="button"
+                                    class="btn btn-outline-danger ms-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> {{ 'common.actions.delete'|trans(domain: 'messages') }}
+                            </button>
+                            {% else %}
+                            <a href="{{ path('app_cartridge_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left"></i> {{ 'common.actions.cancel'|trans(domain: 'messages') }}
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <button type="submit"
+                                    class="btn btn-primary"
+                                    data-edit-form-target="submitButton"
+                                    data-action="edit-form#submitForm">
+                                <i class="bi bi-check-circle"></i> {{ 'common.actions.submit'|trans(domain: 'messages') }}
+                            </button>
+                        </div>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+            <div class="card shadow mt-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightbulb"></i> {{ 'cartridge.tips.title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            {{ 'cartridge.tips.name'|trans }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            {{ 'cartridge.tips.yield'|trans }}
+                        </li>
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            {{ 'cartridge.tips.printers'|trans }}
+                        </li>
+                        <li>
+                            <i class="bi bi-check-circle text-success me-1"></i>
+                            {{ 'cartridge.tips.stock'|trans }}
+                        </li>
+                    </ul>
+                    <div class="alert alert-info mt-3 small">
+                        <i class="bi bi-info-circle me-1"></i>
+                        {{ 'cartridge.tips.compatibility'|trans }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cartridge.id %}
+{% include 'modal/_delete.html.twig' with {
+    'message': 'cartridge.delete.confirm'|trans,
+    'path': path('app_cartridge_delete', {'id': cartridge.id}),
+    'token': csrf_token('delete' ~ cartridge.id)
+} %}
+{% endif %}
+
+{% include 'modal/_success.html.twig' %}
+
+{% endblock %}
