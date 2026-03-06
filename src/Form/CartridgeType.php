@@ -82,9 +82,10 @@ final class CartridgeType extends AbstractType
                     'label'         => 'cartridge.form.printers',
                     'class'         => InventoryItem::class,
                     'choice_label'  => static fn (InventoryItem $p) => sprintf(
-                        '%s (%s)',
+                        '%s%s%s',
                         $p->getName(),
-                        $p->getInventoryNumber() ?? '-'
+                        $p->getInventoryNumber() ? " [{$p->getInventoryNumber()}]" : '',
+                        $p->getLocation() ? " — {$p->getLocation()}" : '',
                     ),
                     'multiple'      => true,
                     'expanded'      => false,
@@ -108,7 +109,9 @@ final class CartridgeType extends AbstractType
         $resolver->setDefaults(
             [
                 'data_class'         => Cartridge::class,
-                'attr'               => ['novalidate' => 'novalidate'],
+                'csrf_protection'    => true,
+                'csrf_field_name'    => '_token',
+                'csrf_token_id'      => 'cartridge',
                 'translation_domain' => 'cartridge',
             ]
         );
