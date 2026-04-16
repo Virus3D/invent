@@ -88,6 +88,9 @@
                                     {% else %}
                                     {{ item.name }}
                                     {% endif %}
+                                    {% if item.purchasePrice %}
+                                    <i class="bi bi-cash-coin text-info" title="{{ item.purchasePrice|format_currency('RUB', locale='ru') }}"></i>
+                                    {% endif %}
                                 </div>
                                 {% if item.description %}
                                     <small class="text-muted d-block mt-1">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</small>
