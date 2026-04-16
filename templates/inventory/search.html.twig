@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% set title = 'page_title.inventory_search'|trans %}
+{% trans_default_domain 'inventory' %}
+{% set title = 'page.search'|trans %}
 
 {% block body %}
 <div class="container-fluid py-4">
@@ -162,7 +163,7 @@
                 </div>
 
                 {% if items and items|length > 0 %}
-                {{ include('inventory/_list.html.twig', { items: items }) }}
+                {{ include('inventory/_list.html.twig', {items: items}) }}
 
                 <div class="card-footer">
                     <div class="d-flex justify-content-between align-items-center">
