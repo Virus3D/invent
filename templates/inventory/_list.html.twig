@@ -8,8 +8,8 @@
 #}
 
 {% trans_default_domain 'inventory' %}
-{% set defaultColumns = ['inventory_number', 'status', 'serial_number', 'location', 'checked', 'created_at', 'actions'] %}
-{% set columns = columns|default(defaultColumns) %}
+{% set default_columns = ['inventory_number', 'status', 'serial_number', 'location', 'checked', 'created_at', 'actions'] %}
+{% set columns = columns|default(default_columns) %}
 
 <div class="table-responsive">
     <table class="table table-hover">
@@ -60,7 +60,35 @@
                     <td>
                         <div class="d-flex justify-content-between align-items-start">
                             <div class="me-3">
-                                <div class="fw-medium">{{ item.name }}</div>
+                                <div class="fw-medium">
+                                    {% if item.specifications|length > 0 %}
+                                    {% set spec_labels = {} %}
+                                    {% for key, value in item.specifications %}
+                                        {% if value %}
+                                            {% set label = ('inventory_item.spec_labels.' ~ key)|default(key|replace({'_': ' '})|title)|trans %}
+                                            {% set spec_labels = spec_labels|merge({(key): label}) %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span
+                                        {{ stimulus_controller('popover', {
+                                            specs: item.specifications|json_encode,
+                                            labels: spec_labels|json_encode,
+                                            title: 'inventory_item.show.specifications'|trans,
+                                            placement: 'right',
+                                            trigger: 'click hover',
+                                            emptyMessage: 'inventory_item.no_specifications'|trans
+                                        }) }}
+                                        {{ stimulus_target('popover', 'trigger') }}
+                                        {{ stimulus_action('popover', 'connect') }}
+                                        data-specs-empty="{{ 'inventory_item.no_specifications'|trans }}"
+                                        style="cursor: pointer; border-bottom: 1px dashed #6c757d;"
+                                        title="{{ 'inventory_item.show.click_for_details'|trans }}">
+                                        {{ item.name }}
+                                    </span>
+                                    {% else %}
+                                    {{ item.name }}
+                                    {% endif %}
+                                </div>
                                 {% if item.description %}
                                     <small class="text-muted d-block mt-1">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</small>
                                 {% endif %}
@@ -96,9 +124,19 @@
 
                     {% if 'created_at' in columns %}
                         <td>
+                            {% if item.commissioningDate %}
+                            <small title="{{ item.commissioningDate|date('d.m.Y H:i:s') }}">
+                                {{ item.commissioningDate|date('d.m.Y') }}
+                            </small>
+                            {% elseif item.purchaseDate %}
+                            <small title="{{ item.purchaseDate|date('d.m.Y H:i:s') }}">
+                                {{ item.createdAt|date('d.m.Y') }}
+                            </small>
+                            {% else %}
                             <small title="{{ item.createdAt|date('d.m.Y H:i:s') }}">
                                 {{ item.createdAt|date('d.m.Y') }}
                             </small>
+                            {% endif %}
                         </td>
                     {% endif %}
 
