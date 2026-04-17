@@ -1,147 +1,157 @@
-Title: 'Система инвентаризации'
+Title: "Система инвентаризации"
 
 # Dashboard
 dashboard:
-  description: 'Обзор системы инвентаризации'
-  categorization: 'Распределение по категориям'
+  description: "Обзор системы инвентаризации"
+  categorization: "Распределение по категориям"
 
 # Placement
 placement:
-  without_binding: 'Без местоположения'
-  require: 'Требуют размещения'
-  all_placed: 'Все объекты размещены'
-  show: 'Показать все объекты (%count%)'
+  without_binding: "Без местоположения"
+  require: "Требуют размещения"
+  all_placed: "Все объекты размещены"
+  show: "Показать все объекты (%count%)"
 
 # Icons
 icons:
-  lightbulb: 'bi-lightbulb'
-  check_circle: 'bi-check-circle'
-  exclamation_triangle: 'bi-exclamation-triangle'
-  success: 'bi-check-circle'
-  warning: 'bi-exclamation-triangle'
+  lightbulb: "bi-lightbulb"
+  check_circle: "bi-check-circle"
+  exclamation_triangle: "bi-exclamation-triangle"
+  success: "bi-check-circle"
+  warning: "bi-exclamation-triangle"
 
 # Movement log
 movement_log:
   reason:
-    location_change: 'Изменение местоположения'
-    specifications_update: 'Обновление характеристик'
+    location_change: "Изменение местоположения"
+    specifications_update: "Обновление характеристик"
 
 # Filter
 filter:
-  title: 'Фильтр по категориям'
+  title: "Фильтр по категориям"
 
 # Common
 common:
-  last: 'Последнее'
-  all: 'Все'
-  of: 'из'
+  last: "Последнее"
+  all: "Все"
+  of: "из"
   actions:
-    actions: 'Действия'
-    quick: 'Быстрые действия'
-    inventory_new: 'Новый объект'
-    location_new: 'Новое местоположение'
-    material_new: 'Новый материал'
-    inventory_search: 'Поиск объектов'
-    mass_move: 'Массовое перемещение'
-    add: 'Добавить'
-    post: 'Разместить'
-    save: 'Сохранить'
-    cancel: 'Отмена'
-    delete: 'Удалить'
-    edit: 'Редактировать'
-    view: 'Просмотр'
-    create: 'Создать'
-    update: 'Обновить'
-    submit: 'Отправить'
-    close: 'Закрыть'
-    move: 'Переместить'
-    ok: 'OK'
-    confirm: 'Подтвердить'
-    filter: 'Фильтр'
-    reset: 'Сбросить'
-    show: 'Показать'
-    install: 'Установить'
+    actions: "Действия"
+    quick: "Быстрые действия"
+    inventory_new: "Новый объект"
+    location_new: "Новое местоположение"
+    material_new: "Новый материал"
+    inventory_search: "Поиск объектов"
+    mass_move: "Массовое перемещение"
+    add: "Добавить"
+    post: "Разместить"
+    save: "Сохранить"
+    cancel: "Отмена"
+    delete: "Удалить"
+    edit: "Редактировать"
+    view: "Просмотр"
+    create: "Создать"
+    update: "Обновить"
+    submit: "Отправить"
+    close: "Закрыть"
+    move: "Переместить"
+    ok: "OK"
+    confirm: "Подтвердить"
+    filter: "Фильтр"
+    reset: "Сбросить"
+    show: "Показать"
+    install: "Установить"
   messages:
-    success: 'Успешно!'
-    error: 'Ошибка!'
-    warning: 'Внимание!'
-    info: 'Информация'
-    confirm: 'Подтверждение'
-    loading: 'Загрузка...'
-    saving: 'Сохранение...'
-    saved: 'Сохранено'
-    deleted: 'Удалено'
-    added: 'Добавлен'
-    check_connection: 'Попробуйте позже повторно'
+    success: "Успешно!"
+    error: "Ошибка!"
+    warning: "Внимание!"
+    info: "Информация"
+    confirm: "Подтверждение"
+    loading: "Загрузка..."
+    saving: "Сохранение..."
+    saved: "Сохранено"
+    deleted: "Удалено"
+    added: "Добавлен"
+    check_connection: "Попробуйте позже повторно"
   navigation:
-    home: 'Главная'
-    back: 'Назад'
-    next: 'Вперёд'
+    home: "Главная"
+    back: "Назад"
+    next: "Вперёд"
   modals:
     success:
-      title: 'Успешно!'
-      message: 'Операция выполнена успешно'
-    error_title: 'Ошибка!'
-    error_message: 'Произошла ошибка при выполнении операции'
-    confirm_title: 'Подтверждение'
-    confirm_message: 'Вы уверены? Это действие необратимо.'
+      title: "Успешно!"
+      message: "Операция выполнена успешно"
+    error_title: "Ошибка!"
+    error_message: "Произошла ошибка при выполнении операции"
+    confirm_title: "Подтверждение"
+    confirm_message: "Вы уверены? Это действие необратимо."
     delete:
-      title: 'Подтверждение удаления'
-      warning: 'Это действие необратимо.'
+      title: "Подтверждение удаления"
+      warning: "Это действие необратимо."
     delete_message: 'Вы уверены, что хотите удалить этот объект "%name%"?'
-    delete_inventory_number: 'Инвентарный номер:'
-    export_title: 'Экспорт объектов'
+    delete_inventory_number: "Инвентарный номер:"
+    export_title: "Экспорт объектов"
     export_description: 'Выберите формат для экспорта объектов из местоположения "%name%":'
-    network_error: 'Ошибка сети или сервера'
-    delete_error: 'Ошибка при удалении'
-    saving_error: 'Ошибка при сохранении'
-    loading: 'Загрузка...'
-    deleting: 'Удаление...'
+    network_error: "Ошибка сети или сервера"
+    delete_error: "Ошибка при удалении"
+    saving_error: "Ошибка при сохранении"
+    loading: "Загрузка..."
+    deleting: "Удаление..."
 
 # Breadcrumbs
 breadcrumb:
-  home: 'Главная'
-  inventory: 'Объекты'
-  location: 'Места'
-  license: 'Лицензии'
-  cartridge: 'Катриджы'
-  material: 'Материалы'
-  search: 'Поиск'
-  edit: 'Редактировать'
-  create: 'Создать'
-  move: 'Переместить'
+  home: "Главная"
+  inventory: "Объекты"
+  location: "Места"
+  license: "Лицензии"
+  cartridge: "Катриджы"
+  material: "Материалы"
+  search: "Поиск"
+  edit: "Редактировать"
+  create: "Создать"
+  move: "Переместить"
 
 # Page Titles
 page_title:
-  dashboard: 'Главная панель'
+  dashboard: "Главная панель"
 
 # Static
 static:
-  title: 'Статистика'
-  inventorys: 'Объектов'
-  locations: 'Перемещений'
+  title: "Статистика"
+  inventorys: "Объектов"
+  locations: "Перемещений"
 
 # Form
 form:
   validation:
-    required: 'Пожалуйста, заполните это поле'
-    invalid: 'Некорректное значение'
-    too_short: 'Значение слишком короткое'
-    too_long: 'Значение слишком длинное'
-    unique: 'Это значение уже используется'
-    placeholder: 'Введите %label%'
-    to_location_required: 'Пожалуйста, выберите новое местоположение'
-    moved_by_required: 'Пожалуйста, укажите, кто переместил объект'
-    failed: 'Ошибка формы'
-    fill_required_fields: 'Пожалуйста, заполните все обязательные поля'
+    required: "Пожалуйста, заполните это поле"
+    invalid: "Некорректное значение"
+    too_short: "Значение слишком короткое"
+    too_long: "Значение слишком длинное"
+    unique: "Это значение уже используется"
+    placeholder: "Введите %label%"
+    to_location_required: "Пожалуйста, выберите новое местоположение"
+    moved_by_required: "Пожалуйста, укажите, кто переместил объект"
+    failed: "Ошибка формы"
+    fill_required_fields: "Пожалуйста, заполните все обязательные поля"
 
 # Validation
 validation:
-  error: 'Ошибка валидации'
+  error: "Ошибка валидации"
 
 pagination:
-  first: 'Первая'
-  previous: 'Предыдущая'
-  next: 'Следующая'
-  last: 'Последняя'
-  info: 'Страница %page% из %totalPages%, показано %items% записей (всего %count%)'
+  first: "Первая"
+  previous: "Предыдущая"
+  next: "Следующая"
+  last: "Последняя"
+  info: "Страница %page% из %totalPages%, показано %items% записей (всего %count%)"
+
+login:
+  page_title: "Вход в систему"
+  header: "Пожалуйста, войдите"
+  username_label: "Логин"
+  password_label: "Пароль"
+  remember_me_label: "Запомнить меня на этом устройстве"
+  sign_in_button: "Войти"
+  logged_in_as: "Вы вошли как %username%"
+  logout_link: "Выйти"

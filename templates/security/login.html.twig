@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% set title = 'login.page_title'|trans %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="h3 mb-0">{{ 'login.header'|trans }}</h1>
+                </div>
+                <div class="card-body">
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <div class="mb-3">
+                            {{ 'login.logged_in_as'|trans({'%username%': app.user.userIdentifier}) }}
+                            <a href="{{ path('app_logout') }}">{{ 'login.logout_link'|trans }}</a>
+                        </div>
+                    {% endif %}
+
+                    <form method="post">
+                        <div class="mb-3">
+                            <label for="inputEmail" class="form-label">{{ 'login.username_label'|trans }}</label>
+                            <input type="text" value="{{ last_username }}" name="_username" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inputPassword" class="form-label">{{ 'login.password_label'|trans }}</label>
+                            <input type="password" name="_password" id="inputPassword" class="form-control" autocomplete="current-password" required>
+                        </div>
+
+                        {# CSRF токен #}
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                        {# Галочка «Запомнить меня» #}
+                        <div class="form-check mb-3">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" name="_remember_me" checked>
+                            <label class="form-check-label" for="rememberMe">{{ 'login.remember_me_label'|trans }}</label>
+                        </div>
+
+                        <button class="btn btn-lg btn-primary w-100" type="submit">
+                            {{ 'login.sign_in_button'|trans }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

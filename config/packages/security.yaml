@@ -1,11 +1,15 @@
 security:
     # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
-        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
 
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
-        users_in_memory: { memory: null }
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
 
     firewalls:
         dev:
@@ -14,7 +18,29 @@ security:
             security: false
         main:
             lazy: true
-            provider: users_in_memory
+            provider: app_user_provider
+
+            # Вход через форму (стандартный способ)
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+
+            # Выход
+            logout:
+                path: app_logout
+                # перенаправление после выхода
+                target: app_login
+
+            # Remember Me
+            remember_me:
+                secret: "%kernel.secret%"
+                lifetime: 31536000 # 1 год в секундах
+                path: /
+                # Если используете Doctrine для хранения токенов (рекомендуется)
+                token_provider:
+                    doctrine: true
+                # always_remember_me: true # Включите, если галочка не нужна
 
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -26,6 +52,8 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:
