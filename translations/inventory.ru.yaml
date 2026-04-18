@@ -72,14 +72,17 @@ inventory_item:
     success: "Изменения успешно сохранены"
     error: "Ошибка при сохранении"
   delete:
-    message: 'Вы уверены, что хотите удалить этот объект "%name%"?'
+    message: "Вы уверены, что хотите удалить этот объект \"%name%\"?"
     inventory_number: "Инвентарный номер: %number%"
     confirm: "Удалить объект? Это действие необратимо."
     success: "Объект успешно удалён"
     error: "Ошибка при удалении"
+  edit:
+    last_material_message: "Вы только что списали материал \"%name%\". Хотите
+      использовать его в спецификациях?"
   specifications:
     title: "Характеристики"
-    description: 'Заполните характеристики для категории "%category%"'
+    description: "Заполните характеристики для категории \"%category%\""
     no_specs: "Для этой категории не требуется указание характеристик"
     required_field: "Обязательное поле"
     history_note: "Все изменения характеристик будут записаны в историю перемещений"
@@ -165,8 +168,9 @@ inventory_item:
     inventory_number_required: "Инвентарный номер обязателен"
     json_invalid: "Характеристики должны быть в формате JSON"
     category_required: "Выберите категорию"
-    spec_required: 'Для категории "%category%" обязательно поле "%field%" в характеристиках'
-    spec_not_allowed: 'Ключ "%key%" не разрешён для категории "%category%"'
+    spec_required: "Для категории \"%category%\" обязательно поле \"%field%\" в
+      характеристиках"
+    spec_not_allowed: "Ключ \"%key%\" не разрешён для категории \"%category%\""
     inventory_number_description: "Уникальный идентификатор объекта"
     category_not_found: "Категория не найдена"
   tips:
@@ -184,7 +188,8 @@ inventory_item:
     dont_abbreviations_in_name: "Сокращений в наименовании"
     dont_incomplete_description: "Неполного описания"
     dont_inaccurate_location: "Неточного местоположения"
-    dont_generic_names: 'Обобщённых названий (например, "Компьютер" вместо "Компьютер Dell Optiplex 7090")'
+    dont_generic_names: "Обобщённых названий (например, \"Компьютер\" вместо
+      \"Компьютер Dell Optiplex 7090\")"
     dont_leaving_required_fields_empty: "Оставления обязательных полей пустыми"
     dont_outdated_information: "Устаревшей информации"
     additional_recommendations: "Дополнительные рекомендации:"

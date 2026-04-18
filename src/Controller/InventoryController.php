@@ -13,10 +13,12 @@ use App\Form\MovementLogType;
 use App\Repository\CartridgeInstallationRepository;
 use App\Repository\InventoryItemRepository;
 use App\Repository\LocationRepository;
+use App\Repository\MaterialRepository;
 use App\Service\CartridgeManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -202,16 +204,29 @@ final class InventoryController extends AbstractController
     public function edit(
         Request $request,
         InventoryItem $item,
+        MaterialRepository $materialRepository,
+        RequestStack $requestStack
     ): Response {
         $form = $this->createForm(InventoryItemType::class, $item);
         $form->handleRequest($request);
 
+        // Получаем сохранённый ID материала из сессии.
+        $session = $requestStack->getSession();
+        $lastMaterialId = $session->get('last_used_material_id');
+        $lastMaterial = null;
+        if ($lastMaterialId) {
+            $lastMaterial = $materialRepository->find($lastMaterialId);
+            // Можно очистить сессию сразу после получения, либо оставить до использования.
+            $session->remove('last_used_material_id');
+        }
+
         return $this->render(
             'inventory/form.html.twig',
             [
-                'page_title' => 'page.edit',
-                'item'       => $item,
-                'form'       => $form->createView(),
+                'page_title'   => 'page.edit',
+                'item'         => $item,
+                'form'         => $form->createView(),
+                'lastMaterial' => $lastMaterial,
             ]
         );
     }// end edit()

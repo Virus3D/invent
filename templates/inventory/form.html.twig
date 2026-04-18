@@ -27,6 +27,11 @@
                 </div>
 
                 <div class="card-body">
+                    {% if lastMaterial %}
+                        <div class="alert alert-info">
+                            {{ 'inventory_item.edit.last_material_message'|trans({'%name%': lastMaterial.name}) }}
+                        </div>
+                    {% endif %}
                     {{ form_start(form, {
                         'attr': {
                             'id': 'inventoryForm',

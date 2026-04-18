@@ -19,7 +19,7 @@ class SecurityController extends AbstractController
     {
         // Если пользователь уже авторизован, перенаправить на главную.
         if ($this->getUser()) {
-            return $this->redirectToRoute('app_dashboard');
+            // return $this->redirectToRoute('app_dashboard');
         }
 
         // Получить ошибку входа, если она есть.

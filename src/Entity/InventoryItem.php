@@ -106,6 +106,9 @@ class InventoryItem
     #[ORM\ManyToMany(targetEntity: Cartridge::class, mappedBy: 'printers')]
     private Collection $compatibleCartridges;
 
+    #[ORM\OneToMany(mappedBy: 'targetInventoryItem', targetEntity: MaterialConsumption::class)]
+    private Collection $materialConsumptions;
+
     public function __construct()
     {
         $this->movementLogs     = new ArrayCollection();
@@ -137,7 +140,7 @@ class InventoryItem
     /**
      * Validates the inventory number before persisting or updating the entity.
      *
-     * @throws LogicException if the inventory number is required but not provided
+     * @throws LogicException If the inventory number is required but not provided.
      */
     #[ORM\PrePersist]
     #[ORM\PreUpdate]
@@ -222,14 +225,14 @@ class InventoryItem
     public function isChecked(): bool
     {
         return $this->checked;
-    }
+    }// end isChecked()
 
     public function setChecked(bool $checked): static
     {
         $this->checked = $checked;
 
         return $this;
-    }
+    }// end setChecked()
 
     /**
      * Get the serial number of the inventory item.
@@ -728,5 +731,15 @@ class InventoryItem
         }
         return $this;
     }
+
+    /**
+     * Get all getMaterial consumptions associated with this inventory item.
+     *
+     * @return Collection<int, MaterialConsumption>
+     */
+    public function getMaterialConsumptions(): Collection
+    {
+        return $this->materialConsumptions;
+    }// end getMaterialConsumptions()
 }// end class
 

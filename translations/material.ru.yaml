@@ -1,43 +1,94 @@
 page:
-  index: 'Материалы'
-  create: 'Создать материал'
-  edit: 'Редактировать материал'
-  view: 'Просмотр материала'
-  search: 'Поиск материалов'
+  index: "Материалы"
+  create: "Создать материал"
+  edit: "Редактировать материал"
+  view: "Просмотр материала"
+  search: "Поиск материалов"
 
 material:
-  all: 'Всего материалов'
-  not: 'Нет материалов'
-  not_location: 'Не назначено'
-  add_first: 'Добавить первый материал'
+  all: "Всего материалов"
+  not: "Нет материалов"
+  not_location: "Не назначено"
+  add_first: "Добавить первый материал"
   check:
-    label: 'Проверка'
-    reset_all: 'Сбросить проверки'
-    set: 'Отметка сохранена'
-    unset: 'Отметка снята'
+    label: "Проверка"
+    reset_all: "Сбросить проверки"
+    set: "Отметка сохранена"
+    unset: "Отметка снята"
   show:
-    main_info: 'Основная информация'
-    name_label: 'Наименование:'
-    quantity_label: 'Количество:'
-    location_label: 'Местоположение:'
-    date_added_label: 'Дата добавления:'
-    last_update_label: 'Последнее обновление:'
-    description_label: 'Описание:'
+    main_info: "Основная информация"
+    name_label: "Наименование:"
+    quantity_label: "Количество:"
+    location_label: "Местоположение:"
+    date_added_label: "Дата добавления:"
+    last_update_label: "Последнее обновление:"
+    description_label: "Описание:"
   form:
-    name: 'Наименование'
-    name_placeholder: 'Например: Бумага офисная'
-    description: 'Описание'
-    description_placeholder: 'Подробное описание материала...'
-    quantity: 'Количество'
-    location: 'Местоположение'
-    location_placeholder: 'Не назначено'
+    name: "Наименование"
+    name_placeholder: "Например: Бумага офисная"
+    description: "Описание"
+    description_placeholder: "Подробное описание материала..."
+    quantity: "Количество"
+    location: "Местоположение"
+    location_placeholder: "Не назначено"
   create:
-    success: 'Материал успешно создан'
-    error: 'Ошибка при создании материала'
+    success: "Материал успешно создан"
+    error: "Ошибка при создании материала"
   update:
-    success: 'Изменения успешно сохранены'
-    error: 'Ошибка при сохранении'
+    success: "Изменения успешно сохранены"
+    error: "Ошибка при сохранении"
   delete:
-    confirm: 'Удалить материал?'
-    success: 'Материал успешно удалён'
-    error: 'Ошибка при удалении'
+    confirm: "Удалить материал?"
+    success: "Материал успешно удалён"
+    error: "Ошибка при удалении"
+
+write_off:
+  available_quantity: Доступное количество
+  form:
+    quantity: Количество
+    location: Помещение
+    comment: Комментарий
+    inventory_item: Оборудование
+    specifications: Спецификации
+  location:
+    title: Списание материала "%name%" на помещение
+    heading: Списание материала "%name%" на помещение
+  item:
+    title: Списание материала "%name%" на оборудование
+    heading: Списание материала "%name%" на оборудование
+    specifications:
+      title: Дополнительные спецификации для оборудования
+      help: Введите ключ=значение (например, toner=original)
+
+action:
+  write_off_to_location: "Списать на помещение"
+  write_off_to_item: "Списать на оборудование"
+
+flash:
+  write_off_location_success: "Материал успешно списан на помещение."
+  write_off_item_success: "Материал успешно списан на оборудование."
+  write_off_error: "Ошибка: %error%"
+
+report:
+  title: Отчёт по списаниям материалов
+  heading: Отчёт по списаниям материалов
+  form:
+    start_date: Начало периода
+    end_date: Конец периода
+    submit: Показать
+  aggregated:
+    title: Агрегированные данные по материалам
+    material: Материал
+    total_quantity: Всего списано
+    empty: Нет данных за выбранный период
+  detailed:
+    title: Детальный журнал списаний
+    date: Дата
+    material: Материал
+    quantity: Количество
+    target: Цель
+    user: Кто списал
+    comment: Комментарий
+    empty: Нет списаний за выбранный период
+    target_location: "Помещение: %name% (%room%)"
+    target_item: "Оборудование: %name% (инв. № %inventory%)"

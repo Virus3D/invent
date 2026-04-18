@@ -43,6 +43,9 @@ class Location
     #[ORM\OneToMany(mappedBy: 'location', targetEntity: SoftwareLicense::class)]
     private Collection $softwareLicenses;
 
+    #[ORM\OneToMany(mappedBy: 'targetLocation', targetEntity: MaterialConsumption::class)]
+    private Collection $materialConsumptions;
+
     public function __construct()
     {
         $this->inventoryItems   = new ArrayCollection();
@@ -131,12 +134,14 @@ class Location
     }// end getMovementLogs()
 
     /**
+     * Get all licenses associated with this location.
+     *
      * @return Collection<int, SoftwareLicense>
      */
     public function getSoftwareLicenses(): Collection
     {
         return $this->softwareLicenses;
-    }
+    }// end getSoftwareLicenses()
 
     /**
      * Get all materials associated with this location.
@@ -147,6 +152,16 @@ class Location
     {
         return $this->materials;
     }// end getMaterials()
+
+    /**
+     * Get all getMaterial consumptions associated with this location.
+     *
+     * @return Collection<int, MaterialConsumption>
+     */
+    public function getMaterialConsumptions(): Collection
+    {
+        return $this->materialConsumptions;
+    }// end getMaterialConsumptions()
 
     /**
      * Returns the string representation of the location.

@@ -5,6 +5,7 @@
         "@hotwired/stimulus": "^3.2.2",
         "@stylistic/stylelint-plugin": "^5.0.0",
         "@symfony/stimulus-bridge": "^3.2.2",
+        "@symfony/ux-autocomplete": "file:vendor/symfony/ux-autocomplete/assets",
         "@symfony/ux-translator": "file:vendor/symfony/ux-translator/assets",
         "@symfony/webpack-encore": "^5.1.0",
         "chart.js": "^4.5.1",
@@ -15,6 +16,7 @@
         "sass": "^1.97.2",
         "sass-loader": "^16.0.6",
         "stylelint": "^17.0.0",
+        "tom-select": "^2.2.2",
         "webpack": "^5.97.1",
         "webpack-cli": "^5.1.4",
         "webpack-notifier": "^1.15.0"

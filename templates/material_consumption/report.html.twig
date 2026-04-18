@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% trans_default_domain 'material' %}
+{% set title = 'report.title'|trans %}
+
+{% block body %}
+    <h1>{{ 'report.heading'|trans }}</h1>
+
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-auto">
+            <label for="start" class="form-label">{{ 'report.form.start_date'|trans }}</label>
+            <input type="date" class="form-control" id="start" name="start" value="{{ start|date('Y-m-d') }}">
+        </div>
+        <div class="col-auto">
+            <label for="end" class="form-label">{{ 'report.form.end_date'|trans }}</label>
+            <input type="date" class="form-control" id="end" name="end" value="{{ end|date('Y-m-d') }}">
+        </div>
+        <div class="col-auto align-self-end">
+            <button type="submit" class="btn btn-primary">{{ 'report.form.submit'|trans }}</button>
+        </div>
+    </form>
+
+    <h2>{{ 'report.aggregated.title'|trans }}</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>{{ 'report.aggregated.material'|trans }}</th>
+                <th>{{ 'report.aggregated.total_quantity'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for agg in aggregated %}
+            <tr>
+                <td>{{ agg.materialName ?? agg.materialId }}</td>
+                <td>{{ agg.totalQuantity }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="2">{{ 'report.aggregated.empty'|trans }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>{{ 'report.detailed.title'|trans }}</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>{{ 'report.detailed.date'|trans }}</th>
+                <th>{{ 'report.detailed.material'|trans }}</th>
+                <th>{{ 'report.detailed.quantity'|trans }}</th>
+                <th>{{ 'report.detailed.target'|trans }}</th>
+                <th>{{ 'report.detailed.user'|trans }}</th>
+                <th>{{ 'report.detailed.comment'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for consumption in consumptions %}
+            <tr>
+                <td>{{ consumption.consumedAt|date('d.m.Y H:i') }}</td>
+                <td>{{ consumption.material.name }}</td>
+                <td>{{ consumption.quantity }}</td>
+                <td>
+                    {% if consumption.targetType.value == 'location' %}
+                        {{ 'report.detailed.target_location'|trans({
+                            '%name%': consumption.targetLocation.name,
+                            '%room%': consumption.targetLocation.roomNumber
+                        }) }}
+                    {% else %}
+                        {{ 'report.detailed.target_item'|trans({
+                            '%name%': consumption.targetInventoryItem.name,
+                            '%inventory%': consumption.targetInventoryItem.inventoryNumber|default('—')
+                        }) }}
+                    {% endif %}
+                </td>
+                <td>{{ consumption.consumedBy ? consumption.consumedBy.username : '—' }}</td>
+                <td>{{ consumption.comment|default('—') }}</td>
+            </tr>
+        {% else %}
+            <tr><td colspan="6">{{ 'report.detailed.empty'|trans }}</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_material_index') }}" class="btn btn-secondary">{{ 'common.navigation.back'|trans(domain: 'messages') }}</a>
+{% endblock %}
