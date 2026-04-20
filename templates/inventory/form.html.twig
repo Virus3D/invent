@@ -27,7 +27,7 @@
                 </div>
 
                 <div class="card-body">
-                    {% if lastMaterial %}
+                    {% if lastMaterial|default(false) %}
                         <div class="alert alert-info">
                             {{ 'inventory_item.edit.last_material_message'|trans({'%name%': lastMaterial.name}) }}
                         </div>
