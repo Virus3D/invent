@@ -144,7 +144,7 @@ final class InventoryController extends AbstractController
         $items = $inventoryRepository->searchByCriteria($criteria, $sort, $direction);
 
         // Fetch all locations for the dropdown (uncomment and pass).
-        $locations = $locationRepository->findBy([], ['roomNumber' => 'ASC']);
+        $locations = $locationRepository->findAll();
 
         return $this->render(
             'inventory/search.html.twig',

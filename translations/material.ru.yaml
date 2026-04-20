@@ -49,16 +49,12 @@ write_off:
     location: Помещение
     comment: Комментарий
     inventory_item: Оборудование
-    specifications: Спецификации
   location:
     title: Списание материала "%name%" на помещение
     heading: Списание материала "%name%" на помещение
   item:
     title: Списание материала "%name%" на оборудование
     heading: Списание материала "%name%" на оборудование
-    specifications:
-      title: Дополнительные спецификации для оборудования
-      help: Введите ключ=значение (например, toner=original)
 
 action:
   write_off_to_location: "Списать на помещение"

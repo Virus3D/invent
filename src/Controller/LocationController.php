@@ -37,7 +37,7 @@ final class LocationController extends AbstractController
         if ($query) {
             $locations = $repository->search($query);
         } else {
-            $locations = $repository->findBy([], ['roomNumber' => 'ASC']);
+            $locations = $repository->findAll();
         }
 
         // Статистика.

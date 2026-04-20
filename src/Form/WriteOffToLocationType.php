@@ -24,7 +24,7 @@ class WriteOffToLocationType extends AbstractType
                 'quantity',
                 NumberType::class,
                 [
-                    'label' => 'Количество',
+                    'label' => 'write_off.form.quantity',
                     'html5' => true,
                 ]
             )
@@ -34,7 +34,7 @@ class WriteOffToLocationType extends AbstractType
                 [
                     'class'        => Location::class,
                     'choice_label' => fn(Location $l) => $l->getName() . ' (' . $l->getRoomNumber() . ')',
-                    'label'        => 'Помещение',
+                    'label'        => 'write_off.form.location',
                     'autocomplete' => true,
                 ]
             )
@@ -42,7 +42,7 @@ class WriteOffToLocationType extends AbstractType
                 'comment',
                 TextareaType::class,
                 [
-                    'label'    => 'Комментарий',
+                    'label'    => 'write_off.form.comment',
                     'required' => false,
                 ]
             );
@@ -53,6 +53,11 @@ class WriteOffToLocationType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults([
+            'csrf_protection'    => true,
+            'csrf_field_name'    => '_token',
+            'csrf_token_id'      => 'writeoff',
+            'translation_domain' => 'material',
+        ]);
     }// end configureOptions()
 }// end class

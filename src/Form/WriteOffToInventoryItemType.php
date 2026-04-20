@@ -12,7 +12,9 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class WriteOffToInventoryItemType extends AbstractType
+use function sprintf;
+
+final class WriteOffToInventoryItemType extends AbstractType
 {
     /**
      * {@inheritDoc}
@@ -23,15 +25,20 @@ class WriteOffToInventoryItemType extends AbstractType
             ->add(
                 'quantity',
                 NumberType::class,
-                ['label' => 'Количество']
+                ['label' => 'material.form.quantity']
             )
             ->add(
                 'inventoryItem',
                 EntityType::class,
                 [
                     'class'        => InventoryItem::class,
-                    'choice_label' => fn(InventoryItem $i) => $i->getName() . ' (инв. № ' . $i->getInventoryNumber() . ')',
-                    'label'        => 'Оборудование',
+                    'choice_label' => static fn (InventoryItem $p) => sprintf(
+                        '%s%s%s',
+                        $p->getName(),
+                        $p->getInventoryNumber() ? " [{$p->getInventoryNumber()}]" : '',
+                        $p->getLocation() ? " — {$p->getLocation()}" : '',
+                    ),
+                    'label'        => 'write_off.form.inventory_item',
                     'autocomplete' => true,
                 ]
             )
@@ -39,7 +46,7 @@ class WriteOffToInventoryItemType extends AbstractType
                 'comment',
                 TextareaType::class,
                 [
-                    'label'    => 'Комментарий',
+                    'label'    => 'material.form.comment',
                     'required' => false,
                 ]
             );
@@ -50,6 +57,13 @@ class WriteOffToInventoryItemType extends AbstractType
      */
     public function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setDefaults([]);
+        $resolver->setDefaults(
+            [
+                'csrf_protection'    => true,
+                'csrf_field_name'    => '_token',
+                'csrf_token_id'      => 'writeoff',
+                'translation_domain' => 'material',
+            ]
+        );
     }// end configureOptions()
 }// end class

@@ -9,25 +9,10 @@
 
     <p>{{ 'write_off.available_quantity'|trans }}: <strong>{{ material.quantity }}</strong></p>
 
-    {% for type, messages in app.flashes %}
-        {% for message in messages %}
-            <div class="alert alert-{{ type }}" role="alert">
-                {{ message|trans }}
-            </div>
-        {% endfor %}
-    {% endfor %}
-
     {{ form_start(form) }}
-        {{ form_row(form.quantity, {
-            label: 'write_off.form.quantity'|trans,
-            attr: {min: 0, max: material.quantity, step: 1}
-        }) }}
-        {{ form_row(form.inventoryItem, {
-            label: 'write_off.form.inventory_item'|trans
-        }) }}
-        {{ form_row(form.comment, {
-            label: 'write_off.form.comment'|trans
-        }) }}
+        {{ form_row(form.quantity) }}
+        {{ form_row(form.inventoryItem) }}
+        {{ form_row(form.comment) }}
 
         <button type="submit" class="btn btn-primary">{{ 'common.actions.submit'|trans(domain: 'messages') }}</button>
         <a href="{{ path('app_material_index') }}" class="btn btn-secondary">
