@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Entity\InventoryItem;
 use App\Entity\Location;
 use App\Entity\MovementLog;
+use App\Form\Type\LocationFieldType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -39,11 +40,9 @@ final class MovementLogType extends AbstractType
             )
             ->add(
                 'fromLocation',
-                EntityType::class,
+                LocationFieldType::class,
                 [
                     'label'        => 'move.form.from_location',
-                    'class'        => Location::class,
-                    'choice_label' => 'name',
                     'placeholder'  => 'move.not_specified',
                     'required'     => false,
                     'attr'         => ['data-inventory-move-target' => 'fromLocation'],
@@ -52,11 +51,9 @@ final class MovementLogType extends AbstractType
             )
             ->add(
                 'toLocation',
-                EntityType::class,
+                LocationFieldType::class,
                 [
                     'label'        => 'move.form.to_location',
-                    'class'        => Location::class,
-                    'choice_label' => 'name',
                     'placeholder'  => 'move.not_specified',
                     'required'     => false,
                     'attr'         => [

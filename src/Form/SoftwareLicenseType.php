@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Location;
 use App\Entity\SoftwareLicense;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Form\Type\LocationFieldType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -77,13 +76,11 @@ final class SoftwareLicenseType extends AbstractType
             )
             ->add(
                 'location',
-                EntityType::class,
+                LocationFieldType::class,
                 [
-                    'label'        => 'license.form.location',
-                    'class'        => Location::class,
-                    'choice_label' => 'name',
-                    'required'     => false,
-                    'placeholder'  => 'license.form.location_placeholder',
+                    'label'       => 'license.form.location',
+                    'required'    => false,
+                    'placeholder' => 'license.form.location_placeholder',
                 ]
             );
     }// end buildForm()

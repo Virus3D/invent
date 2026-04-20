@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Form;
 
-use App\Entity\Location;
 use App\Entity\Material;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Form\Type\LocationFieldType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -60,13 +59,11 @@ final class MaterialType extends AbstractType
             )
             ->add(
                 'location',
-                EntityType::class,
+                LocationFieldType::class,
                 [
-                    'label'        => 'material.form.location',
-                    'class'        => Location::class,
-                    'choice_label' => 'name',
-                    'required'     => false,
-                    'placeholder'  => 'material.form.location_placeholder',
+                    'label'       => 'material.form.location',
+                    'placeholder' => 'material.form.location_placeholder',
+                    'required'    => false,
                 ]
             );
     }// end buildForm()
