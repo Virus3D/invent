@@ -26,7 +26,8 @@ final class CartridgeApiController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
-    ) {}// end __construct()
+    ) {
+    }// end __construct()
 
     /**
      * Создать новый материал.

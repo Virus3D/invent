@@ -41,7 +41,8 @@ final class InventoryApiController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
-    ) {}// end __construct()
+    ) {
+    }// end __construct()
 
     /**
      * Создать новый инвентарный объект.
@@ -70,6 +71,17 @@ final class InventoryApiController extends AbstractController
     }// end updateInventoryItem()
 
     /**
+     * Сбросить отметку проверки у всех объектов.
+     */
+    #[Route('/check/reset', name: 'api_inventory_check_reset', methods: ['POST'])]
+    public function resetCheck(): JsonResponse
+    {
+        $this->entityManager->getConnection()->executeStatement('UPDATE inventory_item SET checked = 0');
+
+        return $this->json(['success' => true], Response::HTTP_OK);
+    }// end resetCheck()
+
+    /**
      * Установить/снять отметку проверки.
      */
     #[Route('/check/{id}', name: 'api_inventory_check_toggle', methods: ['POST'])]
@@ -88,17 +100,6 @@ final class InventoryApiController extends AbstractController
             Response::HTTP_OK
         );
     }// end toggleCheck()
-
-    /**
-     * Сбросить отметку проверки у всех объектов.
-     */
-    #[Route('/check/reset', name: 'api_inventory_check_reset', methods: ['POST'])]
-    public function resetCheck(): JsonResponse
-    {
-        $this->entityManager->getConnection()->executeStatement('UPDATE inventory_item SET checked = 0');
-
-        return $this->json(['success' => true], Response::HTTP_OK);
-    }// end resetCheck()
 
     /**
      * Save or update an inventory item.
@@ -173,7 +174,7 @@ final class InventoryApiController extends AbstractController
                     }
 
                     $this->entityManager->persist($log);
-                }
+                }// end if
             }// end if
 
             try {

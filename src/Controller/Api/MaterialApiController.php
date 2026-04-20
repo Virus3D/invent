@@ -25,7 +25,7 @@ final class MaterialApiController extends AbstractController
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
     ) {
-    }
+    }// end __construct()
 
     /**
      * Создать новый материал.
@@ -36,7 +36,7 @@ final class MaterialApiController extends AbstractController
         $material = new Material();
 
         return $this->save($request, $material);
-    }
+    }// end createMaterial()
 
     /**
      * Обновить существующий материал.
@@ -45,7 +45,18 @@ final class MaterialApiController extends AbstractController
     public function updateMaterial(Request $request, Material $material): JsonResponse
     {
         return $this->save($request, $material);
-    }
+    }// end updateMaterial()
+
+    /**
+     * Сбросить отметку проверки у всех материалов.
+     */
+    #[Route('/check/reset', name: 'api_material_check_reset', methods: ['POST'])]
+    public function resetCheck(): JsonResponse
+    {
+        $this->entityManager->getConnection()->executeStatement('UPDATE material SET checked = 0');
+
+        return $this->json(['success' => true], Response::HTTP_OK);
+    }// end resetCheck()
 
     /**
      * Установить/снять отметку проверки.
@@ -65,18 +76,7 @@ final class MaterialApiController extends AbstractController
             ],
             Response::HTTP_OK
         );
-    }
-
-    /**
-     * Сбросить отметку проверки у всех материалов.
-     */
-    #[Route('/check/reset', name: 'api_material_check_reset', methods: ['POST'])]
-    public function resetCheck(): JsonResponse
-    {
-        $this->entityManager->getConnection()->executeStatement('UPDATE material SET checked = 0');
-
-        return $this->json(['success' => true], Response::HTTP_OK);
-    }
+    }// end toggleCheck()
 
     /**
      * Save or update a material.
@@ -130,16 +130,14 @@ final class MaterialApiController extends AbstractController
                     ],
                     500
                 );
-            }
-        }
+            }// end try
+        }// end if
 
         return $this->responseError($form);
-    }
+    }// end save()
 
     /**
      * Форматирует ошибки валидации.
-     *
-     * @param ConstraintViolationList $errors
      *
      * @return array<string, array<string>>
      */
@@ -156,12 +154,10 @@ final class MaterialApiController extends AbstractController
         }
 
         return $formatted;
-    }
+    }// end formatValidationErrors()
 
     /**
      * Форматирует ошибки формы.
-     *
-     * @param FormInterface<mixed> $form
      *
      * @return array<string, array<string>>
      */
@@ -178,12 +174,10 @@ final class MaterialApiController extends AbstractController
         }
 
         return $errors;
-    }
+    }// end formatFormErrors()
 
     /**
      * Возвращает ответ с ошибками формы.
-     *
-     * @param FormInterface<mixed> $form
      */
     private function responseError(FormInterface $form): JsonResponse
     {
@@ -195,5 +189,5 @@ final class MaterialApiController extends AbstractController
             ],
             422
         );
-    }
-}
+    }// end responseError()
+}// end class

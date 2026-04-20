@@ -19,8 +19,6 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 use function count;
 
-use const FILTER_VALIDATE_BOOLEAN;
-
 #[Route('/api/licenses')]
 final class SoftwareLicenselApiController extends AbstractController
 {
@@ -28,7 +26,8 @@ final class SoftwareLicenselApiController extends AbstractController
         private readonly TranslatorInterface $translator,
         private readonly EntityManagerInterface $entityManager,
         private readonly ValidatorInterface $validator,
-    ) {}// end __construct()
+    ) {
+    }// end __construct()
 
     /**
      * Создать новый материал.
@@ -84,13 +83,13 @@ final class SoftwareLicenselApiController extends AbstractController
 
                 return $this->json(
                     [
-                        'success'  => true,
-                        'message'  => $this->translator->trans(
+                        'success' => true,
+                        'message' => $this->translator->trans(
                             $new ? 'license.create.success' : 'license.update.success',
                             domain: 'license'
                         ),
-                        'id'       => $license->getId(),
-                        'name'     => $license->getName(),
+                        'id'      => $license->getId(),
+                        'name'    => $license->getName(),
                     ],
                     $new ? 201 : 200
                 );
