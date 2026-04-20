@@ -118,7 +118,7 @@ final class MaterialWriteOffService
         if ($quantity <= 0) {
             throw new InvalidArgumentException('Quantity must be positive.');
         }
-        if ($material->getQuantity() - $quantity <= 0) {
+        if ($material->getQuantity() - $quantity < 0) {
             throw new InvalidArgumentException('Insufficient material quantity.');
         }
     }// end validateQuantity()

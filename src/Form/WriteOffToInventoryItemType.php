@@ -25,7 +25,7 @@ final class WriteOffToInventoryItemType extends AbstractType
             ->add(
                 'quantity',
                 NumberType::class,
-                ['label' => 'material.form.quantity']
+                ['label' => 'write_off.form.quantity']
             )
             ->add(
                 'inventoryItem',
@@ -46,7 +46,7 @@ final class WriteOffToInventoryItemType extends AbstractType
                 'comment',
                 TextareaType::class,
                 [
-                    'label'    => 'material.form.comment',
+                    'label'    => 'write_off.form.comment',
                     'required' => false,
                 ]
             );
