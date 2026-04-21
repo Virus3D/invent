@@ -19,14 +19,12 @@ final class LocationFieldType extends AbstractType
     {
         $resolver->setDefaults(
             [
-                'class'        => Location::class,
-                'choice_label' => static fn (Location $l) => $l->getName() . ' (' . $l->getRoomNumber() . ')',
-                'query_builder' => function (LocationRepository $er) {
-                    return $er->createQueryBuilder('l')
-                        ->orderBy('l.roomNumber', 'ASC')
-                        ->addOrderBy('l.name', 'ASC');
-                },
-                'autocomplete' => true,
+                'class'         => Location::class,
+                'choice_label'  => static fn (Location $l) => $l->getName() . ' (' . $l->getRoomNumber() . ')',
+                'query_builder' => static fn (LocationRepository $er) => $er->createQueryBuilder('l')
+                    ->orderBy('l.roomNumber', 'ASC')
+                    ->addOrderBy('l.name', 'ASC'),
+                'autocomplete'  => true,
             ]
         );
     }// end configureOptions()

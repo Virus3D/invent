@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace App\Form;
 
 use App\Entity\InventoryItem;
-use App\Entity\Location;
 use App\Enum\BalanceType;
 use App\Enum\InventoryCategory;
 use App\Enum\ItemStatus;
 use App\Enum\ItemType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Form\Type\LocationFieldType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
@@ -181,13 +180,11 @@ final class InventoryItemType extends AbstractType
             )
             ->add(
                 'location',
-                EntityType::class,
+                LocationFieldType::class,
                 [
-                    'label'        => 'inventory_item.form.location',
-                    'class'        => Location::class,
-                    'choice_label' => 'name',
-                    'required'     => false,
-                    'placeholder'  => 'inventory_item.form.location_placeholder',
+                    'label'       => 'inventory_item.form.location',
+                    'required'    => false,
+                    'placeholder' => 'inventory_item.form.location_placeholder',
                 ]
             );
 
