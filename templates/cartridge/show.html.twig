@@ -162,7 +162,7 @@
                                 <tr class="{{ installation.installed ? 'table-success' : '' }}">
                                     <td>
                                         <a href="{{ path('app_inventory_show', {id: installation.printer.id}) }}">
-                                            {{ installation.printer.name }}
+                                            {{ installation.printer }}
                                         </a>
                                         {% if installation.installed %}
                                             <span class="badge bg-success ms-1">Активен</span>

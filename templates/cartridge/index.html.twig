@@ -187,7 +187,7 @@
                             <td>
                                 {% if cartridge.printers|length > 0 %}
                                     {% for printer in cartridge.printers %}
-                                    <div>{{ printer.name}}</div>
+                                    <div>{{ printer }}</div>
                                     {% endfor %}
                                 {% else %}
                                     <span class="text-muted small">{{ 'cartridge.table.not_specified'|trans }}</span>

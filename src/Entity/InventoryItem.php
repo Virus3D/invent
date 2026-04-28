@@ -147,10 +147,7 @@ class InventoryItem
     public function validateInventoryNumber(): void
     {
         // Если объект на балансе и категория требует инвентарного номера.
-        if (
-            $this->balanceType->isOnBalance()
-            && empty($this->inventoryNumber)
-        ) {
+        if ($this->balanceType->isOnBalance() && empty($this->inventoryNumber)) {
             throw new LogicException('Инвентарный номер обязателен для объектов на балансе');
         }
 
@@ -713,7 +710,7 @@ class InventoryItem
     public function getCompatibleCartridges(): Collection
     {
         return $this->compatibleCartridges;
-    }
+    }// end getCompatibleCartridges()
 
     public function addCompatibleCartridge(Cartridge $cartridge): static
     {
@@ -722,7 +719,7 @@ class InventoryItem
             $cartridge->addPrinter($this);
         }
         return $this;
-    }
+    }// end addCompatibleCartridge()
 
     public function removeCompatibleCartridge(Cartridge $cartridge): static
     {
@@ -730,7 +727,7 @@ class InventoryItem
             $cartridge->removePrinter($this);
         }
         return $this;
-    }
+    }// end removeCompatibleCartridge()
 
     /**
      * Get all getMaterial consumptions associated with this inventory item.
@@ -741,5 +738,14 @@ class InventoryItem
     {
         return $this->materialConsumptions;
     }// end getMaterialConsumptions()
-}// end class
 
+    public function __toString(): string
+    {
+        return sprintf(
+            '%s%s%s',
+            $this->getName(),
+            $this->getInventoryNumber() ? " [{$this->getInventoryNumber()}]" : '',
+            $this->getLocation() ? " — {$this->getLocation()}" : '',
+        );
+    }// end __toString()
+}// end class

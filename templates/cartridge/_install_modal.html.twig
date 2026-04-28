@@ -69,9 +69,7 @@
                             <option value="">{{ 'cartridge.form.printer_select'|trans }}</option>
                             {% for printer in target_printers|sort((a, b) => a.name <=> b.name) %}
                                 <option value="{{ printer.id }}">
-                                    {{ printer.name }}
-                                    {% if printer.inventoryNumber %}[{{ printer.inventoryNumber }}]{% endif %}
-                                    {% if printer.location %} — {{ printer.location.name }}{% endif %}
+                                    {{ printer }}
                                 </option>
                             {% endfor %}
                         </select>
