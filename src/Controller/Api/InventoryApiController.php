@@ -10,6 +10,8 @@ use App\Entity\MovementLog;
 use App\Enum\InventoryCategory;
 use App\Form\InventoryItemType;
 use App\Form\MovementLogType;
+use App\Service\Aida64Parser;
+use App\Service\EncodingNormalizer;
 use App\Trait\SpecificationTrait;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -384,4 +386,33 @@ final class InventoryApiController extends AbstractController
 
         return $this->responseError($form);
     }// end move()
+
+    /**
+     * Aida64Parser.
+     */
+    #[Route('/parse-aida', name: 'api_inventory_parse_aida', methods: ['POST'])]
+    public function parseAidaReport(
+        Request $request,
+        Aida64Parser $parser,
+        EncodingNormalizer $encodingNormalizer,
+    ): JsonResponse {
+        $file = $request->files->get('aida_report');
+        if (! $file) {
+            return $this->json(['error' => 'Файл не загружен'], 400);
+        }
+
+        $rawContent = file_get_contents($file->getPathname());
+
+        // Нормализуем кодировку.
+        $normalizedContent = $encodingNormalizer->normalizeToUtf8($rawContent);
+
+        // Если содержимое пустое после нормализации – ошибка.
+        if (empty(mb_trim($normalizedContent))) {
+            return $this->json(['error' => 'Файл пуст или содержит некорректные данные'], 400);
+        }
+
+        $systemInfo = $parser->parse($normalizedContent);
+
+        return $this->json($systemInfo->toArray());
+    }// end parseAidaReport()
 }// end class

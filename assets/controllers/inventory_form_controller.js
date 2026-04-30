@@ -19,6 +19,9 @@ export default class extends BaseFormController {
         'categorySelector',
         'specificationsSection',
         'balanceType',
+        'aidaFileInput',
+        'progressBar',
+        'parseResult'
     ]
 
     connect() {
@@ -209,5 +212,83 @@ export default class extends BaseFormController {
         this.specifications = data.specifications || {};
 
         return this.handleSuccessResponse(data);
+    }
+
+
+    async uploadAidaReport(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Показываем прогресс
+        this.progressBarTarget.classList.remove('d-none');
+        this.parseResultTarget.classList.add('d-none');
+
+        const formData = new FormData();
+        formData.append('aida_report', file);
+
+        try {
+            const response = await fetch('/api/inventory/parse-aida', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Ошибка при разборе отчёта');
+            }
+
+            const data = await response.json();
+            this.fillFormWithAidaData(data);
+
+            this.parseResultTarget.classList.remove('d-none');
+            this.parseResultTarget.innerHTML = `
+                <i class="bi bi-check-circle"></i> Данные успешно загружены.
+                Заполнены: процессор, ОЗУ, накопители, видеокарта и другие спецификации.
+            `;
+            setTimeout(() => this.parseResultTarget.classList.add('d-none'), 5000);
+        } catch (error) {
+            this.showError(error.message);
+        } finally {
+            this.progressBarTarget.classList.add('d-none');
+        }
+    }
+
+    fillFormWithAidaData(data) {
+        // Предполагаем, что категория "Компьютер" имеет код 'computer'
+        const categorySelect = this.element.querySelector('#inventory_item_category');
+        if (categorySelect && categorySelect.value !== 'computer') {
+            // Если категория не компьютер, можно либо сменить, либо показать сообщение
+            categorySelect.value = 'computer';
+            // Триггерим событие change, чтобы подгрузились спецификации для категории
+            categorySelect.dispatchEvent(new Event('change'));
+        }
+
+        // Ждём, пока подгрузятся поля спецификаций (если есть задержка)
+        setTimeout(() => {
+            this.fillSpecifications(data);
+        }, 300);
+    }
+
+    fillSpecifications(data) {
+        // Маппинг данных из парсера в ключи спецификаций
+        const mapping = {
+            'processor': data.cpu || '',
+            'ram': data.ram_modules ? data.ram_modules.map(m => `${m.manufacturer} ${m.size} ${m.type} (${m.slot})`).join('; ') : '',
+            'storage': data.storage_devices ? data.storage_devices.map(d => `${d.model} (${d.capacity})`).join('; ') : '',
+            'graphics': data.gpu || '',
+            'motherboard': data.motherboard || '',
+            'os': data.os || '',
+            'other': data.network_address || ''
+        };
+
+        // Обходим все input'ы спецификаций
+        const specInputs = this.element.querySelectorAll('.spec-input');
+        specInputs.forEach(input => {
+            const fieldName = input.id.replace('spec_', '');
+            if (mapping[fieldName] !== undefined) {
+                input.value = mapping[fieldName];
+                this.validateField(input);
+            }
+        });
     }
 }
