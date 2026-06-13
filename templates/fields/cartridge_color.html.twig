@@ -1,0 +1,8 @@
+{% set cartridge = entity.instance %}
+{% if cartridge.color %}
+    <span class="badge badge-{{ cartridge.color == 'black' ? 'dark' : (cartridge.color == 'cyan' ? 'info' : (cartridge.color == 'magenta' ? 'purple' : 'warning')) }}">
+        {{ ('colors.' ~ cartridge.color)|trans(domain: 'admin') }}
+    </span>
+{% else %}
+    <span class="text-muted small">—</span>
+{% endif %}

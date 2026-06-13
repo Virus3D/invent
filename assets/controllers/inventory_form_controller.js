@@ -3,11 +3,8 @@ import { trans } from '../translator';
 
 export default class extends BaseFormController {
     static values = {
-        ...BaseFormController.values,
+        aidaUrl: String,
         categorySpecsUrl: String,
-        updateUrl: String,
-        createUrl: String,
-        itemId: { type: Number, default: 0 },
         currentCategory: String,
         currentSpecifications: { type: String, default: '{}' }
     }
@@ -21,12 +18,15 @@ export default class extends BaseFormController {
         'balanceType',
         'aidaFileInput',
         'progressBar',
-        'parseResult'
+        'parseResult',
+        'specificationsField',
     ]
 
     connect() {
+        // Парсим сохранённые спецификации
         this.parseSpecifications();
-        // Применяем начальное состояние инвентарного номера
+
+        // Начальное состояние инвентарного номера в зависимости от balanceType
         if (this.hasBalanceTypeTarget && this.hasInventoryNumberFieldTarget) {
             const value = this.getCurrentBalanceTypeValue();
             if (value !== null) {
@@ -34,9 +34,20 @@ export default class extends BaseFormController {
             }
         }
 
-        // Если при загрузке уже есть категория, убедимся что спецификации загружены
+        // Если уже выбрана категория – подгружаем спецификации
         if (this.currentCategoryValue && this.currentCategoryValue !== '') {
             this.loadCategorySpecifications(this.currentCategoryValue);
+        }
+
+        // Вешаем слушатель на submit формы для финальной валидации
+        if (this.hasFormTarget) {
+            this.formTarget.addEventListener('submit', (event) => {
+                this.collectSpecifications();
+                if (!this.validateForm()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+            });
         }
     }
 
@@ -88,9 +99,7 @@ export default class extends BaseFormController {
     async onCategoryChange(event) {
         const newCategory = event.target.value;
 
-        if (newCategory === this.currentCategoryValue) {
-            return;
-        }
+        if (newCategory === this.currentCategoryValue) return;
 
         // Показываем индикатор загрузки
         this.specificationsSectionTarget.innerHTML = this.loadingTemplate();
@@ -170,16 +179,18 @@ export default class extends BaseFormController {
 
     // Валидация всех полей спецификаций
     validateAllSpecifications() {
-        return Array.from(
-            this.specificationsSectionTarget.querySelectorAll('.spec-input')
-        ).reduce((valid, input) => this.validateField(input) && valid, true);
+        const inputs = this.specificationsSectionTarget?.querySelectorAll('.spec-input') || [];
+        return Array.from(inputs).reduce((valid, input) => this.validateField(input) && valid, true);
     }
 
-    // Валидация всех обязательных полей формы
+    /**
+     * Финальная валидация формы перед отправкой.
+     * Возвращает false, если есть ошибки, и предотвращает отправку.
+     */
     validateForm() {
         let isValid = true;
 
-        // Валидация основных полей
+        // Проверяем все обязательные поля формы
         const requiredFields = this.formTarget?.querySelectorAll('[required]') || [];
         requiredFields.forEach(field => {
             if (!field.value.trim()) {
@@ -200,21 +211,6 @@ export default class extends BaseFormController {
         return isValid;
     }
 
-    // Обработка отправки формы
-    async submitForm(event) {
-        const url = this.itemIdValue ? this.updateUrlValue : this.createUrlValue;
-        return super.submitForm(event, { url });
-    }
-
-    // Обработка успешного сохранения
-    handleSuccess(data) {
-        // Обновляем текущие спецификации
-        this.specifications = data.specifications || {};
-
-        return this.handleSuccessResponse(data);
-    }
-
-
     async uploadAidaReport(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -227,7 +223,7 @@ export default class extends BaseFormController {
         formData.append('aida_report', file);
 
         try {
-            const response = await fetch('/api/inventory/parse-aida', {
+            const response = await fetch(this.aidaUrlValue, {
                 method: 'POST',
                 body: formData
             });
@@ -264,9 +260,7 @@ export default class extends BaseFormController {
         }
 
         // Ждём, пока подгрузятся поля спецификаций (если есть задержка)
-        setTimeout(() => {
-            this.fillSpecifications(data);
-        }, 300);
+        setTimeout(() => this.fillSpecifications(data), 300);
     }
 
     fillSpecifications(data) {
@@ -290,5 +284,31 @@ export default class extends BaseFormController {
                 this.validateField(input);
             }
         });
+    }
+
+    loadingTemplate() {
+        return `<div class="text-center py-3">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-2">${trans('inventory_item.specifications.loading')}</p>
+        </div>`;
+    }
+
+    /**
+     * Собирает все значения полей спецификаций в объект,
+     * преобразует в JSON и записывает в скрытое поле формы.
+     */
+    collectSpecifications() {
+        const specData = {};
+        this.element.querySelectorAll('.spec-input').forEach(input => {
+            const key = input.getAttribute('data-spec-key');
+            if (key && input.value.trim()) {
+                specData[key] = input.value.trim();
+            }
+        });
+        if (this.hasSpecificationsFieldTarget) {
+            this.specificationsFieldTarget.value = JSON.stringify(specData);
+        }
     }
 }

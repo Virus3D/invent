@@ -1,0 +1,11 @@
+{# templates/fields/printers.html.twig #}
+{% if field.value is iterable %}
+    {% set names = [] %}
+    {% for printer in field.value %}
+        {% set names = names|merge([printer]) %}
+    {% endfor %}
+    <div>{{ names|join('</div><div>')|raw }}</div>
+{% else %}
+    {# fallback для одиночного объекта #}
+    {{ field.value|default('') }}
+{% endif %}

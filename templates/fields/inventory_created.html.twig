@@ -1,0 +1,14 @@
+{% set item = entity.instance %}
+{% if item.commissioningDate %}
+<time title="{{ item.commissioningDate|date('d.m.Y H:i:s') }}">
+    {{ item.commissioningDate|date('d.m.Y') }}
+</time>
+{% elseif item.purchaseDate %}
+<time title="{{ item.purchaseDate|date('d.m.Y H:i:s') }}">
+    {{ item.createdAt|date('d.m.Y') }}
+</time>
+{% else %}
+<time title="{{ item.createdAt|date('d.m.Y H:i:s') }}">
+    {{ item.createdAt|date('d.m.Y') }}
+</time>
+{% endif %}

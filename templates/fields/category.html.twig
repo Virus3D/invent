@@ -1,0 +1,4 @@
+{% set item = entity.instance %}
+<span class="badge badge-{{ item.category.color }}">
+    <i class="bi {{ item.category.icon }}"></i> {{ item.category|trans }}
+</span>

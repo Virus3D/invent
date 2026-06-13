@@ -1,0 +1,59 @@
+{% trans_default_domain 'location' %}
+
+<!-- Подсказки -->
+<div class="card shadow mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            <i class="bi bi-lightbulb"></i> {{ 'tips.title'|trans }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h6><i class="bi bi-check-circle text-success"></i> {{ 'tips.do.title'|trans }}</h6>
+                <ul class="small">
+                    <li>{{ 'tips.do.name'|trans }}</li>
+                    <li>{{ 'tips.do.room_number'|trans }}</li>
+                    <li>{{ 'tips.do.warehouse'|trans }}</li>
+                    <li>{{ 'tips.do.responsible'|trans }}</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h6><i class="bi bi-exclamation-triangle text-warning"></i> {{ 'tips.dont.title'|trans }}</h6>
+                <ul class="small">
+                    <li>{{ 'tips.dont.ambiguous'|trans }}</li>
+                    <li>{{ 'tips.dont.inaccurate'|trans }}</li>
+                    <li>{{ 'tips.dont.long_desc'|trans }}</li>
+                    <li>{{ 'tips.dont.duplicate'|trans }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <h6 class="text-primary">{{ 'tips.examples.title'|trans }}</h6>
+        <div class="row small text-muted">
+            <div class="col-md-4 mb-2">
+                <div class="border rounded p-2">
+                    <strong>{{ 'tips.example1.name'|trans }}</strong><br>
+                    {{ 'tips.example1.room'|trans }}<br>
+                    <em>{{ 'tips.example1.desc'|trans }}</em>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="border rounded p-2">
+                    <strong>{{ 'tips.example2.name'|trans }}</strong><br>
+                    {{ 'tips.example2.room'|trans }}<br>
+                    <em>{{ 'tips.example2.desc'|trans }}</em>
+                </div>
+            </div>
+            <div class="col-md-4 mb-2">
+                <div class="border rounded p-2">
+                    <strong>{{ 'tips.example3.name'|trans }}</strong><br>
+                    {{ 'tips.example3.room'|trans }}<br>
+                    <em>{{ 'tips.example3.desc'|trans }}</em>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

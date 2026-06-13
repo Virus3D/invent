@@ -50,8 +50,8 @@
                             {% if item.isOnBalance() %}
                                 <strong>{{ item.inventoryNumber }}</strong>
                             {% else %}
-                                <span class="badge bg-secondary">
-                                    <i class="bi bi-x-circle"></i> {{ 'inventory_item.balance_type.off_balance'|trans }}
+                                <span class="badge badge-secondary">
+                                    <i class="bi bi-x-circle"></i> {{ 'balance_type.off_balance'|trans }}
                                 </span>
                             {% endif %}
                         </td>
@@ -97,13 +97,13 @@
                                 {% endif %}
                             </div>
                             <div class="flex-shrink-0">
-                                <span class="badge bg-{{ item.category.color }} badge-sm">
+                                <span class="badge badge-{{ item.category.color }}">
                                     <i class="bi {{ item.category.icon }}"></i> {{ item.category|trans }}
                                 </span>
                             </div>
                         </div>
                         {% if 'status' in columns %}
-                        <span class="badge bg-{{ item.status.color }}">
+                        <span class="badge badge-{{ item.status.color }}">
                             <i class="bi {{ item.status.icon }}"></i> {{ item.status|trans }}
                         </span>
                         {% endif %}
@@ -145,19 +145,22 @@
 
                     {% if 'checked' in columns %}
                         <td class="text-center">
-                            <input type="checkbox"
-                                   class="form-check-input"
-                                   data-controller="inventory-check"
-                                   data-action="inventory-check#toggle"
-                                   data-inventory-check-id-value="{{ item.id }}"
-                                   data-inventory-check-toggle-url-value="{{ path('api_inventory_check_toggle', {'id': item.id}) }}"
-                                   {% if item.checked %}checked{% endif %}>
+                            <div class="form-check form-switch"
+                                 data-controller="boolean-toggle">
+                                <input type="checkbox" class="form-check-input"
+                                    {{ item.checked ? 'checked' }}
+                                    data-toggle-url="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('edit').setEntityId(item.id) }}?csrfToken={{ booleanToggleCsrfToken }}&fieldName=checked"
+                                    data-boolean-toggle-target="input"
+                                    data-action="change->boolean-toggle#toggle"
+                                >
+                                <label class="form-check-label"></label>
+                            </div>
                         </td>
                     {% endif %}
 
                     {% if 'actions' in columns %}
                         <td>
-                            <div class="btn-group btn-group-sm">
+                            <div class="btn-group">
                                 <a href="{{ path('app_inventory_show', {'id': item.id}) }}"
                                    class="btn btn-outline-info" title="{{ 'common.actions.view'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
@@ -182,7 +185,7 @@
                     <td colspan="{{ columns|length }}" class="text-center text-muted py-4">
                         <i class="bi bi-inbox display-6"></i>
                         <p class="mt-2">{{ 'inventory_item.not'|trans }}</p>
-                        <a href="{{ path('app_inventory_new') }}" class="btn btn-sm btn-outline-primary mt-2">
+                        <a href="{{ path('app_inventory_new') }}" class="btn btn-outline-primary mt-2">
                             <i class="bi bi-plus-circle"></i> {{ 'inventory_item.show.add_first'|trans }}
                         </a>
                     </td>

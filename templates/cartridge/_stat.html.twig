@@ -1,0 +1,33 @@
+{% trans_default_domain 'cartridge' %}
+
+{% set cartridge = entity.instance %}
+
+<div class="card shadow mt-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">
+            {{ 'statistic.title'|trans }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <dl class="row small mb-0">
+            <dt class="col-6">{{ 'statistic.installations'|trans }}</dt>
+            <dd class="col-6">{{ cartridge.installations|length }}</dd>
+
+            <dt class="col-6">{{ 'statistic.in_operation'|trans }}</dt>
+            <dd class="col-6">
+                {{ cartridge.installations|filter(i => i.installed)|length }}
+            </dd>
+
+            <dt class="col-6">{{ 'statistic.average_term'|trans }}</dt>
+            <dd class="col-6">
+                {% set completed = cartridge.installations|filter(i => i.removedAt) %}
+                {% if completed|length > 0 %}
+                    {% set avg = completed|map(i => i.lifetimeDays)|reduce((a, b) => a + b) / completed|length %}
+                    {{ avg|round(0) }} {{ 'statistic.days'|trans }}
+                {% else %}
+                    —
+                {% endif %}
+            </dd>
+        </dl>
+    </div>
+</div>

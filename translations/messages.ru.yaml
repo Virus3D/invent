@@ -1,9 +1,20 @@
-Title: "Система инвентаризации"
+title: "Система инвентаризации"
 
 # Dashboard
 dashboard:
   description: "Обзор системы инвентаризации"
   categorization: "Распределение по категориям"
+
+inventory_item:
+  all: "Всего объектов"
+
+location:
+  all: "Местоположений"
+  description: "Рабочие места и кабинеты"
+
+move:
+  all: "Перемещений"
+  last: "Последние перемещения"
 
 # Placement
 placement:
@@ -61,6 +72,7 @@ common:
     reset: "Сбросить"
     show: "Показать"
     install: "Установить"
+    remove: "Снять"
   messages:
     success: "Успешно!"
     error: "Ошибка!"
@@ -88,18 +100,17 @@ common:
     delete:
       title: "Подтверждение удаления"
       warning: "Это действие необратимо."
-    delete_message: "Вы уверены, что хотите удалить этот объект \"%name%\"?"
+    delete_message: 'Вы уверены, что хотите удалить этот объект "%name%"?'
     delete_inventory_number: "Инвентарный номер:"
     export_title: "Экспорт объектов"
-    export_description: "Выберите формат для экспорта объектов из местоположения \"%name%\":"
+    export_description: 'Выберите формат для экспорта объектов из местоположения "%name%":'
     network_error: "Ошибка сети или сервера"
     delete_error: "Ошибка при удалении"
     saving_error: "Ошибка при сохранении"
     loading: "Загрузка..."
     deleting: "Удаление..."
 
-# Breadcrumbs
-breadcrumb:
+page:
   home: "Главная"
   inventory: "Объекты"
   location: "Места"
@@ -110,10 +121,11 @@ breadcrumb:
   edit: "Редактировать"
   create: "Создать"
   move: "Переместить"
-
-# Page Titles
-page_title:
   dashboard: "Главная панель"
+
+sections:
+  main: "Основные разделы"
+  service: "Сервис"
 
 # Static
 static:

@@ -1,0 +1,31 @@
+{% extends '@EasyAdmin/crud/edit.html.twig' %}
+
+{% trans_default_domain 'inventory' %}
+
+{# Определяем переменную form, чтобы использовать дальше #}
+{% set form = edit_form %}
+{% set item = entity.instance %}
+
+{% block edit_form %}
+    <div class="card-body"
+        data-controller="inventory-form"
+        data-inventory-form-aida-url-value="{{ path('api_inventory_parse_aida') }}"
+        data-inventory-form-category-specs-url-value="{{ path('api_category_specs', {'category': '__CATEGORY__'}) }}"
+        data-inventory-form-current-category-value="{{ item.category.value|default('') }}"
+        data-inventory-form-current-specifications-value="{{ item.specifications|json_encode }}"
+    >
+    {# Загрузка AIDA64 #}
+    {% include 'inventory/_aida.html.twig' %}
+
+
+    {# Собственно форма EasyAdmin (с кастомной структурой) #}
+    {{ form_start(form, {'attr': {'id': 'edit-InventoryItem-form', 'data-inventory-form-target': 'form'}}) }}
+
+    {# Секции формы точно как в оригинальном edit.html.twig #}
+    {% include 'inventory/_edit_sections.html.twig' with {form: form, item: item} %}
+
+    {{ form_end(form) }}
+
+    {# Подсказки #}
+    {% include 'inventory/_tips_sections.html.twig' %}
+{% endblock %}

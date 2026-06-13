@@ -18,7 +18,7 @@ enum BalanceType: string implements TranslatableInterface
     public function trans(TranslatorInterface $translator, ?string $locale = null): string
     {
         return $translator->trans(
-            "inventory_item.balance_type.{$this->value}",
+            "balance_type.{$this->value}",
             domain: 'inventory',
             locale: $locale
         );

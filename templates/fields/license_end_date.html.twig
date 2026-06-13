@@ -1,0 +1,8 @@
+{% set license = entity.instance %}
+{% if license.endDate %}
+    {{ license.endDate|date('d.m.Y') }}
+{% else %}
+    <span class="badge badge-info">{{ 'license.perpetual'|trans(domain: 'license') }}</span>
+{% endif %}
+</td>
+

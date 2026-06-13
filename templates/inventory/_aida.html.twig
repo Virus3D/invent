@@ -1,0 +1,23 @@
+<div class="card mb-4 border-primary">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-arrow-up"></i> Загрузить отчёт AIDA64</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label for="aidaReportFile" class="form-label">Файл отчёта (.html)</label>
+            <input type="file" class="form-control" id="aidaReportFile"
+                    accept=".html,.htm"
+                    data-action="change->inventory-form#uploadAidaReport"
+                    data-inventory-form-target="aidaFileInput">
+            <div class="form-text">
+                Загрузите HTML-отчёт, сгенерированный программой AIDA64.
+                Данные будут автоматически подставлены в форму.
+            </div>
+        </div>
+        <div class="progress d-none" data-inventory-form-target="progressBar">
+            <div class="progress-bar progress-bar-striped progress-bar-animated"
+                    role="progressbar" style="width: 100%">Обработка...</div>
+        </div>
+        <div class="alert alert-info d-none mt-2" data-inventory-form-target="parseResult"></div>
+    </div>
+</div>

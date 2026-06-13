@@ -1,0 +1,186 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% trans_default_domain 'cartridge' %}
+{% set cartridge = entity.instance %}
+
+{% block content_title %}
+    {{ cartridge.name }}
+    {% if cartridge.color %}
+        <span class="badge badge-{{ cartridge.color == 'black' ? 'dark' : 'info' }} ms-2">
+            {{ ('colors.' ~ cartridge.color)|trans(domain: 'admin') }}
+        </span>
+    {% endif %}
+{% endblock %}
+
+{% block main %}
+    <div class="row g-4">
+        {# Левая колонка: Информация #}
+        <div class="col-lg-4">
+            {# Карточка остатка #}
+            <div class="card border-0 shadow mb-4">
+                <div class="card-body text-center py-4">
+                    <h6 class="text-muted text-uppercase small mb-3">{{ 'specifications.stock_quantity'|trans }}</h6>
+                    <div class="display-4 fw-bold text-{{ cartridge.stockQuantity > cartridge.printers|length ? 'success' : (cartridge.stockQuantity > 0 ? 'warning' : 'danger') }}">
+                        {{ cartridge.stockQuantity }}
+                    </div>
+                    <p class="text-muted small mb-0">
+                        {% if cartridge.stockQuantity == 0 %}
+                            <i class="bi bi-exclamation-triangle text-danger"></i> {{ 'status.out_of_stock'|trans }}
+                        {% elseif cartridge.stockQuantity < cartridge.printers|length %}
+                            <i class="bi bi-exclamation-circle text-warning"></i> {{ 'status.low_stock'|trans }}
+                        {% else %}
+                            <i class="bi bi-check-circle text-success"></i> {{ 'status.in_stock'|trans }}
+                        {% endif %}
+                    </p>
+
+                    {% if cartridge.stockQuantity > 0 %}
+                        <hr>
+                        <button class="btn btn-primary w-100"
+                                data-bs-toggle="modal"
+                                data-bs-target="#installModal{{ cartridge.id }}">
+                            <i class="bi bi-download me-1"></i> {{ 'actions.install_printer'|trans }}
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# Характеристики #}
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-light py-3">
+                    <h5 class="card-title mb-0 small text-uppercase text-muted">{{ 'specifications.title'|trans }}</h5>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'specifications.yield_pages'|trans }}</span>
+                        <span class="fw-semibold">
+                            {{ cartridge.yieldPages ? cartridge.yieldPages|number_format(0, ',', ' ') : 'Не указан' }}
+                        </span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'specifications.compatible'|trans }}</span>
+                        <span class="fw-semibold">{{ cartridge.printers|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">{{ 'specifications.installed_all'|trans }}</span>
+                        <span class="fw-semibold">{{ cartridge.installations|length }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            {# Быстрое пополнение #}
+            <div class="card border-0 shadow">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">{{ 'specifications.added'|trans }}</h6>
+                    <form class="d-flex gap-2" method="post" action="{{ ea_url().setController('App\\Controller\\CartridgeCrudController').setAction('addStock').setEntityId(cartridge.id) }}">
+                        <div class="input-group mb-3">
+                            <input type="number" name="quantity" class="form-control form-control-sm"
+                                   min="1" max="100" value="1" required>
+                            <button class="btn btn-outline-success" type="submit">{{ 'common.actions.add'|trans(domain: 'messages') }}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {# Правая колонка: Статистика и история #}
+        <div class="col-lg-8">
+            {# Статистика использования #}
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-light py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-graph-up me-2"></i>{{ 'statistic.title'|trans }}
+                    </h5>
+                    <form class="d-flex gap-2" method="get">
+                        <input type="date" name="from" class="form-control form-control-sm" value="{{ date_from.format('Y-m-d') }}">
+                        <span class="text-muted">—</span>
+                        <input type="date" name="to" class="form-control form-control-sm" value="{{ date_to.format('Y-m-d') }}">
+                        <div>
+                        <button type="submit" class="btn btn-secondary">{{ 'common.actions.show'|trans(domain: 'messages') }}</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4 border-end">
+                            <div class="h4 mb-0">{{ stats.installations_count }}</div>
+                            <small class="text-muted">{{ 'statistic.installed'|trans }}</small>
+                        </div>
+                        <div class="col-4 border-end">
+                            <div class="h4 mb-0">
+                                {{ stats.total_pages|number_format(0, ',', ' ') }}
+                            </div>
+                            <small class="text-muted">{{ 'statistic.pages'|trans }}</small>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 mb-0">
+                                {{ stats.avg_pages_per_install ? stats.avg_pages_per_install|round(0)|number_format(0, ',', ' ') : '—' }}
+                            </div>
+                            <small class="text-muted">{{ 'statistic.avg_per_install'|trans }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# История установок #}
+            <div class="card border-0 shadow">
+                <div class="card-header bg-light py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-clock-history me-2"></i>{{ 'history.title'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>{{ 'history.table.printer'|trans }}</th>
+                                    <th>{{ 'history.table.installed'|trans }}</th>
+                                    <th>{{ 'history.table.existing'|trans }}</th>
+                                    <th>{{ 'history.table.page'|trans }}</th>
+                                    <th>{{ 'history.table.comment'|trans }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for installation in cartridge.installations|sort((a, b) => b.installedAt <=> a.installedAt) %}
+                                <tr class="{{ installation.installed ? 'table-success' : '' }}">
+                                    <td>
+                                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('detail').setEntityId(installation.printer.id) }}">
+                                            {{ installation.printer }}
+                                        </a>
+                                        {% if installation.installed %}
+                                            <span class="badge badge-success ms-1">{{ 'status.active'|trans }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ installation.installedAt|date('d.m.Y H:i') }}</td>
+                                    <td>
+                                        {{ installation.removedAt ? installation.removedAt|date('d.m.Y H:i') : '—' }}
+                                    </td>
+                                    <td>
+                                        {{ installation.printedPages ? installation.printedPages|number_format(0, ',', ' ') : '—' }}
+                                    </td>
+                                    <td>
+                                        {% if installation.comment %}
+                                            <small class="text-muted">
+                                                {{ installation.comment }}
+                                            </small>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        {{ 'messages.no_history'|trans }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Модальное окно быстрой установки (включается из index) #}
+    {% include 'cartridge/_install_modal.html.twig' with {cartridge: cartridge} %}
+{% endblock %}

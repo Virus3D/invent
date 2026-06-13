@@ -1,0 +1,230 @@
+{% extends '@EasyAdmin/crud/detail.html.twig' %}
+
+{% trans_default_domain 'location' %}
+
+{% set location = entity.instance %}
+
+{% block main %}
+<div class="container-fluid py-4"
+     data-controller="inventory-filter"
+     data-inventory-filter-url-value="{{ ea_url().setController('App\\Controller\\LocationCrudController').setAction('detail').setEntityId(location.id) }}"
+     data-inventory-filter-location-id-value="{{ location.id }}">
+
+    <div class="row">
+        <!-- Основная информация -->
+        <div class="col-md-8">
+            {{ parent() }}
+
+            <!-- Объекты в этом местоположении -->
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-box-seam"></i> {{ 'show.objects_in_location'|trans }}
+                        </h5>
+                        <span class="badge badge-primary"
+                              data-inventory-filter-target="count"
+                              id="filtered-objects-count">
+                            {{ location.inventoryItems|length }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if location.inventoryItems|length > 0 %}
+                <div class="position-relative">
+                    <!-- Индикатор загрузки -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none justify-content-center align-items-center z-3"
+                         data-inventory-filter-target="loading"
+                         style="display: none;">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">{{ 'common.messages.loading'|trans(domain: 'messages') }}</span>
+                        </div>
+                    </div>
+
+                    {# Форма фильтрации #}
+                    <form method="get"
+                          class="m-4 filter-form"
+                          data-inventory-filter-target="form"
+                          data-action="submit->inventory-filter#filter">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.name, {attr: {
+                                    'class': 'form-control',
+                                    'data-action': 'input->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.category, {attr: {
+                                    'class': 'form-select category-selector',
+                                    'data-action': 'change->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3">
+                                {{ form_row(filterForm.status, {attr: {
+                                    'class': 'form-select',
+                                    'data-action': 'change->inventory-filter#filter'
+                                }}) }}
+                            </div>
+                            <div class="col-md-3 d-flex">
+                                <div>
+                                    <button type="submit"
+                                            class="btn btn-primary filter-btn me-2"
+                                            data-action="click->inventory-filter#filter"
+                                            title="{{ 'common.actions.filter'|trans(domain: 'messages') }}">
+                                        <i class="bi bi-funnel"></i>
+                                    </button>
+                                </div>
+                                <div>
+                                    <button type="button"
+                                            class="btn btn-outline-secondary reset-btn"
+                                            data-action="click->inventory-filter#reset"
+                                            title="{{ 'common.actions.reset'|trans(domain: 'messages') }}">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Контейнер для контента -->
+                    <div data-inventory-filter-target="container"
+                         id="inventory-items-container">
+                        {{ include('inventory/_list.html.twig', {
+                            items: inventoryItems,
+                            columns: ['inventory_number', 'status', 'serial_number', 'checked', 'created_at', 'actions']
+                        }) }}
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted" id="shown-objects-text">
+                            {{ 'show.shown_objects'|trans({'%count%': inventoryItems|length}) }}
+                        </small>
+                    </div>
+                </div>
+                {% else %}
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">{{ 'show.no_objects'|trans }}</h4>
+                    <p class="text-muted mb-4">{{ 'show.no_objects_desc'|trans }}</p>
+                    <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('new').set('location', location.id) }}"
+                       class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> {{ 'show.add_first_object'|trans }}
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Боковая панель -->
+        <div class="col-md-4">
+            <!-- Статистика -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up"></i> {{ 'show.category_stats'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% set stats = {} %}
+                    {% for item in location.inventoryItems %}
+                        {% set category = item.category.value %}
+                        {% set stats = stats|merge({(category): stats[category]|default(0) + 1}) %}
+                    {% endfor %}
+
+                    <div class="row text-center">
+                        {% for category_key, count in stats %}
+                            {% if count > 0 %}
+                                {% set category_enum = get_category_enum(category_key) %}
+                                {% if category_enum %}
+                                    <div class="col-6 mb-3">
+                                        <div class="bg-{{ category_enum.color }} bg-opacity-10 rounded-circle p-3 mx-auto mb-2"
+                                            style="width: 70px; height: 70px;">
+                                            <i class="bi {{ category_enum.icon }} fs-4 text-{{ category_enum.color }}"></i>
+                                        </div>
+                                        <h5>{{ count }}</h5>
+                                        <small class="text-muted">{{ category_enum|trans }}</small>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p class="text-muted mb-0">{{ 'show.no_data'|trans }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Быстрые действия -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-lightning-charge"></i> {{ 'show.quick_actions'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('new').set('location', location.id) }}"
+                           class="btn btn-outline-success">
+                            <i class="bi bi-plus-circle"></i> {{ 'show.add_new_object'|trans }}
+                        </a>
+                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('move').setEntityId(location.id) }}"
+                           class="btn btn-outline-warning">
+                            <i class="bi bi-arrow-left-right"></i> {{ 'show.move_objects_from_here'|trans }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Последние перемещения -->
+            <div class="card shadow">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> {{ 'show.recent_movements'|trans }}
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    {% set recent_logs = [] %}
+                    {% for item in location.inventoryItems %}
+                        {% for log in item.movementLogs|slice(0, 3) %}
+                            {% set recent_logs = recent_logs|merge([log]) %}
+                        {% endfor %}
+                    {% endfor %}
+
+                    {% if recent_logs|length > 0 %}
+                        {% set recent_logs = recent_logs|sort((a, b) => b.movedAt <=> a.movedAt)|slice(0, 5) %}
+                        <div class="list-group list-group-flush">
+                            {% for log in recent_logs %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <small class="text-muted">{{ log.movedAt|date('d.m.Y H:i') }}</small>
+                                    </div>
+                                    <div class="mb-1">
+                                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('detail').setEntityId(log.inventoryItem.id) }}"
+                                           class="text-decoration-none">
+                                            {{ log.inventoryItem.name }}
+                                        </a>
+                                    </div>
+                                    {% if log.reason %}
+                                        <small class="text-muted">{{ log.reason|slice(0, 50) }}{% if log.reason|length > 50 %}...{% endif %}</small>
+                                    {% endif %}
+                                    <small class="d-block text-muted">
+                                        <i class="bi bi-person"></i> {{ log.movedBy }}
+                                    </small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-clock-history text-muted"></i>
+                            <p class="text-muted mt-2 mb-0">{{ 'show.no_movement_history'|trans }}</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

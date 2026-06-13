@@ -1,0 +1,44 @@
+{% trans_default_domain 'inventory' %}
+{% set item = entity.instance %}
+<div class="d-flex justify-content-between align-items-start">
+    <div class="me-3">
+        <div class="fw-medium">
+            {% if item.specifications|length > 0 %}
+            {% set spec_labels = {} %}
+            {% for key, value in item.specifications %}
+                {% if value %}
+                    {% set label = ('inventory_item.spec_labels.' ~ key)|default(key|replace({'_': ' '})|title)|trans %}
+                    {% set spec_labels = spec_labels|merge({(key): label}) %}
+                {% endif %}
+            {% endfor %}
+            <span
+                {{ stimulus_controller('popover', {
+                    specs: item.specifications|json_encode,
+                    labels: spec_labels|json_encode,
+                    title: 'inventory_item.show.specifications'|trans,
+                    placement: 'right',
+                    trigger: 'click hover',
+                    emptyMessage: 'inventory_item.no_specifications'|trans
+                }) }}
+                {{ stimulus_target('popover', 'trigger') }}
+                {{ stimulus_action('popover', 'connect') }}
+                data-specs-empty="{{ 'inventory_item.no_specifications'|trans }}"
+                style="cursor: pointer; border-bottom: 1px dashed #6c757d;"
+                title="{{ 'inventory_item.show.click_for_details'|trans }}">
+                {{ item.name }}
+            </span>
+            {% else %}
+            {{ item.name }}
+        {% endif %}
+            {% if item.purchasePrice %}
+            <i class="bi bi-cash-coin text-info" title="{{ item.purchasePrice|format_currency('RUB', locale='ru') }}"></i>
+            {% endif %}
+        </div>
+        {% if item.description %}
+            <small class="text-muted d-block mt-1">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</small>
+        {% endif %}
+    </div>
+</div>
+<span class="badge badge-{{ item.status.color }}">
+    <i class="bi {{ item.status.icon }}"></i> {{ item.status|trans }}
+</span>

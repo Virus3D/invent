@@ -1,0 +1,11 @@
+{% set cartridge = entity.instance %}
+<div class="fw-semibold">{{ cartridge.name }}</div>
+{% if cartridge.installations|filter(i => i.installed)|length > 0 %}
+    <small class="text-muted">
+        <i class="bi bi-check2-circle text-success"></i>
+        {{ 'cartridge.installed_count'|trans({
+            '%count%': cartridge.installations|filter(i => i.installed)|length
+        }, 'cartridge') }}
+    </small>
+{% endif %}
+

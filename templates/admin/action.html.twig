@@ -1,0 +1,26 @@
+{% set action_icons = {
+    'show': 'bi-eye',
+    'edit': 'bi-pencil',
+    'delete': 'bi-trash',
+    'move': 'bi-arrow-left-right',
+    'check': 'bi-check-circle',
+} %}
+{% set action_colors = {
+    'show': 'info',
+    'edit': 'primary',
+    'delete': 'danger',
+    'move': 'warning',
+    'check': 'success',
+} %}
+{% set icon = action_icons[action.name]|default('bi-gear') %}
+{% set color = action_colors[action.name]|default('secondary') %}
+
+<a href="{{ action.htmlElement.isLink ? action.linkUrl : null }}"
+   class="btn btn-outline-{{ color }} {{ action.cssClass }}"
+   title="{{ action.label|default(action.name)|trans }}"
+   data-bs-toggle="tooltip"
+   {% for name, value in action.htmlAttributes %}
+       {{ name }}="{{ value|e('html_attr') }}"
+   {% endfor %}>
+    <i class="bi {{ icon }}"></i>
+</a>

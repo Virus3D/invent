@@ -1,0 +1,31 @@
+{% trans_default_domain 'location' %}
+{% set location = entity.instance %}
+
+{% if location.inventoryItems|length > 0 %}
+<div class="card shadow mt-4">
+    <div class="card-header bg-warning">
+        <h5 class="mb-0 text-white">
+            <i class="bi bi-exclamation-triangle"></i> {{ 'attention'|trans }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <p>{{ 'objects_warning'|trans }}</p>
+        {{ include('inventory/_list.html.twig', {
+            items: location.inventoryItems|slice(0, 5),
+            columns: ['inventory_number']
+        }) }}
+
+        {% if location.inventoryItems|length > 5 %}
+            <p class="text-muted small">
+                {{ 'and_more'|trans({'%count%': location.inventoryItems|length - 5}) }}
+            </p>
+        {% endif %}
+
+        <div class="alert alert-warning mt-3">
+            <i class="bi bi-info-circle"></i>
+            <strong>{{ 'common.messages.warning'|trans(domain: 'messages') }}:</strong>
+            {{ 'delete_warning'|trans }}
+        </div>
+    </div>
+</div>
+{% endif %}

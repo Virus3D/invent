@@ -9,10 +9,12 @@ use App\Enum\BalanceType;
 use App\Enum\InventoryCategory;
 use App\Enum\ItemStatus;
 use App\Enum\ItemType;
+use App\Form\DataTransformer\JsonToArrayTransformer;
 use App\Form\Type\LocationFieldType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -25,6 +27,11 @@ use Symfony\Component\Validator\Constraints\PositiveOrZero;
 
 final class InventoryItemType extends AbstractType
 {
+    public function __construct(
+        private readonly JsonToArrayTransformer $jsonToArrayTransformer,
+    ) {
+    }// end __construct()
+
     /**
      * {@inheritDoc}
      */
@@ -146,11 +153,10 @@ final class InventoryItemType extends AbstractType
                     'label'    => 'inventory_item.form.purchase_date',
                     'required' => false,
                     'widget'   => 'single_text',
-                    'html5'    => false,
-                    'format'   => 'dd.MM.yyyy',
+                    'html5'    => true,
                     'attr'     => [
-                        'class'       => 'datepicker',
-                        'placeholder' => 'inventory_item.form.purchase_date_placeholder',
+                        'placeholder'  => 'inventory_item.form.purchase_date_placeholder',
+                        'autocomplete' => 'off',
                     ],
                 ]
             )
@@ -161,11 +167,10 @@ final class InventoryItemType extends AbstractType
                     'label'    => 'inventory_item.form.commissioning_date',
                     'required' => false,
                     'widget'   => 'single_text',
-                    'html5'    => false,
-                    'format'   => 'dd.MM.yyyy',
+                    'html5'    => true,
                     'attr'     => [
-                        'class'       => 'datepicker',
-                        'placeholder' => 'inventory_item.form.commissioning_date_placeholder',
+                        'placeholder'  => 'inventory_item.form.commissioning_date_placeholder',
+                        'autocomplete' => 'off',
                     ],
                 ]
             )
@@ -186,7 +191,18 @@ final class InventoryItemType extends AbstractType
                     'required'    => false,
                     'placeholder' => 'inventory_item.form.location_placeholder',
                 ]
+            )
+            ->add(
+                'specifications',
+                HiddenType::class,
+                [
+                    'required' => false,
+                    'attr'     => ['data-inventory-form-target' => 'specificationsField'],
+                ]
             );
+
+        $builder->get('specifications')
+            ->addModelTransformer($this->jsonToArrayTransformer);
 
         // Добавляем событие для динамического изменения обязательности полей.
         $builder->addEventListener(

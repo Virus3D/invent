@@ -1,0 +1,116 @@
+page:
+  home: "Главная"
+  inventory: "Объекты"
+  location: "Места"
+  license: "Лицензии"
+  cartridge: "Катриджы"
+  material: "Материалы"
+  search: "Поиск"
+  edit: "Редактировать"
+  create: "Создать"
+  move: "Переместить"
+  dashboard: "Главная панель"
+  users: "Пользователи"
+
+sections:
+  main: "Основные разделы"
+  users: "Пользователи"
+
+"Null": "не указано"
+
+entities:
+  App\Entity\InventoryItem:
+    singular: "Объект инвентаризации"
+    plural: "Объекты инвентаризации"
+    properties:
+      name: "Наименование"
+      inventoryNumber: "Инвентарный номер"
+      serialNumber: "Серийный номер"
+      category: "Категория"
+      location: "Расположение"
+      createdAt: "Добавлен"
+      updatedAt: "Последнее обновление"
+      checked: "Проверен"
+
+  App\Entity\Location:
+    singular: "Местоположение"
+    plural: "Местоположения"
+    properties:
+      name: "Наименование"
+      roomNumber: "Номер помещения"
+      description: "Описание"
+      inventoryItemsCount: "Объектов"
+
+  App\Entity\SoftwareLicense:
+    singular: "Лицензия"
+    plural: "Лицензии ПО"
+    properties:
+      name: "Наименование"
+      licenseKey: "Лицензионный ключ"
+      startDate: "Дата начала"
+      endDate: "Дата окончания"
+      endDate_help: "Если лицензия бессрочная — оставьте поле пустым"
+      valid: "Действительна"
+      createdAt: "Дата добавления"
+      updatedAt: "Последнее обновление"
+      location: "Местоположение"
+
+  App\Entity\Material:
+    singular: "Материал"
+    plural: "Материалы"
+    properties:
+      name: "Наименование"
+      createdAt: "Дата добавления"
+      quantity: "Количество:"
+      location: "Местоположение"
+      checked: "Проверен"
+
+  App\Entity\Cartridge:
+    singular: "Картридж"
+    plural: "Картриджи"
+    properties:
+      name: "Модель картриджа"
+      name_help: "Уникальное название модели картриджа"
+      color: "Цвет"
+      yieldPages: "Ресурс (страниц)"
+      yieldPages_help: "Заявленное количество страниц на один картридж"
+      stockQuantity: "Остаток на складе"
+      stockQuantity_help: "Текущее количество доступных картриджей"
+      printers: "Совместимые принтеры"
+      printers_help: "Принтеры, которые могут использовать этот тип картриджа"
+      printedPages: "Отпечатано страниц"
+      comment: "Комментарий"
+      comment_help: 'Необязательно. Например: "Плановая замена", "Закончился тонер"'
+    sections:
+      base: "Основная информация"
+      compatible: "Совместимость"
+  App\Entity\User:
+    singular: "Пользователь"
+    plural: "Пользователи"
+    properties:
+      id: "ID"
+      username: "Логин"
+      roles: "Роли"
+      first: "Пароль"
+      second: "Повторите пароль"
+      createdAt: "Создан"
+      updatedAt: "Обновлён"
+    role:
+      user: "Пользователь"
+      admin: "Администратор"
+
+actions:
+  move: "Переместить"
+  check.reset_all: "Сбросить проверки"
+  write_off:
+    location: "Списать на помещение"
+    item: "Списать на оборудование"
+  material.report: "Отчёт по списаниям"
+
+colors:
+  black: "Чёрный"
+  cyan: "Голубой"
+  magenta: "Пурпурный"
+  yellow: "Жёлтый"
+  color: "Цветной"
+  other: "Другой"

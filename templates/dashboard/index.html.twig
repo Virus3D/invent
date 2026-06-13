@@ -1,18 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends '@EasyAdmin/layout.html.twig' %}
 
-{% set title = 'page_title.dashboard'|trans %}
+{% set title = 'page.dashboard'|trans %}
+{% block page_title %}{{ title }}{% endblock %}
 
-{% block body %}
+{% block content_title %}<i class="fa fa-home"></i> {{ title }}{% endblock %}
+{% block content_help %}<p class="text-muted"><small>{{ 'dashboard.description'|trans }}</small></p>{% endblock %}
+
+{% block main %}
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h2">
-                <i class="bi bi-speedometer2"></i> {{ title }}
-            </h1>
-            <p class="text-muted">{{ 'dashboard.description'|trans }}</p>
-        </div>
-    </div>
-
     <!-- Статистика -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -21,14 +16,17 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                {{ 'inventory_item.all'|trans(domain: 'inventory') }}
+                                {{ 'inventory_item.all'|trans }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_items }}
                             </div>
+                            <div class="mt-2 mb-0 text-muted text-xs">
+                                &nbsp;
+                            </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-box-seam fa-2x text-primary"></i>
+                            <i class="fas fa-box fa-2x text-primary"></i>
                         </div>
                     </div>
                 </div>
@@ -41,17 +39,17 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                {{ 'location.all'|trans(domain: 'location') }}
+                                {{ 'location.all'|trans }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_locations }}
                             </div>
                             <div class="mt-2 mb-0 text-muted text-xs">
-                                <i class="bi bi-building"></i> {{ 'location.description'|trans(domain: 'location') }}
+                                {{ 'location.description'|trans }}
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-geo-alt fa-2x text-success"></i>
+                            <i class="fas fa-map-marker-alt fa-2x text-success"></i>
                         </div>
                     </div>
                 </div>
@@ -64,20 +62,20 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                {{ 'move.all'|trans(domain: 'move') }}
+                                {{ 'move.all'|trans }}
                             </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
                                 {{ stats.total_movements }}
                             </div>
                             <div class="mt-2 mb-0 text-muted text-xs">
                                 {% if stats.last_movement %}
-                                    <i class="bi bi-calendar-event"></i>
-                                    {{ 'common.last'|trans }}: {{ stats.last_movement|date('d.m.Y') }}
+                                    {{ 'move.last'|trans }}: {{ stats.last_movement|date('d.m.Y') }}
                                 {% endif %}
+                                &nbsp;
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-arrow-left-right fa-2x text-warning"></i>
+                            <i class="fa fa-arrow-right-arrow-left fa-2x text-warning"></i>
                         </div>
                     </div>
                 </div>
@@ -96,11 +94,11 @@
                                 {{ itemsWithoutLocation|length }}
                             </div>
                             <div class="mt-2 mb-0 text-muted text-xs">
-                                <i class="bi bi-exclamation-triangle"></i> {{ 'placement.require'|trans }}
+                                {{ 'placement.require'|trans }}
                             </div>
                         </div>
                         <div class="col-auto">
-                            <i class="bi bi-question-circle fa-2x text-info"></i>
+                            <i class="fa fa-question-circle fa-2x text-info"></i>
                         </div>
                     </div>
                 </div>
@@ -121,7 +119,7 @@
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-success">
-                        <i class="bi bi-lightning-charge"></i> {{ 'common.actions.quick'|trans }}
+                        <i class="fa fa-bolt"></i> {{ 'common.actions.quick'|trans }}
                     </h6>
                 </div>
                 <div class="card-body">
@@ -135,9 +133,9 @@
             <div class="card shadow">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-warning">
-                        <i class="bi bi-exclamation-triangle"></i> {{ 'placement.without_binding'|trans }}
+                        <i class="fa fa-triangle-exclamation"></i> {{ 'placement.without_binding'|trans }}
                     </h6>
-                    <span class="badge bg-warning">{{ itemsWithoutLocation|length }}</span>
+                    <span class="badge badge-warning">{{ itemsWithoutLocation|length }}</span>
                 </div>
                 <div class="card-body p-0">
                     <div class="list-group list-group-flush">
@@ -149,28 +147,28 @@
                                         <small class="text-muted">{{ item.inventoryNumber }}</small>
                                     </div>
                                     <div class="btn-group">
-                                        <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
-                                           class="btn btn-sm btn-outline-primary" title="{{ 'common.actions.edit'|trans }}">
-                                            <i class="bi bi-pencil"></i>
+                                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('edit').setEntityId(item.id) }}"
+                                           class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans }}">
+                                            <i class="fa fa-pencil"></i>
                                         </a>
-                                        <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
-                                           class="btn btn-sm btn-outline-warning" title="{{ 'common.actions.post'|trans }}">
-                                            <i class="bi bi-geo-alt"></i>
+                                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('move').setEntityId(item.id) }}"
+                                           class="btn btn-outline-warning" title="{{ 'common.actions.post'|trans }}">
+                                            <i class="fas fa-map-marker-alt"></i>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                         {% else %}
                             <div class="list-group-item text-center text-muted py-4">
-                                <i class="bi bi-check-circle display-6"></i>
+                                <i class="fa fa-check-circle display-6"></i>
                                 <p class="mt-2 mb-0">{{ 'placement.all_placed'|trans }}</p>
                             </div>
                         {% endfor %}
                     </div>
                     {% if itemsWithoutLocation|length > 5 %}
                         <div class="card-footer text-center">
-                            <a href="{{ path('app_inventory_index') }}?filter=unassigned" class="btn btn-sm btn-link">
-                                {{ 'placement.all_placed'|trans({count: itemsWithoutLocation|length}) }}
+                            <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('index') }}?filters[location][comparison]=%3D&filters[location][value]=" class="btn btn-link">
+                                {{ 'placement.show'|trans({'%count%': itemsWithoutLocation|length}) }}
                             </a>
                         </div>
                     {% endif %}
@@ -187,5 +185,4 @@
     </div>
 </div>
 
-{# {% include 'modal/_mass_move.html.twig' %} #}
 {% endblock %}

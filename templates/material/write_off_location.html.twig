@@ -1,12 +1,14 @@
-{% extends 'base.html.twig' %}
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
 
 {% form_theme form 'form/fields.html.twig' %}
 {% trans_default_domain 'material' %}
-{% set title = 'write_off.location.title'|trans({'%name%': material.name}) %}
 
-{% block body %}
-    <h1>{{ 'write_off.location.heading'|trans({'%name%': material.name}) }}</h1>
+{% block content_title %}
+    {{ 'write_off.location.heading'|trans({'%name%': material.name}) }}
+{% endblock %}
 
+{% block main %}
     <p>{{ 'write_off.available_quantity'|trans }}: <strong>{{ material.quantity }}</strong></p>
 
     {{ form_start(form) }}
@@ -14,7 +16,7 @@
         {{ form_row(form.location) }}
         {{ form_row(form.comment) }}
         <button type="submit" class="btn btn-primary">{{ 'common.actions.submit'|trans(domain: 'messages') }}</button>
-        <a href="{{ path('app_material_index') }}" class="btn btn-secondary">
+        <a href="{{ ea_url().setController('App\\Controller\\MaterialCrudController').setAction('index') }}" class="btn btn-secondary">
             {{ 'common.actions.cancel'|trans(domain: 'messages') }}
         </a>
     {{ form_end(form) }}

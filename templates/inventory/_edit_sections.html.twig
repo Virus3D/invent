@@ -1,0 +1,120 @@
+<div data-inventory-form-target="errorContainer"
+    class="alert alert-danger d-none"
+    role="alert"></div>
+
+<!-- Секция 1: Основная информация -->
+<div class="form-section">
+    <h5 class="form-section-title">
+        <i class="bi bi-info-circle me-2"></i>{{ 'form.section.basic'|trans(domain: 'inventory') }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-8">
+            {{ form_row(form.name) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.category) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.inventoryNumber) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_row(form.serialNumber) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            {{ form_row(form.description) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 2: Статус и классификация -->
+<div class="form-section">
+    <h5 class="form-section-title">
+        <i class="bi bi-tags me-2"></i>{{ 'form.section.classification'|trans(domain: 'inventory') }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.balanceType) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.status) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.type) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 3: Финансовая информация -->
+<div class="form-section">
+    <h5 class="form-section-title">
+        <i class="bi bi-cash-coin me-2"></i>{{ 'form.section.financial'|trans(domain: 'inventory') }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-4">
+            {{ form_row(form.purchasePrice) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.purchaseDate) }}
+        </div>
+
+        <div class="col-md-4">
+            {{ form_row(form.commissioningDate) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 4: Ответственность и местоположение -->
+<div class="form-section">
+    <h5 class="form-section-title">
+        <i class="bi bi-geo-alt me-2"></i>{{ 'form.section.location'|trans(domain: 'inventory') }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-6">
+            {{ form_row(form.location) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_row(form.responsiblePerson) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 5: Спецификации (динамическая) -->
+<div class="form-section" id="specificationsSection"
+        data-inventory-form-target="specificationsSection">
+    <h5 class="form-section-title">
+        <i class="bi bi-gear me-2"></i>{{ 'form.section.specifications'|trans(domain: 'inventory') }}
+    </h5>
+
+    <div class="alert alert-info" role="alert" id="noSpecsAlert">
+        <i class="bi bi-info-circle"></i>
+        {{ 'form.no_specifications_required'|trans(domain: 'inventory') }}
+    </div>
+
+    <div id="specificationsForm" class="d-none">
+        {% if item.category.hasSpecifications %}
+            {% include 'inventory/_specifications_form.html.twig' with {
+                'category': item.category,
+                'specifications': item.specifications
+            } %}
+        {% endif %}
+    </div>
+</div>
+{{ form_row(form.specifications, {
+    'attr': {'data-inventory-form-target': 'specificationsField'}
+}) }}

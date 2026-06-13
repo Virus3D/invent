@@ -12,7 +12,7 @@
 
     // Базовые классы
     .bg-#{$name} {
-        --bs-bg-opacity: 1;
+        --bs-bg-opacity: 0.1;
         background-color: rgba(var(--bs-#{$name}-rgb), var(--bs-bg-opacity)) !important;
     }
 
@@ -25,8 +25,9 @@
     }
 
     // Badge
-    .badge.bg-#{$name} {
-        background-color: var(--bs-#{$name}) !important;
+    .badge.badge-#{$name} {
+        background-color: rgba(var(--bs-#{$name}-rgb), 0.1) !important;
+        color: var(--bs-#{$name}) !important;
     }
 
     // Light background variant
@@ -90,9 +91,38 @@
         color: var(--bs-#{$name});
     }
 }
+@mixin generate-custom-color-outline($name, $color) {
+    // Определяем CSS-переменные для цвета
+    --bsc-#{$name}: #{$color};
+    --bsc-#{$name}-rgb: #{hex-to-rgb($color)};
 
-// Применение миксина для всех ваших цветов
-:root {
+    .btn-outline-#{$name} {
+        color: var(--bsc-#{$name});
+        border-color: var(--bsc-#{$name});
+    }
+
+    .btn-outline-#{$name}:hover {
+        background-color: var(--bsc-#{$name});
+        color: white;
+    }
+
+    // Badge outline
+    .badge-outline-#{$name} {
+        color: var(--bsc-#{$name});
+        border: 1px solid var(--bsc-#{$name});
+        background-color: transparent;
+    }
+}
+:root{
+    // Применение миксина для всех ваших цветов
+    @include generate-custom-color-outline('primary', #0d6efd);
+    @include generate-custom-color-outline('secondary', #6c757d);
+    @include generate-custom-color-outline('success', #198754);
+    @include generate-custom-color-outline('info', #0dcaf0);
+    @include generate-custom-color-outline('warning', #ffc107);
+    @include generate-custom-color-outline('danger', #dc3545);
+    @include generate-custom-color-outline('light', #f8f9fa);
+    @include generate-custom-color-outline('dark', #212529);
     @include generate-custom-color('purple', #6f42c1);
     @include generate-custom-color('telegram', #08c);
     @include generate-custom-color('indigo', #6610f2);

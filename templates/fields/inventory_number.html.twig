@@ -1,0 +1,8 @@
+{% set item = entity.instance %}
+{% if item.isOnBalance() %}
+    <code>{{ item.inventoryNumber }}</code>
+{% else %}
+    <span class="badge badge-secondary">
+        <i class="bi bi-x-circle"></i> {{ 'balance_type.off_balance'|trans(domain: 'inventory') }}
+    </span>
+{% endif %}

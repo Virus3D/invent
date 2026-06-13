@@ -1,0 +1,4 @@
+{% set cartridge = entity.instance %}
+<span class="badge badge-{{ cartridge.stockQuantity > cartridge.printers|length ? 'success' : (cartridge.stockQuantity > 0 ? 'warning' : 'danger') }} rounded-pill px-3">
+    {{ cartridge.stockQuantity }}
+</span>

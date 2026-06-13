@@ -84,7 +84,7 @@ enum InventoryCategory: string implements TranslatableInterface
      */
     public function getBadgeClass(): string
     {
-        return sprintf('badge bg-%s', $this->getColor());
+        return sprintf('badge badge-%s', $this->getColor());
     }// end getBadgeClass()
 
     /**

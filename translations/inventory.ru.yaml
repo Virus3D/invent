@@ -1,3 +1,48 @@
+"0.00": "0.00"
+entity:
+  singular: "Объект инвентаризации"
+  plural: "Объекты инвентаризации"
+
+balance_type:
+  on_balance: "На балансе"
+  off_balance: "Забаланс"
+
+form:
+  section:
+    basic: "Основная информация"
+    classification: "Классификация"
+    financial: "Финансовая информация"
+    location: "Местоположение и ответственность"
+    specifications: "Характеристики"
+  no_specifications_required: "Для выбранной категории характеристики заполнять не требуется"
+
+tips:
+  title: "Рекомендации по заполнению"
+  do_title: "Что указывать:"
+  dont_title: "Чего избегать:"
+  do_unique_inventory_number: "Инвентарный номер должен быть уникальным"
+  do_fill_all_pc_specs: "Для ПК заполняйте все характеристики"
+  do_serial_number_if_available: "Указывайте серийный номер при наличии"
+  do_describe_condition: "Описывайте состояние оборудования"
+  do_specific_names: "Используйте конкретные и понятные наименования"
+  do_actual_location: "Указывайте актуальное местоположение"
+  do_complete_specifications: "Заполняйте все обязательные характеристики"
+  dont_duplicate_inventory_numbers: "Повторения инвентарных номеров"
+  dont_abbreviations_in_name: "Сокращений в наименовании"
+  dont_incomplete_description: "Неполного описания"
+  dont_inaccurate_location: "Неточного местоположения"
+  dont_generic_names: 'Обобщённых названий (например, "Компьютер" вместо
+    "Компьютер Dell Optiplex 7090")'
+  dont_leaving_required_fields_empty: "Оставления обязательных полей пустыми"
+  dont_outdated_information: "Устаревшей информации"
+  additional_recommendations: "Дополнительные рекомендации:"
+  relevance: "Актуальность"
+  relevance_desc: "Регулярно обновляйте информацию"
+  security: "Безопасность"
+  security_desc: "Храните серийные номера в безопасности"
+  movements: "Перемещения"
+  movements_desc: "Вносите изменения местоположения своевременно"
+
 page:
   index: "Объекты инвентаризации"
   edit: "Редактировать объект"
@@ -10,6 +55,7 @@ inventory_item:
   all: "Всего объектов"
   not: "Нет объектов"
   not_location: "Не назначено"
+  no_specifications: no_specifications
   check:
     label: "Проверка"
     reset_all: "Сбросить проверки"
@@ -26,6 +72,7 @@ inventory_item:
     specifications: "Характеристики:"
     show_all_records: "Показать все записи (%count%)"
     add_first: "Добавить первый объект"
+    click_for_details: click_for_details
   form:
     name: "Наименование"
     name_placeholder: "Например: Стационарный компьютер"
@@ -72,17 +119,17 @@ inventory_item:
     success: "Изменения успешно сохранены"
     error: "Ошибка при сохранении"
   delete:
-    message: "Вы уверены, что хотите удалить этот объект \"%name%\"?"
+    message: 'Вы уверены, что хотите удалить этот объект "%name%"?'
     inventory_number: "Инвентарный номер: %number%"
     confirm: "Удалить объект? Это действие необратимо."
     success: "Объект успешно удалён"
     error: "Ошибка при удалении"
   edit:
-    last_material_message: "Вы только что списали материал \"%name%\". Хотите
-      использовать его в спецификациях?"
+    last_material_message: 'Вы только что списали материал "%name%". Хотите
+      использовать его в спецификациях?'
   specifications:
     title: "Характеристики"
-    description: "Заполните характеристики для категории \"%category%\""
+    description: 'Заполните характеристики для категории "%category%"'
     no_specs: "Для этой категории не требуется указание характеристик"
     required_field: "Обязательное поле"
     history_note: "Все изменения характеристик будут записаны в историю перемещений"
@@ -161,41 +208,12 @@ inventory_item:
     poor: "Плохое"
     broken: "Сломан"
     for_parts: "На запчасти"
-  balance_type:
-    on_balance: "На балансе"
-    off_balance: "Забаланс"
   validation:
     inventory_number_required: "Инвентарный номер обязателен"
     json_invalid: "Характеристики должны быть в формате JSON"
     category_required: "Выберите категорию"
-    spec_required: "Для категории \"%category%\" обязательно поле \"%field%\" в
-      характеристиках"
-    spec_not_allowed: "Ключ \"%key%\" не разрешён для категории \"%category%\""
+    spec_required: 'Для категории "%category%" обязательно поле "%field%" в
+      характеристиках'
+    spec_not_allowed: 'Ключ "%key%" не разрешён для категории "%category%"'
     inventory_number_description: "Уникальный идентификатор объекта"
     category_not_found: "Категория не найдена"
-  tips:
-    title: "Рекомендации по заполнению"
-    do_title: "Что указывать:"
-    dont_title: "Чего избегать:"
-    do_unique_inventory_number: "Инвентарный номер должен быть уникальным"
-    do_fill_all_pc_specs: "Для ПК заполняйте все характеристики"
-    do_serial_number_if_available: "Указывайте серийный номер при наличии"
-    do_describe_condition: "Описывайте состояние оборудования"
-    do_specific_names: "Используйте конкретные и понятные наименования"
-    do_actual_location: "Указывайте актуальное местоположение"
-    do_complete_specifications: "Заполняйте все обязательные характеристики"
-    dont_duplicate_inventory_numbers: "Повторения инвентарных номеров"
-    dont_abbreviations_in_name: "Сокращений в наименовании"
-    dont_incomplete_description: "Неполного описания"
-    dont_inaccurate_location: "Неточного местоположения"
-    dont_generic_names: "Обобщённых названий (например, \"Компьютер\" вместо
-      \"Компьютер Dell Optiplex 7090\")"
-    dont_leaving_required_fields_empty: "Оставления обязательных полей пустыми"
-    dont_outdated_information: "Устаревшей информации"
-    additional_recommendations: "Дополнительные рекомендации:"
-    relevance: "Актуальность"
-    relevance_desc: "Регулярно обновляйте информацию"
-    security: "Безопасность"
-    security_desc: "Храните серийные номера в безопасности"
-    movements: "Перемещения"
-    movements_desc: "Вносите изменения местоположения своевременно"
