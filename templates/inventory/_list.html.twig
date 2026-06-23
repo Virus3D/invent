@@ -116,7 +116,7 @@
                     {% if 'location' in columns %}
                         <td>
                             {% if item.location %}
-                                <a href="{{ path('app_location_show', {'id': item.location.id}) }}">
+                                <a href="{{ ea_url().setController('App\\Controller\\LocationCurdController').setAction('detail').setEntityId(item.location.id) }}">
                                     {{ item.location }}
                                 </a>
                             {% else %}
@@ -161,17 +161,17 @@
                     {% if 'actions' in columns %}
                         <td>
                             <div class="btn-group">
-                                <a href="{{ path('app_inventory_show', {'id': item.id}) }}"
+                                <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('detail').setEntityId(item.id) }}"
                                    class="btn btn-outline-info" title="{{ 'common.actions.view'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-eye"></i>
                                 </a>
-                                <a href="{{ path('app_inventory_edit', {'id': item.id}) }}"
+                                <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('edit').setEntityId(item.id) }}"
                                    class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="{{ path('app_inventory_move', {'id': item.id}) }}"
+                                <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('move').setEntityId(item.id) }}"
                                    class="btn btn-outline-warning" title="{{ 'common.actions.move'|trans(domain: 'messages') }}"
                                    data-bs-toggle="tooltip">
                                     <i class="bi bi-arrow-left-right"></i>
@@ -185,7 +185,7 @@
                     <td colspan="{{ columns|length }}" class="text-center text-muted py-4">
                         <i class="bi bi-inbox display-6"></i>
                         <p class="mt-2">{{ 'inventory_item.not'|trans }}</p>
-                        <a href="{{ path('app_inventory_new') }}" class="btn btn-outline-primary mt-2">
+                        <a href="{{ ea_url().setController('App\\Controller\\InventoryItemCrudController').setAction('new') }}" class="btn btn-outline-primary mt-2">
                             <i class="bi bi-plus-circle"></i> {{ 'inventory_item.show.add_first'|trans }}
                         </a>
                     </td>
