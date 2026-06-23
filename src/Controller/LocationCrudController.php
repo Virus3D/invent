@@ -12,8 +12,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Asset;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
@@ -173,13 +171,16 @@ class LocationCrudController extends AbstractCrudController
 
         $inventoryItems = $this->inventoryItemRepository->findByLocationAndFilters($location, $filters);
 
+        // Генерируем CSRF-токен, совместимый с EasyAdmin BooleanField.
+        $csrfToken = $this->csrfTokenManager->getToken('ea-toggle')->getValue();
+
         // AJAX-запрос: возвращаем HTML таблицы.
         if ($request->isXmlHttpRequest()) {
             $html = $this->renderView(
                 'inventory/_list.html.twig',
                 [
-                    'items'   => $inventoryItems,
-                    'columns' => [
+                    'items'                  => $inventoryItems,
+                    'columns'                => [
                         'inventory_number',
                         'status',
                         'serial_number',
@@ -187,6 +188,7 @@ class LocationCrudController extends AbstractCrudController
                         'created_at',
                         'actions',
                     ],
+                    'booleanToggleCsrfToken' => $csrfToken,
                 ]
             );
 
@@ -202,9 +204,6 @@ class LocationCrudController extends AbstractCrudController
         $response = parent::detail($context);
 
         if ($response instanceof KeyValueStore) {
-            // Генерируем CSRF-токен, совместимый с EasyAdmin BooleanField.
-            $csrfToken = $this->csrfTokenManager->getToken('ea-toggle')->getValue();
-
             // Добавляем переменные для шаблона.
             $response->set('filterForm', $filterForm->createView());
             $response->set('inventoryItems', $inventoryItems);
