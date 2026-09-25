@@ -1,6 +1,7 @@
 page:
   home: "Главная"
   inventory: "Объекты"
+  furniture: "Мебель"
   location: "Места"
   license: "Лицензии"
   cartridge: "Катриджы"
@@ -84,6 +85,25 @@ entities:
     sections:
       base: "Основная информация"
       compatible: "Совместимость"
+
+  App\Entity\Furniture:
+    singular: "Мебель"
+    plural: "Мебель"
+    properties:
+      name: "Наименование"
+      category: "Категория"
+      status: "Статус"
+      location: "Местоположение"
+      purchasePrice: "Цена покупки"
+      purchaseDate: "Дата покупки"
+      responsiblePerson: "Ответственное лицо"
+      createdAt: "Добавлен"
+      updatedAt: "Последнее обновление"
+      checked: "Проверен"
+      inventoryNumber: "Инвентарный номер"
+      description: "Описание"
+      balanceType: "Тип баланса"
+
   App\Entity\User:
     singular: "Пользователь"
     plural: "Пользователи"
@@ -106,6 +126,15 @@ actions:
     location: "Списать на помещение"
     item: "Списать на оборудование"
   material.report: "Отчёт по списаниям"
+
+form:
+  section:
+    basic: "Основная информация"
+    classification: "Классификация"
+    financial: "Финансовая информация"
+    location: "Местоположение и ответственность"
+    specifications: "Характеристики"
+  no_specifications_required: "Для выбранной категории характеристики заполнять не требуется"
 
 colors:
   black: "Чёрный"

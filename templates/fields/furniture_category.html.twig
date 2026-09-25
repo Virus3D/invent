@@ -1,0 +1,8 @@
+{# Furniture category field with icon and color badge #}
+{% set item = entity.instance %}
+{% if item.category is not null %}
+    <span class="furniture-category-badge badge badge-{{ item.category.color }} d-flex align-items-center gap-1">
+        <i class="bi {{ item.category.icon }}"></i>
+        {{ item.category|trans }}
+    </span>
+{% endif %}

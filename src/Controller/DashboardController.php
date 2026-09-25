@@ -71,6 +71,7 @@ final class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('sections.main');
         yield MenuItem::linkTo(InventoryItemCrudController::class, 'page.inventory', 'fas fa-box');
+        yield MenuItem::linkTo(FurnitureCrudController::class, 'page.furniture', 'bi bi-table');
         yield MenuItem::linkTo(LocationCrudController::class, 'page.location', 'fas fa-map-marker-alt');
         yield MenuItem::linkTo(SoftwareLicenseCrudController::class, 'page.license', 'fas fa-certificate');
         yield MenuItem::linkTo(MaterialCrudController::class, 'page.material', 'fas fa-cubes');

@@ -1,0 +1,7 @@
+{# Furniture name field with category icon #}
+{% if field.formattedValue is not empty %}
+    <span class="d-flex align-items-center gap-2">
+        <i class="bi {{ entity.instance.categoryIcon }} text-{{ entity.instance.categoryColor }}"></i>
+        <strong>{{ field.formattedValue }}</strong>
+    </span>
+{% endif %}

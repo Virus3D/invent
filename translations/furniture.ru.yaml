@@ -1,0 +1,79 @@
+"0.00": "0.00"
+
+balance_type:
+  on_balance: "На балансе"
+  off_balance: "Забаланс"
+
+entity:
+  singular: "Единица мебели"
+  plural: "Единицы мебели"
+
+page:
+  furniture: "Мебель"
+  index: "Мебель"
+  edit: "Редактировать мебель"
+  create: "Добавить мебель"
+  view: "Просмотр мебели"
+
+category:
+  desk: "Стол"
+  chair: "Стул"
+  armchair: "Кресло"
+  bed: "Кровать"
+  cabinet: "Шкаф"
+  nightstand: "Тумба"
+  other: "Другое"
+
+form:
+  name: "Наименование"
+  name_placeholder: "Например: Стол офисный"
+  description: "Описание"
+  description_placeholder: "Подробное описание, состояние, заметки..."
+  inventory_number: "Инвентарный номер"
+  inventory_number_placeholder: "Например: INV-000001"
+  inventory_number_help: "Обязательно для объектов на балансе"
+  category: "Категория"
+  balance_type: "Тип баланса"
+  status: "Статус"
+  purchase_price: "Цена покупки"
+  purchase_price_placeholder: "Введите цену покупки"
+  purchase_date: "Дата покупки"
+  purchase_date_placeholder: "Выберите дату покупки"
+  responsible_person: "Ответственное лицо"
+  responsible_person_placeholder: "Введите ФИО ответственного лица"
+  responsible_person_help: "Укажите ответственного за данный предмет мебели"
+  location: "Местоположение"
+  location_placeholder: "Не назначено"
+  panel_basic: "Основная информация"
+  section_classification: "Классификация"
+
+show:
+  main_info: "Основная информация"
+  description_label: "Описание:"
+  location: "Местоположение"
+  no_location: "Местоположение не назначено"
+  room: "Кабинет"
+  responsible_person: "Ответственное лицо"
+  purchase_price: "Цена покупки"
+  purchase_date: "Дата покупки"
+
+actions:
+  check:
+    reset_all: "Сбросить проверки"
+  total_value: "Общая стоимость"
+  total_items: "Всего единиц"
+  back_to_list: "Вернуться к списку"
+
+flash:
+  check_reset_success: "Все проверки мебели успешно сброшены."
+
+tips:
+  title: "Рекомендации по заполнению"
+  do_title: "Что указывать:"
+  dont_title: "Чего избегать:"
+  do_specific_names: "Используйте конкретные и понятные наименования"
+  do_actual_location: "Указывайте актуальное местоположение"
+  do_describe_condition: "Описывайте состояние мебели"
+  dont_generic_names: 'Обобщённых названий (например, "Стол" вместо "Стол офисный 1200x600")'
+  dont_leaving_required_fields_empty: "Оставления обязательных полей пустыми"
+  dont_outdated_information: "Устаревшей информации"

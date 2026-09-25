@@ -1,0 +1,40 @@
+{% trans_default_domain 'furniture' %}
+{% if category.hasSpecifications %}
+<div class="card card-body border-info mb-3">
+    <h5 class="card-title text-info">
+        <i class="bi bi-gear"></i> {{ 'show.specifications'|trans }}
+    </h5>
+
+    <p class="text-muted small mb-3">
+        {{ 'specifications.description'|trans({'%category%': category.value|trans({}, 'furniture')})|default('Заполните характеристики для категории "%category%"' }}
+        <span class="text-danger">*</span> - {{ 'specifications.required_field'|trans|default('Обязательное поле') }}.
+    </p>
+
+    <div class="row g-3">
+        {% for spec_key in category.allowedSpecifications %}
+            {% set is_required = spec_key in category.requiredSpecifications %}
+
+            <div class="col-md-6">
+                <label for="furniture_specifications_{{ spec_key }}"
+                       class="form-label{% if is_required %} required-field{% endif %}">
+                    {{ ('spec_labels.' ~ spec_key)|default(spec_key|replace({'_': ' '})|title) }}
+                </label>
+
+                <input type="text"
+                       class="form-control spec-input{% if is_required and not (specifications[spec_key] ?? null) %} is-invalid{% endif %}"
+                       id="furniture_specifications_{{ spec_key }}"
+                       name="furniture_specifications[{{ spec_key }}]"
+                       data-spec-key="{{ spec_key }}"
+                       value="{{ specifications[spec_key] ?? '' }}"
+                       placeholder="{{ spec_key|replace({'_': ' '})|lower }}"
+                       {% if is_required %}required{% endif %}>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    {{ 'specifications.no_specs'|trans|default('Для этой категории не требуется указание характеристик') }}
+</div>
+{% endif %}

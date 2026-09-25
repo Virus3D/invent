@@ -1,0 +1,14 @@
+{% extends '@EasyAdmin/crud/edit.html.twig' %}
+
+{% set form = edit_form %}
+{% set item = entity.instance %}
+
+{% block edit_form %}
+    {{ form_errors(form) }}
+
+    {% include 'furniture/_edit_sections.html.twig' with {form: form, item: item} %}
+
+    {{ form_end(form) }}
+
+    {% include 'furniture/_tips.html.twig' %}
+{% endblock %}

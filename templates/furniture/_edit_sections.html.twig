@@ -1,0 +1,94 @@
+{% trans_default_domain 'admin' %}
+
+<div data-furniture-form-target="errorContainer"
+    class="alert alert-danger d-none"
+    role="alert"></div>
+
+<!-- Секция 1: Основная информация -->
+<div class="form-section">
+    <h5 class="form-section-title">
+        <i class="bi bi-info-circle me-2"></i>{{ 'form.section.basic'|trans }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            {{ form_label(form.name) }}
+            {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            {{ form_label(form.category) }}
+            {{ form_widget(form.category, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.inventoryNumber) }}
+            {{ form_widget(form.inventoryNumber, {'attr': {'class': 'form-control'}}) }}
+            {{ form_help(form.inventoryNumber) }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.description) }}
+            {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 2: Классификация -->
+<div class="form-section">
+    <h5 class="form-section-title mt-3">
+        <i class="bi bi-tags me-2"></i>{{ 'form.section.classification'|trans }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            {{ form_label(form.balanceType) }}
+            {{ form_widget(form.balanceType, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+            {{ form_label(form.status) }}
+            {{ form_widget(form.status, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 3: Финансовая информация -->
+<div class="form-section">
+    <h5 class="form-section-title mt-3">
+        <i class="bi bi-cash-coin me-2"></i>{{ 'form.section.financial'|trans }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.purchasePrice) }}
+            {{ form_widget(form.purchasePrice, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.purchaseDate) }}
+            {{ form_widget(form.purchaseDate, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+</div>
+
+<!-- Секция 4: Ответственность и местоположение -->
+<div class="form-section">
+    <h5 class="form-section-title mt-3">
+        <i class="bi bi-geo-alt me-2"></i>{{ 'form.section.location'|trans }}
+    </h5>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.location) }}
+            {{ form_widget(form.location, {'attr': {'class': 'form-control'}}) }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+            {{ form_label(form.responsiblePerson) }}
+            {{ form_widget(form.responsiblePerson, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+</div>

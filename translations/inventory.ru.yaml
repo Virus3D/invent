@@ -7,15 +7,6 @@ balance_type:
   on_balance: "На балансе"
   off_balance: "Забаланс"
 
-form:
-  section:
-    basic: "Основная информация"
-    classification: "Классификация"
-    financial: "Финансовая информация"
-    location: "Местоположение и ответственность"
-    specifications: "Характеристики"
-  no_specifications_required: "Для выбранной категории характеристики заполнять не требуется"
-
 tips:
   title: "Рекомендации по заполнению"
   do_title: "Что указывать:"
