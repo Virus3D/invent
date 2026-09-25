@@ -14,6 +14,7 @@ page:
   edit: "Редактировать мебель"
   create: "Добавить мебель"
   view: "Просмотр мебели"
+  batch_create: "Массовое создание"
 
 category:
   desk: "Стол"
@@ -35,6 +36,7 @@ form:
   category: "Категория"
   balance_type: "Тип баланса"
   status: "Статус"
+  quantity: "Количество"
   purchase_price: "Цена покупки"
   purchase_price_placeholder: "Введите цену покупки"
   purchase_date: "Дата покупки"
@@ -46,6 +48,7 @@ form:
   location_placeholder: "Не назначено"
   panel_basic: "Основная информация"
   section_classification: "Классификация"
+  batch_quantity: "Количество"
 
 show:
   main_info: "Основная информация"
@@ -60,12 +63,14 @@ show:
 actions:
   check:
     reset_all: "Сбросить проверки"
+  batch_create: "Добавить несколько"
   total_value: "Общая стоимость"
   total_items: "Всего единиц"
   back_to_list: "Вернуться к списку"
 
 flash:
   check_reset_success: "Все проверки мебели успешно сброшены."
+  batch_created: "Успешно создано %count% единиц мебели."
 
 tips:
   title: "Рекомендации по заполнению"

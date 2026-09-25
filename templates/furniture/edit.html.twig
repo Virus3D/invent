@@ -4,6 +4,7 @@
 {% set item = entity.instance %}
 
 {% block edit_form %}
+    {{ form_start(form) }}
     {{ form_errors(form) }}
 
     {% include 'furniture/_edit_sections.html.twig' with {form: form, item: item} %}

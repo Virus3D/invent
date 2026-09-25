@@ -114,4 +114,14 @@ enum ItemStatus: string implements TranslatableInterface
             self::LOST,
         ];
     }// end getInactiveStatuses()
+
+    /**
+     * Get the values of all enum cases.
+     *
+     * @return array<int, int|string>
+     */
+    public static function getValues(): array
+    {
+        return array_column(self::cases(), 'value');
+    }// end getValues()
 }// end enum

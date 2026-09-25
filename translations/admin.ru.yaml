@@ -126,6 +126,7 @@ actions:
     location: "Списать на помещение"
     item: "Списать на оборудование"
   material.report: "Отчёт по списаниям"
+  batch_create: "Добавить несколько"
 
 form:
   section:

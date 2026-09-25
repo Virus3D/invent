@@ -1,0 +1,31 @@
+{% extends '@EasyAdmin/page/content.html.twig' %}
+
+{% trans_default_domain 'furniture' %}
+
+{% block page_title %}{{ 'furniture.page.batch_create'|trans }}{% endblock %}
+
+{% block main %}
+    {{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    {% include 'furniture/_edit_sections.html.twig' with {form: form, item: item} %}
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            {{ form_label(form.quantity) }}
+            {{ form_widget(form.quantity, {'attr': {'class': 'form-control'}}) }}
+        </div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> {{ 'actions.batch_create'|trans }}
+        </button>
+        <a href="{{ url('app_dashboard') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> {{ 'actions.back_to_list'|trans }}
+        </a>
+    </div>
+
+    {{ form_end(form) }}
+
+{% endblock %}

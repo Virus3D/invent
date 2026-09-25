@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Furniture;
+use App\Form\FurnitureBatchCreateType;
 use App\Form\FurnitureType;
 use App\Repository\FurnitureRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -25,6 +26,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -136,9 +138,15 @@ final class FurnitureCrudController extends AbstractCrudController
             ->linkToCrudAction('checkResetAll')
             ->createAsGlobalAction();
 
-            return $actions
-                ->add(Crud::PAGE_INDEX, Action::DETAIL)
-                ->add(Crud::PAGE_INDEX, $resetCheck);
+        $batchCreate = Action::new('batchCreate', 'actions.batch_create')
+            ->setIcon('bi bi-plus-circle')
+            ->linkToCrudAction('batchCreate')
+            ->createAsGlobalAction();
+
+        return $actions
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $resetCheck)
+            ->add(Crud::PAGE_INDEX, $batchCreate);
     }// end configureActions()
 
     /**
@@ -155,4 +163,99 @@ final class FurnitureCrudController extends AbstractCrudController
             $this->adminUrlGenerator->setController(self::class)->setAction('index')->generateUrl()
         );
     }// end checkResetAll()
+
+    /**
+     * Массовое создание одинаковых единиц мебели.
+     */
+    #[AdminRoute]
+    public function batchCreate(AdminContext $context, Request $request): Response
+    {
+        $furniture = new Furniture();
+        $form = $this->createForm(FurnitureBatchCreateType::class, $furniture);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
+            $quantity = (int) $form->get('quantity')->getData();
+
+            $createdCount = 0;
+
+            for ($i = 1; $i <= $quantity; $i++) {
+                $item = new Furniture();
+                $item->setName($data->getName());
+                $item->setDescription($data->getDescription());
+                $item->setCategory($data->getCategory());
+                $item->setStatus($data->getStatus());
+                $item->setPurchasePrice($data->getPurchasePrice());
+                $item->setPurchaseDate($data->getPurchaseDate());
+                $item->setResponsiblePerson($data->getResponsiblePerson());
+                $item->setLocation($data->getLocation());
+                $item->setInventoryNumber($data->getInventoryNumber());
+                $item->setBalanceType($data->getBalanceType());
+
+                $this->entityManager->persist($item);
+                $createdCount++;
+            }
+
+            $this->entityManager->flush();
+
+            $this->addFlash(
+                'success',
+                $this->translator->trans(
+                    'furniture.flash.batch_created',
+                    ['%count%' => $createdCount],
+                    'furniture'
+                )
+            );
+
+            return $this->redirect(
+                $this->adminUrlGenerator->setController(self::class)->setAction('index')->generateUrl()
+            );
+        }// end if
+
+        return $this->render(
+            'furniture/batch_create.html.twig',
+            [
+                'form' => $form->createView(),
+                'item' => new Furniture(),
+            ]
+        );
+    }// end batchCreate()
+
+    /**
+     * @inheritDoc
+     */
+    public function createEditFormBuilder(
+        \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto $entityDto,
+        \EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore $formOptions,
+        AdminContext $context,
+    ): FormBuilderInterface {
+        $entity = $entityDto->getInstance();
+
+        return $this->createFormBuilderForEntity($entity);
+    }// end createEditFormBuilder()
+
+    /**
+     * @inheritDoc
+     */
+    public function createNewFormBuilder(
+        \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto $entityDto,
+        \EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore $formOptions,
+        AdminContext $context,
+    ): FormBuilderInterface {
+        $entity = $entityDto->getInstance();
+
+        return $this->createFormBuilderForEntity($entity);
+    }// end createNewFormBuilder()
+
+    /**
+     * @inheritDoc
+     */
+    private function createFormBuilderForEntity(?Furniture $entity): FormBuilderInterface
+    {
+        return $this->container->get('form.factory')->createBuilder(
+            FurnitureType::class,
+            $entity
+        );
+    }// end createFormBuilderForEntity()
 }// end class

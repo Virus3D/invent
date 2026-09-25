@@ -111,7 +111,7 @@ class Furniture
 
     public function setDescription(?string $description): static
     {
-        $this->description = trim(str_replace('  ', ' ', $description));
+        $this->description = trim(str_replace('  ', ' ', (string) $description));
 
         return $this;
     }// end setDescription()
