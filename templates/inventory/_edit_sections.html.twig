@@ -5,7 +5,7 @@
 <!-- Секция 1: Основная информация -->
 <div class="form-section">
     <h5 class="form-section-title">
-        <i class="bi bi-info-circle me-2"></i>{{ 'form.section.basic'|trans }}
+        <i class="bi bi-info-circle me-2"></i>{{ 'form.section.basic'|trans(domain: 'admin') }}
     </h5>
 
     <div class="row">
@@ -38,7 +38,7 @@
 <!-- Секция 2: Статус и классификация -->
 <div class="form-section">
     <h5 class="form-section-title">
-        <i class="bi bi-tags me-2"></i>{{ 'form.section.classification'|trans(domain: 'inventory') }}
+        <i class="bi bi-tags me-2"></i>{{ 'form.section.classification'|trans(domain: 'admin') }}
     </h5>
 
     <div class="row">
@@ -59,7 +59,7 @@
 <!-- Секция 3: Финансовая информация -->
 <div class="form-section">
     <h5 class="form-section-title">
-        <i class="bi bi-cash-coin me-2"></i>{{ 'form.section.financial'|trans(domain: 'inventory') }}
+        <i class="bi bi-cash-coin me-2"></i>{{ 'form.section.financial'|trans(domain: 'admin') }}
     </h5>
 
     <div class="row">
@@ -80,7 +80,7 @@
 <!-- Секция 4: Ответственность и местоположение -->
 <div class="form-section">
     <h5 class="form-section-title">
-        <i class="bi bi-geo-alt me-2"></i>{{ 'form.section.location'|trans(domain: 'inventory') }}
+        <i class="bi bi-geo-alt me-2"></i>{{ 'form.section.location'|trans(domain: 'admin') }}
     </h5>
 
     <div class="row">
@@ -98,7 +98,7 @@
 <div class="form-section" id="specificationsSection"
         data-inventory-form-target="specificationsSection">
     <h5 class="form-section-title">
-        <i class="bi bi-gear me-2"></i>{{ 'form.section.specifications'|trans(domain: 'inventory') }}
+        <i class="bi bi-gear me-2"></i>{{ 'form.section.specifications'|trans(domain: 'admin') }}
     </h5>
 
     <div class="alert alert-info" role="alert" id="noSpecsAlert">

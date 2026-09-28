@@ -46,15 +46,7 @@
             {% for item in items %}
                 <tr>
                     {% if 'inventory_number' in columns %}
-                        <td>
-                            {% if item.isOnBalance() %}
-                                <strong>{{ item.inventoryNumber }}</strong>
-                            {% else %}
-                                <span class="badge badge-secondary">
-                                    <i class="bi bi-x-circle"></i> {{ 'balance_type.off_balance'|trans }}
-                                </span>
-                            {% endif %}
-                        </td>
+                        <td>{{ 'form.inventory_number'|trans }}</td>
                     {% endif %}
 
                     <td>

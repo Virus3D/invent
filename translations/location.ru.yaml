@@ -46,3 +46,7 @@ show:
   no_movement_history: "История перемещений отсутствует"
   shown_objects: "Показано объектов: %count%"
   no_data: "Нет данных"
+  furniture_in_location: "Мебель в этом местоположении"
+  no_furniture: "Мебель отсутствует"
+  no_furniture_desc: "В этом местоположении пока нет мебели"
+  add_first_furniture: "Добавить первую единицу мебели"

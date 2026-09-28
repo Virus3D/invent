@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Location;
 use App\Form\InventoryItemFilterType;
+use App\Repository\FurnitureRepository;
 use App\Repository\InventoryItemRepository;
 use Doctrine\ORM\QueryBuilder;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
@@ -31,6 +32,7 @@ class LocationCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly InventoryItemRepository $inventoryItemRepository,
+        private readonly FurnitureRepository $furnitureRepository,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
     ) {
@@ -203,11 +205,15 @@ class LocationCrudController extends AbstractCrudController
         // Получаем стандартный ответ от EasyAdmin (поля, действия и т.д.).
         $response = parent::detail($context);
 
+        // Получаем мебель для этого местоположения.
+        $furnitureItems = $this->furnitureRepository->findBy(['location' => $location]);
+
         if ($response instanceof KeyValueStore) {
             // Добавляем переменные для шаблона.
             $response->set('filterForm', $filterForm->createView());
             $response->set('inventoryItems', $inventoryItems);
             $response->set('booleanToggleCsrfToken', $csrfToken);
+            $response->set('furnitureItems', $furnitureItems);
         }
 
         return $response;

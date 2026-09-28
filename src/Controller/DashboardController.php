@@ -59,7 +59,8 @@ final class DashboardController extends AbstractDashboardController
         return Dashboard::new()
             ->setTitle($this->translator->trans('title'))
             ->setTranslationDomain('admin')
-            ->useEntityTranslations();
+            ->useEntityTranslations()
+            ->disableDarkMode(true);
     }// end configureDashboard()
 
     /**

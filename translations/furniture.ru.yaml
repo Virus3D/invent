@@ -1,9 +1,5 @@
 "0.00": "0.00"
 
-balance_type:
-  on_balance: "На балансе"
-  off_balance: "Забаланс"
-
 entity:
   singular: "Единица мебели"
   plural: "Единицы мебели"

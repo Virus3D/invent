@@ -41,6 +41,11 @@ movement_log:
 filter:
   title: "Фильтр по категориям"
 
+# Balance
+balance_type:
+  on_balance: "На балансе"
+  off_balance: "Забаланс"
+
 # Common
 common:
   last: "Последнее"

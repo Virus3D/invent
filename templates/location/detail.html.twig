@@ -16,7 +16,7 @@
             {{ parent() }}
 
             <!-- Объекты в этом местоположении -->
-            <div class="card shadow">
+            <div class="card shadow mb-2">
                 <div class="card-header bg-light">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
@@ -115,6 +115,9 @@
                 </div>
                 {% endif %}
             </div>
+
+            <!-- Мебель в этом местоположении -->
+            {{ include('location/_furniture.html.twig', {furniture: furnitureItems}) }}
         </div>
 
         <!-- Боковая панель -->

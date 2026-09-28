@@ -99,11 +99,11 @@ final class FurnitureCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield DateTimeField::new('createdAt')
-            ->setTemplatePath('fields/furniture_created.html.twig')
+            ->setTemplatePath('fields/time.html.twig')
             ->onlyOnDetail();
 
         yield DateTimeField::new('updatedAt')
-            ->setFormat('d.m.Y')
+            ->setTemplatePath('fields/time.html.twig')
             ->onlyOnDetail();
 
         yield BooleanField::new('checked');

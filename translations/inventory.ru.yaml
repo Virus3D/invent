@@ -3,10 +3,6 @@ entity:
   singular: "Объект инвентаризации"
   plural: "Объекты инвентаризации"
 
-balance_type:
-  on_balance: "На балансе"
-  off_balance: "Забаланс"
-
 tips:
   title: "Рекомендации по заполнению"
   do_title: "Что указывать:"
