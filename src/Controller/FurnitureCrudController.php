@@ -181,17 +181,7 @@ final class FurnitureCrudController extends AbstractCrudController
             $createdCount = 0;
 
             for ($i = 1; $i <= $quantity; $i++) {
-                $item = new Furniture();
-                $item->setName($data->getName());
-                $item->setDescription($data->getDescription());
-                $item->setCategory($data->getCategory());
-                $item->setStatus($data->getStatus());
-                $item->setPurchasePrice($data->getPurchasePrice());
-                $item->setPurchaseDate($data->getPurchaseDate());
-                $item->setResponsiblePerson($data->getResponsiblePerson());
-                $item->setLocation($data->getLocation());
-                $item->setInventoryNumber($data->getInventoryNumber());
-                $item->setBalanceType($data->getBalanceType());
+                $item = clone $data;
 
                 $this->entityManager->persist($item);
                 $createdCount++;
@@ -221,41 +211,4 @@ final class FurnitureCrudController extends AbstractCrudController
             ]
         );
     }// end batchCreate()
-
-    /**
-     * @inheritDoc
-     */
-    public function createEditFormBuilder(
-        \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto $entityDto,
-        \EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore $formOptions,
-        AdminContext $context,
-    ): FormBuilderInterface {
-        $entity = $entityDto->getInstance();
-
-        return $this->createFormBuilderForEntity($entity);
-    }// end createEditFormBuilder()
-
-    /**
-     * @inheritDoc
-     */
-    public function createNewFormBuilder(
-        \EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto $entityDto,
-        \EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore $formOptions,
-        AdminContext $context,
-    ): FormBuilderInterface {
-        $entity = $entityDto->getInstance();
-
-        return $this->createFormBuilderForEntity($entity);
-    }// end createNewFormBuilder()
-
-    /**
-     * @inheritDoc
-     */
-    private function createFormBuilderForEntity(?Furniture $entity): FormBuilderInterface
-    {
-        return $this->container->get('form.factory')->createBuilder(
-            FurnitureType::class,
-            $entity
-        );
-    }// end createFormBuilderForEntity()
 }// end class
