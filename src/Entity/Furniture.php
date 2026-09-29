@@ -8,6 +8,8 @@ use App\Enum\BalanceType;
 use App\Enum\FurnitureCategory;
 use App\Enum\ItemStatus;
 use App\Repository\FurnitureRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
@@ -68,6 +70,9 @@ class Furniture
     #[ORM\ManyToOne(inversedBy: 'furnitures')]
     private ?Location $location = null;
 
+    #[ORM\OneToMany(mappedBy: 'furniture', targetEntity: MovementLog::class)]
+    private Collection $movementLogs;
+
     public function __construct()
     {
         $this->createdAt   = new DateTimeImmutable();
@@ -76,6 +81,7 @@ class Furniture
         $this->balanceType = BalanceType::ON_BALANCE;
         $this->status      = ItemStatus::NEW;
         $this->checked     = false;
+        $this->movementLogs = new ArrayCollection();
     }// end __construct()
 
     /**
@@ -322,6 +328,14 @@ class Furniture
     {
         return $this->category->getBadgeClass();
     }// end getCategoryBadgeClass()
+
+    /**
+     * Get the movement logs associated with this furniture item.
+     */
+    public function getMovementLogs(): Collection
+    {
+        return $this->movementLogs;
+    }// end getMovementLogs()
 
     /**
      * Returns the string representation of the furniture item.

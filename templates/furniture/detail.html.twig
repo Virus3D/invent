@@ -28,45 +28,7 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0">
-                    <i class="bi bi-geo-alt"></i> {{ 'show.location'|trans }}
-                </h6>
-            </div>
-            <div class="card-body">
-                {% if item.location %}
-                    <p class="mb-0">
-                        <i class="bi bi-building"></i> {{ item.location.name }}
-                        <br>
-                        <i class="bi bi-door-open"></i> {{ 'show.room'|trans }}: {{ item.location.roomNumber }}
-                    </p>
-                {% else %}
-                    <p class="text-muted">{{ 'show.no_location'|trans }}</p>
-                {% endif %}
-
-                {% if item.responsiblePerson %}
-                    <hr>
-                    <p class="mb-0">
-                        <i class="bi bi-person"></i> {{ 'show.responsible_person'|trans }}: {{ item.responsiblePerson }}
-                    </p>
-                {% endif %}
-
-                {% if item.purchasePrice %}
-                    <hr>
-                    <p class="mb-0">
-                        <i class="bi bi-cash"></i> {{ 'show.purchase_price'|trans }}: {{ item.purchasePrice }} ₽
-                    </p>
-                {% endif %}
-
-                {% if item.purchaseDate %}
-                    <hr>
-                    <p class="mb-0">
-                        <i class="bi bi-calendar-event"></i> {{ 'show.purchase_date'|trans }}: {{ item.purchaseDate|date('d.m.Y') }}
-                    </p>
-                {% endif %}
-            </div>
-        </div>
+        {{ include('furniture/_move_history.html.twig', {movementLogs: item.movementLogs}) }}
     </div>
 </div>
 {% endblock %}

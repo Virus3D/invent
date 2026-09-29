@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Entity\Furniture;
 use App\Repository\MovementLogRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -16,8 +17,12 @@ class MovementLog
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'movementLogs')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?InventoryItem $inventoryItem = null;
+
+    #[ORM\ManyToOne(inversedBy: 'movementLogs')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Furniture $furniture = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true)]
@@ -65,6 +70,23 @@ class MovementLog
         $this->inventoryItem = $inventoryItem;
         return $this;
     }// end setInventoryItem()
+
+    /**
+     * Get the furniture associated with this movement log.
+     */
+    public function getFurniture(): ?Furniture
+    {
+        return $this->furniture;
+    }// end getFurniture()
+
+    /**
+     * Set the furniture associated with this movement log.
+     */
+    public function setFurniture(?Furniture $furniture): static
+    {
+        $this->furniture = $furniture;
+        return $this;
+    }// end setFurniture()
 
     /**
      * Get the origin location.

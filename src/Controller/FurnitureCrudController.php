@@ -5,15 +5,19 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Furniture;
+use App\Entity\MovementLog;
 use App\Form\FurnitureBatchCreateType;
+use App\Form\FurnitureMovementLogType;
 use App\Form\FurnitureType;
 use App\Repository\FurnitureRepository;
+use App\Repository\MovementLogRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -41,6 +45,7 @@ final class FurnitureCrudController extends AbstractCrudController
         private readonly EntityManagerInterface $entityManager,
         private readonly AdminUrlGenerator $adminUrlGenerator,
         private readonly FurnitureRepository $furnitureRepository,
+        private readonly MovementLogRepository $movementLogRepository,
         private readonly TranslatorInterface $translator,
     ) {
     }// end __construct()
@@ -66,6 +71,31 @@ final class FurnitureCrudController extends AbstractCrudController
             ->setPaginatorPageSize(50)
             ->setDefaultSort(['category' => 'ASC', 'name' => 'ASC']);
     }// end configureCrud()
+
+    /**
+     * @inheritDoc
+     *
+     * Расширенный detail: добавляет историю перемещений для отображения в шаблоне.
+     */
+    public function detail(AdminContext $context): KeyValueStore|Response
+    {
+        /**
+         * Furniture.
+         *
+         * @var Furniture $furniture
+         */
+        $furniture = $context->getEntity()->getInstance();
+
+        $movementLogs = $this->movementLogRepository->findByFurniture($furniture->getId());
+
+        $response = parent::detail($context);
+
+        if ($response instanceof KeyValueStore) {
+            $response->set('movementLogs', $movementLogs);
+        }
+
+        return $response;
+    }// end detail()
 
     /**
      * @inheritDoc
@@ -143,10 +173,16 @@ final class FurnitureCrudController extends AbstractCrudController
             ->linkToCrudAction('batchCreate')
             ->createAsGlobalAction();
 
+        $moveAction = Action::new('move', 'actions.move')
+            ->setIcon('fas fa-exchange-alt')
+            ->linkToCrudAction('move');
+
         return $actions
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $resetCheck)
-            ->add(Crud::PAGE_INDEX, $batchCreate);
+            ->add(Crud::PAGE_INDEX, $batchCreate)
+            ->add(Crud::PAGE_INDEX, $moveAction)
+            ->add(Crud::PAGE_DETAIL, $moveAction);
     }// end configureActions()
 
     /**
@@ -211,4 +247,55 @@ final class FurnitureCrudController extends AbstractCrudController
             ]
         );
     }// end batchCreate()
+
+    /**
+     * Кастомная страница перемещения мебели (GET – форма, POST – обработка).
+     */
+    #[AdminRoute]
+    public function move(AdminContext $context, Request $request): Response
+    {
+        $furniture = $context->getEntity()->getInstance();
+        if (!$furniture instanceof Furniture) {
+            throw $this->createNotFoundException();
+        }
+
+        $log = new MovementLog();
+        $log->setFurniture($furniture);
+        $log->setFromLocation($furniture->getLocation());
+
+        $form = $this->createForm(FurnitureMovementLogType::class, $log);
+        $form->handleRequest($context->getRequest());
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Обновляем местоположение мебели.
+            $furniture->setLocation($log->getToLocation());
+
+            $this->entityManager->flush();
+            $this->addFlash('success', 'Перемещение зарегистрировано.');
+
+            $redirectUrl = $this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction('detail')
+                ->setEntityId($furniture->getId())
+                ->generateUrl();
+
+            // Для AJAX-запроса возвращаем JSON с URL редиректа.
+            if ($request->isXmlHttpRequest()) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse([
+                    'success'     => true,
+                    'redirectUrl' => $redirectUrl,
+                ]);
+            }
+
+            return $this->redirect($redirectUrl);
+        }
+
+        return $this->render(
+            'furniture/move.html.twig',
+            [
+                'form' => $form->createView(),
+                'item' => $furniture,
+            ]
+        );
+    }
 }// end class

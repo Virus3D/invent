@@ -271,7 +271,7 @@ final class InventoryItemCrudController extends AbstractCrudController
      * Кастомная страница перемещения (GET – форма, POST – обработка).
      */
     #[AdminRoute]
-    public function move(AdminContext $context): Response
+    public function move(AdminContext $context, Request $request): Response
     {
         $item = $context->getEntity()->getInstance();
         if (!$item instanceof InventoryItem) {
@@ -292,11 +292,21 @@ final class InventoryItemCrudController extends AbstractCrudController
             $this->entityManager->flush();
             $this->addFlash('success', 'Перемещение зарегистрировано.');
 
-            return $this->redirect(
-                $this->adminUrlGenerator->setController(self::class)
-                    ->setAction('detail')
-                    ->setEntityId($item->getId())->generateUrl()
-            );
+            $redirectUrl = $this->adminUrlGenerator
+                ->setController(self::class)
+                ->setAction('detail')
+                ->setEntityId($item->getId())
+                ->generateUrl();
+
+            // Для AJAX-запроса возвращаем JSON с URL редиректа.
+            if ($request->isXmlHttpRequest()) {
+                return new \Symfony\Component\HttpFoundation\JsonResponse([
+                    'success'     => true,
+                    'redirectUrl' => $redirectUrl,
+                ]);
+            }
+
+            return $this->redirect($redirectUrl);
         }
 
         return $this->render(

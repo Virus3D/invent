@@ -38,6 +38,23 @@ final class MovementLogRepository extends ServiceEntityRepository
     }// end findByItem()
 
     /**
+     * Find movement logs by furniture ID.
+     *
+     * @return array<MovementLog>
+     */
+    public function findByFurniture(int $furnitureId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->leftJoin('m.fromLocation', 'fl')
+            ->leftJoin('m.toLocation', 'tl')
+            ->where('m.furniture = :furnitureId')
+            ->setParameter('furnitureId', $furnitureId)
+            ->orderBy('m.movedAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }// end findByFurniture()
+
+    /**
      * Find recent movement logs.
      *
      * @param int $limit The maximum number of results to return.
