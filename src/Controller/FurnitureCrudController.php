@@ -270,6 +270,7 @@ final class FurnitureCrudController extends AbstractCrudController
             // Обновляем местоположение мебели.
             $furniture->setLocation($log->getToLocation());
 
+            $this->entityManager->persist($log);
             $this->entityManager->flush();
             $this->addFlash('success', 'Перемещение зарегистрировано.');
 
@@ -281,14 +282,16 @@ final class FurnitureCrudController extends AbstractCrudController
 
             // Для AJAX-запроса возвращаем JSON с URL редиректа.
             if ($request->isXmlHttpRequest()) {
-                return new \Symfony\Component\HttpFoundation\JsonResponse([
-                    'success'     => true,
-                    'redirectUrl' => $redirectUrl,
-                ]);
+                return new \Symfony\Component\HttpFoundation\JsonResponse(
+                    [
+                        'success'     => true,
+                        'redirectUrl' => $redirectUrl,
+                    ]
+                );
             }
 
             return $this->redirect($redirectUrl);
-        }
+        }// end if
 
         return $this->render(
             'furniture/move.html.twig',
@@ -297,5 +300,5 @@ final class FurnitureCrudController extends AbstractCrudController
                 'item' => $furniture,
             ]
         );
-    }
+    }// end move()
 }// end class
