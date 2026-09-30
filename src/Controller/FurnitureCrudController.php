@@ -123,6 +123,7 @@ final class FurnitureCrudController extends AbstractCrudController
             ->hideOnIndex();
 
         yield ChoiceField::new('status')
+            ->setTemplatePath('fields/status.html.twig')
             ->setChoices(\App\Enum\ItemStatus::cases());
 
         yield AssociationField::new('location');

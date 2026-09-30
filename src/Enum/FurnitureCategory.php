@@ -39,9 +39,9 @@ enum FurnitureCategory: string implements TranslatableInterface
     public function getIcon(): string
     {
         return match ($this) {
-            self::DESK => 'bi-table',
-            self::CHAIR => 'bi-chair',
-            self::ARMCHAIR => 'bi-armchair',
+            self::DESK => 'bi-card-text',
+            self::CHAIR => 'bi-card-text',
+            self::ARMCHAIR => 'bi-card-text',
             self::BED => 'bi-bed',
             self::CABINET => 'bi-archive',
             self::NIGHTSTAND => 'bi-lamp',
