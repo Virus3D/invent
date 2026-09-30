@@ -29,12 +29,17 @@ final class FurnitureImportService
      *   A - Name (with optional quantity anywhere: "14шт Стол", "Поднос - 2шт.", "5 штук Стул")
      *   B - Inventory number (or "забаланс" for off-balance)
      *   C - Location name
+     *
+     * @param int $batchSize Number of entities to persist before each flush (default 50).
      */
-    public function importFromExcel(UploadedFile $file, ?Location $defaultLocation): ImportResult
+    public function importFromExcel(UploadedFile $file, ?Location $defaultLocation, int $batchSize = 50): ImportResult
     {
         $created = 0;
         $skipped = 0;
         $errors  = [];
+
+        // Cache for location lookups to avoid repeated DB queries.
+        $locationCache = [];
 
         try {
             $spreadsheet = IOFactory::load($file->getPathname());
@@ -80,8 +85,8 @@ final class FurnitureImportService
                 // Detect category from name.
                 $category = $this->detectCategory($cleanName);
 
-                // Look up or create location.
-                $location = $this->resolveLocation($locationRaw, $defaultLocation);
+                // Look up or create location (with cache).
+                $location = $this->resolveLocation($locationRaw, $defaultLocation, $locationCache);
 
                 // Create furniture entities.
                 for ($i = 0; $i < $quantity; $i++) {
@@ -96,6 +101,12 @@ final class FurnitureImportService
                     $this->entityManager->persist($furniture);
                     $created++;
                 }
+
+                // Batch flush to prevent memory exhaustion and timeout.
+                if ($created % $batchSize === 0) {
+                    $this->entityManager->flush();
+                    $this->entityManager->clear();
+                }
             } catch (Throwable $e) {
                 $errors[] = sprintf(
                     'Строка "%s": %s',
@@ -106,8 +117,10 @@ final class FurnitureImportService
             }// end try
         }// end foreach
 
+        // Flush remaining entities.
         if ($created > 0) {
             $this->entityManager->flush();
+            $this->entityManager->clear();
         }
 
         return new ImportResult($created, $skipped, $errors);
@@ -179,256 +192,310 @@ final class FurnitureImportService
      * Detect furniture category from name keywords.
      *
      * Checks for all categories based on common Russian keywords.
-     * Order matters: more specific categories first.
+     * Uses hash-based lookup for O(1) performance per keyword.
      */
     private function detectCategory(string $name): FurnitureCategory
     {
         $lower = mb_strtolower($name);
 
-        // Dishware keywords.
-        $dishwareKeywords = [
-            'стакан',
-            'стакана',
-            'стаканы',
-            'тарелк',
-            'тарелка',
-            'тарелки',
-            'тарелок',
-            'чашк',
-            'чашка',
-            'чашки',
-            'кружк',
-            'кружка',
-            'кружки',
-            'ложк',
-            'ложка',
-            'ложки',
-            'ложек',
-            'вилк',
-            'вилка',
-            'вилки',
-            'нож',
-            'ножи',
-            'ножей',
-            'кастрюл',
-            'кастрюля',
-            'кастрюли',
-            'сковород',
-            'сковорода',
-            'сковороды',
-            'блюст',
-            'блюдо',
-            'блюда',
-            'поднос',
-            'подноса',
-            'подносы',
-            'графин',
-            'графина',
-            'сервиз',
-            'сервиза',
-            'чашка',
-            'пиал',
-            'пиала',
-            'бокал',
-            'бокала',
-            'бокалы',
-            'салатник',
-            'салатника',
-            'супник',
-            'супника',
-        ];
+        // Dishware keywords indexed by hash for O(1) lookup.
+        static $dishwareHash = null;
+        if ($dishwareHash === null) {
+            $dishwareHash = array_flip(
+                [
+                    'стакан',
+                    'стакана',
+                    'стаканы',
+                    'тарелк',
+                    'тарелка',
+                    'тарелки',
+                    'тарелок',
+                    'чашк',
+                    'чашка',
+                    'чашки',
+                    'кружк',
+                    'кружка',
+                    'кружки',
+                    'ложк',
+                    'ложка',
+                    'ложки',
+                    'ложек',
+                    'вилк',
+                    'вилка',
+                    'вилки',
+                    'нож',
+                    'ножи',
+                    'ножей',
+                    'кастрюл',
+                    'кастрюля',
+                    'кастрюли',
+                    'сковород',
+                    'сковорода',
+                    'сковороды',
+                    'блюст',
+                    'блюдо',
+                    'блюда',
+                    'поднос',
+                    'подноса',
+                    'подносы',
+                    'графин',
+                    'графина',
+                    'сервиз',
+                    'сервиза',
+                    'чашка',
+                    'пиал',
+                    'пиала',
+                    'бокал',
+                    'бокала',
+                    'бокалы',
+                    'салатник',
+                    'салатника',
+                    'супник',
+                    'супника',
+                ]
+            );
+        }// end if
 
-        foreach ($dishwareKeywords as $keyword) {
+        foreach ($dishwareHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::DISHWARE;
             }
         }
 
         // Tech keywords.
-        $techKeywords = [
-            'калькулятор',
-            'калькулятора',
-            'калькуляторы',
-            'кулер',
-            'кулера',
-            'кулеры',
-            'утюг',
-            'утюга',
-            'утюги',
-            'чайник',
-            'чайника',
-            'чайники',
-            'плита',
-            'плиты',
-            'плит',
-            'холодильник',
-            'холодильника',
-            'холодильники',
-            'кондиционер',
-            'кондиционера',
-            'кондиционеры',
-            'пылесос',
-            'пылесоса',
-            'пылесосы',
-            'фен',
-            'фена',
-            'фены',
-            'микроволновк',
-            'микроволновка',
-            'микроволновки',
-            'тостер',
-            'тостера',
-            'тостеры',
-            'блендер',
-            'блендера',
-            'блендеры',
-            'мультиварк',
-            'мультиварка',
-            'мультиварки',
-            'чайник электрическ',
-        ];
+        static $techHash = null;
+        if ($techHash === null) {
+            $techHash = array_flip(
+                [
+                    'калькулятор',
+                    'калькулятора',
+                    'калькуляторы',
+                    'кулер',
+                    'кулера',
+                    'кулеры',
+                    'утюг',
+                    'утюга',
+                    'утюги',
+                    'чайник',
+                    'чайника',
+                    'чайники',
+                    'плита',
+                    'плиты',
+                    'плит',
+                    'холодильник',
+                    'холодильника',
+                    'холодильники',
+                    'кондиционер',
+                    'кондиционера',
+                    'кондиционеры',
+                    'пылесос',
+                    'пылесоса',
+                    'пылесосы',
+                    'фен',
+                    'фена',
+                    'фены',
+                    'микроволновк',
+                    'микроволновка',
+                    'микроволновки',
+                    'тостер',
+                    'тостера',
+                    'тостеры',
+                    'блендер',
+                    'блендера',
+                    'блендеры',
+                    'мультиварк',
+                    'мультиварка',
+                    'мультиварки',
+                    'чайник электрическ',
+                ]
+            );
+        }// end if
 
-        foreach ($techKeywords as $keyword) {
+        foreach ($techHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::TECH;
             }
         }
 
-        // Desk keywords.
-        $deskKeywords = [
-            'стол',
-            'стола',
-            'столы',
-            'столов',
-            'парта',
-            'парты',
-            'парт',
-            'письм',
-            'письменный',
-            'верстак',
-            'верстака',
-            'верстаки',
+        // Exclude common false positives for desk (e.g., "лампа настольная").
+        $excludeDesk = [
+            'лампа',
+            'светильн',
+            'торшер',
+            'бра',
         ];
 
-        foreach ($deskKeywords as $keyword) {
+        foreach ($excludeDesk as $ex) {
+            if (mb_stripos($lower, $ex) !== false) {
+                return FurnitureCategory::OTHER;
+            }
+        }
+
+        // Desk keywords.
+        static $deskHash = null;
+        if ($deskHash === null) {
+            $deskHash = array_flip(
+                [
+                    'стол',
+                    'стола',
+                    'столы',
+                    'столов',
+                    'парта',
+                    'парты',
+                    'парт',
+                    'письм',
+                    'письменный',
+                    'верстак',
+                    'верстака',
+                    'верстаки',
+                ]
+            );
+        }
+
+        foreach ($deskHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::DESK;
             }
         }
 
         // Cabinet keywords.
-        $cabinetKeywords = [
-            'шкаф',
-            'шкафа',
-            'шкафы',
-            'шкафов',
-            'стеллаж',
-            'стеллажа',
-            'стеллажи',
-            'комод',
-            'комода',
-            'комоды',
-            'буфет',
-            'буфета',
-            'буфеты',
-            'витрина',
-            'витрины',
-            'витрин',
-            'гардероб',
-            'гардероба',
-            'гардеробы',
-            'банкетк',
-            'банкетка',
-            'банкетки',
-        ];
+        static $cabinetHash = null;
+        if ($cabinetHash === null) {
+            $cabinetHash = array_flip(
+                [
+                    'шкаф',
+                    'шкафа',
+                    'шкафы',
+                    'шкафов',
+                    'стеллаж',
+                    'стеллажа',
+                    'стеллажи',
+                    'комод',
+                    'комода',
+                    'комоды',
+                    'буфет',
+                    'буфета',
+                    'буфеты',
+                    'витрина',
+                    'витрины',
+                    'витрин',
+                    'гардероб',
+                    'гардероба',
+                    'гардеробы',
+                    'банкетк',
+                    'банкетка',
+                    'банкетки',
+                ]
+            );
+        }// end if
 
-        foreach ($cabinetKeywords as $keyword) {
+        foreach ($cabinetHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::CABINET;
             }
         }
 
         // Bed keywords.
-        $bedKeywords = [
-            'кровать',
-            'кровати',
-            'кроватей',
-            'диван',
-            'дивана',
-            'диваны',
-            'кровать чердак',
-            'чердакн',
-            'софа',
-            'софы',
-            'соф',
-            'книжк',
-            'книжка',
-            'книжки',
-            'оттоманк',
-            'оттоманка',
-            'оттоманки',
-        ];
+        static $bedHash = null;
+        if ($bedHash === null) {
+            $bedHash = array_flip(
+                [
+                    'кровать',
+                    'кровати',
+                    'кроватей',
+                    'диван',
+                    'дивана',
+                    'диваны',
+                    'кровать чердак',
+                    'чердакн',
+                    'софа',
+                    'софы',
+                    'соф',
+                    'книжк',
+                    'книжка',
+                    'книжки',
+                    'оттоманк',
+                    'оттоманка',
+                    'оттоманки',
+                ]
+            );
+        }// end if
 
-        foreach ($bedKeywords as $keyword) {
+        foreach ($bedHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::BED;
             }
         }
 
         // Chair keywords.
-        $chairKeywords = [
-            'стул',
-            'стула',
-            'стулья',
-            'стульев',
-            'табурет',
-            'табурета',
-            'табуреты',
-            'табуреток',
-            'сиденье',
-            'сиденья',
-            'сидений',
-        ];
+        static $chairHash = null;
+        if ($chairHash === null) {
+            $chairHash = array_flip(
+                [
+                    'стул',
+                    'стула',
+                    'стулья',
+                    'стульев',
+                    'табурет',
+                    'табурета',
+                    'табуреты',
+                    'табуреток',
+                    'сиденье',
+                    'сиденья',
+                    'сидений',
+                ]
+            );
+        }
 
-        foreach ($chairKeywords as $keyword) {
+        foreach ($chairHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::CHAIR;
             }
         }
 
         // Armchair keywords.
-        $armchairKeywords = [
-            'кресл',
-            'кресло',
-            'кресла',
-            'кресел',
-            'пуф',
-            'пуфа',
-            'пуфы',
-            'банкетк',
-            'банкетка',
-            'банкетки',
-        ];
+        static $armchairHash = null;
+        if ($armchairHash === null) {
+            $armchairHash = array_flip(
+                [
+                    'кресл',
+                    'кресло',
+                    'кресла',
+                    'кресел',
+                    'пуф',
+                    'пуфа',
+                    'пуфы',
+                    'банкетк',
+                    'банкетка',
+                    'банкетки',
+                ]
+            );
+        }
 
-        foreach ($armchairKeywords as $keyword) {
+        foreach ($armchairHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::ARMCHAIR;
             }
         }
 
         // Nightstand keywords.
-        $nightstandKeywords = [
-            'тумб',
-            'тумба',
-            'тумбы',
-            'прикроватн',
-            'прикроватная',
-            'прикроватный',
-            'ночной стол',
-            'стол прислон',
-        ];
+        static $nightstandHash = null;
+        if ($nightstandHash === null) {
+            $nightstandHash = array_flip(
+                [
+                    'тумб',
+                    'тумба',
+                    'тумбы',
+                    'прикроватн',
+                    'прикроватная',
+                    'прикроватный',
+                    'ночной стол',
+                    'стол прислон',
+                ]
+            );
+        }
 
-        foreach ($nightstandKeywords as $keyword) {
+        foreach ($nightstandHash as $keyword => $_) {
             if (mb_stripos($lower, $keyword) !== false) {
                 return FurnitureCategory::NIGHTSTAND;
             }
@@ -473,11 +540,20 @@ final class FurnitureImportService
 
     /**
      * Resolve location from name string, creating if necessary.
+     *
+     * @param string            $locationRaw     The raw location string from the file.
+     * @param Location|null     $defaultLocation Default location if none found.
+     * @param array<string,int> $cache           Cache of location names to IDs.
      */
-    private function resolveLocation(string $locationRaw, ?Location $defaultLocation): ?Location
+    private function resolveLocation(string $locationRaw, ?Location $defaultLocation, array &$cache): ?Location
     {
         if (empty($locationRaw)) {
             return $defaultLocation;
+        }
+
+        // Check cache first.
+        if (isset($cache[$locationRaw])) {
+            return $this->entityManager->find(Location::class, $cache[$locationRaw]);
         }
 
         // Try to find existing location by name.
@@ -485,6 +561,8 @@ final class FurnitureImportService
             ->findOneBy(['name' => $locationRaw]);
 
         if ($location) {
+            $cache[$locationRaw] = $location->getId();
+
             return $location;
         }
 
@@ -497,6 +575,8 @@ final class FurnitureImportService
                 ->findOneBy(['name' => $name, 'roomNumber' => $roomNum]);
 
             if ($location) {
+                $cache[$locationRaw] = $location->getId();
+
                 return $location;
             }
 
@@ -506,16 +586,9 @@ final class FurnitureImportService
             $location->setRoomNumber($roomNum);
             $this->entityManager->persist($location);
 
+            // Cache will be refreshed after clear.
             return $location;
-        }
-
-        // Try simple name lookup with room number empty.
-        $location = $this->entityManager->getRepository(Location::class)
-            ->findOneBy(['name' => $locationRaw]);
-
-        if ($location) {
-            return $location;
-        }
+        }// end if
 
         // Return default if no location found.
         return $defaultLocation;

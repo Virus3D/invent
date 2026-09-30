@@ -279,6 +279,8 @@ final class FurnitureCrudController extends AbstractCrudController
 
         if ($form->isSubmitted() && $form->isValid()) {
             /**
+             * Файл.
+             *
              * @var \Symfony\Component\HttpFoundation\File\UploadedFile|null $file
              */
             $file     = $form->get('file')->getData();
