@@ -6,6 +6,8 @@ namespace App\Controller;
 
 use App\Entity\Furniture;
 use App\Entity\MovementLog;
+use App\Enum\FurnitureCategory;
+use App\Enum\ItemStatus;
 use App\Form\FurnitureBatchCreateType;
 use App\Form\FurnitureImportType;
 use App\Form\FurnitureMovementLogType;
@@ -30,7 +32,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\ChoiceFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\TextFieldFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -157,9 +161,18 @@ final class FurnitureCrudController extends AbstractCrudController
     public function configureFilters(EasyAdminFilters $filters): EasyAdminFilters
     {
         return $filters
-            ->add('category')
-            ->add(EntityFilter::new('location'))
-            ->add('status');
+            ->add('name')
+            ->add(
+                ChoiceFilter::new('category')
+                    ->setChoices(FurnitureCategory::getChoices($this->translator))
+                    ->canSelectMultiple(true)
+            )
+            ->add(
+                ChoiceFilter::new('status')
+                    ->setChoices(ItemStatus::getChoices($this->translator))
+                    ->canSelectMultiple(true)
+            )
+            ->add(EntityFilter::new('location'));
     }// end configureFilters()
 
     /**

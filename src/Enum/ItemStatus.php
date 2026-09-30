@@ -124,4 +124,20 @@ enum ItemStatus: string implements TranslatableInterface
     {
         return array_column(self::cases(), 'value');
     }// end getValues()
+
+    /**
+     * Build a [label => value] map for use in forms/filters.
+     *
+     * @return array<string, string>
+     */
+    public static function getChoices(TranslatorInterface $translator, ?string $locale = null): array
+    {
+        $choices = [];
+
+        foreach (self::cases() as $case) {
+            $choices[$case->trans($translator, $locale)] = $case->value;
+        }
+
+        return $choices;
+    }// end getChoices()
 }// end enum
