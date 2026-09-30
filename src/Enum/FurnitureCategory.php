@@ -15,6 +15,8 @@ enum FurnitureCategory: string implements TranslatableInterface
     case BED = 'bed';
     case CABINET = 'cabinet';
     case NIGHTSTAND = 'nightstand';
+    case DISHWARE = 'dishware';
+    case TECH = 'tech';
     case OTHER = 'other';
 
     /**
@@ -43,6 +45,8 @@ enum FurnitureCategory: string implements TranslatableInterface
             self::BED => 'bi-bed',
             self::CABINET => 'bi-archive',
             self::NIGHTSTAND => 'bi-lamp',
+            self::DISHWARE => 'bi-cup-straw',
+            self::TECH => 'bi-laptop',
             self::OTHER => 'bi-box',
         };
     }// end getIcon()
@@ -61,6 +65,8 @@ enum FurnitureCategory: string implements TranslatableInterface
             self::BED => 'telegram',
             self::CABINET => 'indigo',
             self::NIGHTSTAND => 'pink',
+            self::DISHWARE => 'orange',
+            self::TECH => 'purple',
             self::OTHER => 'dark',
         };
     }// end getColor()

@@ -127,6 +127,8 @@ actions:
     item: "Списать на оборудование"
   material.report: "Отчёт по списаниям"
   batch_create: "Добавить несколько"
+  import: "Импорт из Excel"
+  download_template: "Скачать шаблон"
 
 form:
   section:

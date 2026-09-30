@@ -7,16 +7,18 @@ namespace App\Controller;
 use App\Entity\Furniture;
 use App\Entity\MovementLog;
 use App\Form\FurnitureBatchCreateType;
+use App\Form\FurnitureImportType;
 use App\Form\FurnitureMovementLogType;
 use App\Form\FurnitureType;
 use App\Repository\FurnitureRepository;
 use App\Repository\MovementLogRepository;
+use App\Service\FurnitureImportService;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminRoute;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-use EasyCorp\Bundle\EasyAdminBundle\Config\Filters;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Filters as EasyAdminFilters;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -47,6 +49,7 @@ final class FurnitureCrudController extends AbstractCrudController
         private readonly FurnitureRepository $furnitureRepository,
         private readonly MovementLogRepository $movementLogRepository,
         private readonly TranslatorInterface $translator,
+        private readonly FurnitureImportService $importService,
     ) {
     }// end __construct()
 
@@ -150,7 +153,7 @@ final class FurnitureCrudController extends AbstractCrudController
     /**
      * @inheritDoc
      */
-    public function configureFilters(Filters $filters): Filters
+    public function configureFilters(EasyAdminFilters $filters): EasyAdminFilters
     {
         return $filters
             ->add('category')
@@ -173,6 +176,16 @@ final class FurnitureCrudController extends AbstractCrudController
             ->linkToCrudAction('batchCreate')
             ->createAsGlobalAction();
 
+        $importAction = Action::new('import', 'actions.import')
+            ->setIcon('bi bi-file-earmark-arrow-up')
+            ->linkToCrudAction('import')
+            ->createAsGlobalAction();
+
+        $downloadTemplate = Action::new('downloadTemplate', 'actions.download_template')
+            ->setIcon('bi bi-download')
+            ->linkToCrudAction('downloadTemplate')
+            ->createAsGlobalAction();
+
         $moveAction = Action::new('move', 'actions.move')
             ->setIcon('fas fa-exchange-alt')
             ->linkToCrudAction('move');
@@ -181,6 +194,8 @@ final class FurnitureCrudController extends AbstractCrudController
             ->add(Crud::PAGE_INDEX, Action::DETAIL)
             ->add(Crud::PAGE_INDEX, $resetCheck)
             ->add(Crud::PAGE_INDEX, $batchCreate)
+            ->add(Crud::PAGE_INDEX, $importAction)
+            ->add(Crud::PAGE_INDEX, $downloadTemplate)
             ->add(Crud::PAGE_INDEX, $moveAction)
             ->add(Crud::PAGE_DETAIL, $moveAction);
     }// end configureActions()
@@ -247,6 +262,56 @@ final class FurnitureCrudController extends AbstractCrudController
             ]
         );
     }// end batchCreate()
+
+    /**
+     * Импорт мебели из XLS/XLSX файла.
+     */
+    #[AdminRoute]
+    public function import(Request $request): Response
+    {
+        $form = $this->createForm(FurnitureImportType::class);
+        $form->handleRequest($request);
+
+        $createdCount = 0;
+        $skippedCount = 0;
+        $errors       = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            /**
+             * @var \Symfony\Component\HttpFoundation\File\UploadedFile|null $file
+             */
+            $file     = $form->get('file')->getData();
+            $location = $form->get('location')->getData();
+
+            if ($file) {
+                $result = $this->importService->importFromExcel($file, $location);
+
+                $createdCount = $result->created;
+                $skippedCount = $result->skipped;
+                $errors       = $result->errors;
+            }
+        }
+
+        return $this->render(
+            'furniture/import.html.twig',
+            [
+                'form'         => $form->createView(),
+                'item'         => new Furniture(),
+                'createdCount' => $createdCount,
+                'skippedCount' => $skippedCount,
+                'errors'       => $errors,
+            ]
+        );
+    }// end import()
+
+    /**
+     * Скачивание шаблона для импорта.
+     */
+    #[AdminRoute]
+    public function downloadTemplate(): Response
+    {
+        return $this->importService->generateTemplate();
+    }// end downloadTemplate()
 
     /**
      * Кастомная страница перемещения мебели (GET – форма, POST – обработка).

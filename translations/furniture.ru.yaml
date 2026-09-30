@@ -11,6 +11,7 @@ page:
   create: "Добавить мебель"
   view: "Просмотр мебели"
   batch_create: "Массовое создание"
+  import: "Импорт из Excel"
 
 category:
   desk: "Стол"
@@ -19,6 +20,8 @@ category:
   bed: "Кровать"
   cabinet: "Шкаф"
   nightstand: "Тумба"
+  dishware: "Посуда"
+  tech: "Техника"
   other: "Другое"
 
 form:
@@ -67,6 +70,7 @@ actions:
 flash:
   check_reset_success: "Все проверки мебели успешно сброшены."
   batch_created: "Успешно создано %count% единиц мебели."
+  import_success: "Успешно импортировано %count% единиц мебели."
 
 tips:
   title: "Рекомендации по заполнению"
@@ -78,3 +82,19 @@ tips:
   dont_generic_names: 'Обобщённых названий (например, "Стол" вместо "Стол офисный 1200x600")'
   dont_leaving_required_fields_empty: "Оставления обязательных полей пустыми"
   dont_outdated_information: "Устаревшей информации"
+
+import:
+  file: "Файл Excel"
+  default_location: "Местоположение по умолчанию"
+  default_location_placeholder: "Не назначено"
+  default_location_help: "Используется, если локация не указана в файле или не найдена"
+  instructions_title: "Инструкция по импорту"
+  instruction_1: "Первая колонка — наименование (можно указать количество, например: Стол офисный - 14шт)"
+  instruction_2: 'Вторая колонка — инвентарный номер (или слово "забаланс" для забалансовых объектов)'
+  instruction_3: "Третья колонка — локация (название помещения, например: Дирекция)"
+  instruction_4: "Первая строка — заголовок, данные начинаются со второй строки"
+  button_import: "Импортировать"
+  created: "Создано"
+  skipped: "Пропущено"
+  errors: "Ошибки"
+  error_details: "Детали ошибок:"
