@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Furniture;
 use App\Entity\MovementLog;
+use App\Enum\BalanceType;
 use App\Enum\FurnitureCategory;
 use App\Enum\ItemStatus;
 use App\Form\FurnitureBatchCreateType;
@@ -116,19 +117,19 @@ final class FurnitureCrudController extends AbstractCrudController
             ->setTemplatePath('fields/furniture_name.html.twig');
 
         yield ChoiceField::new('category')
-            ->setChoices(\App\Enum\FurnitureCategory::cases())
+            ->setChoices(FurnitureCategory::cases())
             ->setTemplatePath('fields/furniture_category.html.twig');
 
         yield TextField::new('description')
             ->setRequired(false);
 
         yield ChoiceField::new('balanceType')
-            ->setChoices(\App\Enum\BalanceType::cases())
+            ->setChoices(BalanceType::cases())
             ->hideOnIndex();
 
         yield ChoiceField::new('status')
             ->setTemplatePath('fields/status.html.twig')
-            ->setChoices(\App\Enum\ItemStatus::cases());
+            ->setChoices(ItemStatus::cases());
 
         yield AssociationField::new('location');
 

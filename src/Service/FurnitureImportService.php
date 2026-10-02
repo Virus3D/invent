@@ -167,7 +167,10 @@ final class FurnitureImportService
 
         // Pattern 2: Quantity at the END or MIDDLE of the string (after separator).
         // Matches: "Стол 3шт", "Поднос - 2шт.", "Кресло – 5штук".
-        $endPattern = '/[\s\-–—]+(\d+)\s*' . $suffix . '(?:\.\s*$|\s*$)/u';
+        // NOTE: suffix is mandatory here — without it, numbers after dashes
+        // (e.g. "AV-010999") would be falsely recognised as quantities.
+        $mandatorySuffix = '(?:штук\.?|штуки|штуч\.?|шт\.?|штук)';
+        $endPattern = '/[\s\-–—]+(\d+)\s*' . $mandatorySuffix . '\s*$/u';
         if (preg_match($endPattern, $name, $matches)) {
             $quantity = (int) $matches[1];
             $cleanName = trim(preg_replace($endPattern, '', $name));
@@ -179,6 +182,31 @@ final class FurnitureImportService
                     $quantity,
                     $cleanName,
                 ];
+            }
+        }
+
+        // Fallback: allow end-pattern match without suffix only when the
+        // separator is a space (not a dash).  This prevents
+        // "AV-010999" from matching while still accepting "Стол 3".
+        $endPatternNoSuffix = '/[\s\-–—]+(\d+)\s*(?:\.\s*$|\s*$)/u';
+        if (preg_match($endPatternNoSuffix, $name, $matches, PREG_OFFSET_CAPTURE)) {
+            // $matches[0][0] — the full matched string (e.g. " 3" or "-010999").
+            // If it starts with a dash/en-dash/em-dash, it is likely an
+            // inventory code (e.g. "AV-010999"), not a quantity.
+            $fullMatch = $matches[0][0];
+            $firstChar = $fullMatch[0];
+            if ($firstChar !== '-' && $firstChar !== '–' && $firstChar !== '—') {
+                $quantity = (int) $matches[1][0];
+                $cleanName = trim(preg_replace($endPatternNoSuffix, '', $name));
+                $cleanName = trim($cleanName, "\s\-–—");
+                $cleanName = trim($cleanName);
+
+                if (!empty($cleanName)) {
+                    return [
+                        $quantity,
+                        $cleanName,
+                    ];
+                }
             }
         }
 
