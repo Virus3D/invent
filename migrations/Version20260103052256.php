@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -25,6 +26,11 @@ final class Version20260103052256 extends AbstractMigration
      */
     public function up(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql(
             'CREATE TEMPORARY TABLE __temp__inventory_item AS
                 SELECT id, location_id, name, description, inventory_number, serial_number,
@@ -62,6 +68,11 @@ final class Version20260103052256 extends AbstractMigration
      */
     public function down(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql(
             'CREATE TEMPORARY TABLE __temp__inventory_item AS
                 SELECT id, location_id, name, description, inventory_number, serial_number,

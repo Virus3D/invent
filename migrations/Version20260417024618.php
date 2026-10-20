@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -25,6 +26,11 @@ final class Version20260417024618 extends AbstractMigration
      */
     public function up(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql(
             'CREATE TABLE user (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -46,13 +52,18 @@ final class Version20260417024618 extends AbstractMigration
             'INSERT INTO user (username, roles, password) VALUES
             (\'pio\', \'["ROLE_USER"]\', \'$2y$13$rmrOmzQq6WCnovxv33S11eOR44h1QLj7l40cpIYNbrHxz4CM92sku\');'
         );
-    }// end up()php bin/console doctrine:migrations:execute 'DoctrineMigrations\Version20260417024618' --up
+    }// end up()
 
     /**
      * @inheritDoc
      */
     public function down(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql('DROP TABLE user');
         $this->addSql('DROP TABLE rememberme_token');
     }// end down()

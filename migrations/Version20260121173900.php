@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -22,6 +23,11 @@ final class Version20260121173900 extends AbstractMigration
      */
     public function up(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql('ALTER TABLE inventory_item ADD checked TINYINT(1) DEFAULT 0 NOT NULL');
     }// end up()
 
@@ -30,6 +36,11 @@ final class Version20260121173900 extends AbstractMigration
      */
     public function down(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql('ALTER TABLE inventory_item DROP checked');
     }// end down()
 }// end class

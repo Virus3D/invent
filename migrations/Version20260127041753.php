@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace DoctrineMigrations;
 
+use Doctrine\DBAL\Platforms\SqlitePlatform;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
@@ -25,6 +26,11 @@ final class Version20260127041753 extends AbstractMigration
      */
     public function up(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql(
             'CREATE TABLE material (
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -87,6 +93,11 @@ final class Version20260127041753 extends AbstractMigration
      */
     public function down(Schema $schema): void
     {
+        $platform = $this->connection->getDatabasePlatform();
+        if (!$platform instanceof SqlitePlatform) {
+            return;
+        }
+
         $this->addSql('DROP TABLE material');
         $this->addSql('ALTER TABLE inventory_item ADD COLUMN useful_life_months INTEGER DEFAULT NULL');
     }// end down()
