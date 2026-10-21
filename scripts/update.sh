@@ -515,7 +515,7 @@ main() {
     backup_database
 
     # Остановка воркеров перед обновлением
-    stop_workers
+    #stop_workers
 
     # Обновление кода
     update_code
