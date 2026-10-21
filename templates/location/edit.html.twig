@@ -3,6 +3,11 @@
 {% block main %}
     {{ parent() }}
 
-    {{ include('location/_inventory.html.twig') }}
+    <div class="alert alert-warning mt-3">
+        <i class="bi bi-info-circle"></i>
+        <strong>{{ 'common.messages.warning'|trans(domain: 'messages') }}:</strong>
+        {{ 'delete_warning'|trans(domain: 'location') }}
+    </div>
+
     {{ include('location/_tips.html.twig') }}
 {% endblock %}

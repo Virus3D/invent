@@ -46,7 +46,7 @@
             {% for item in items %}
                 <tr>
                     {% if 'inventory_number' in columns %}
-                        <td>{{ 'form.inventory_number'|trans }}</td>
+                        <td>{% include 'fields/balance.html.twig' %}</td>
                     {% endif %}
 
                     <td>

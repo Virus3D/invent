@@ -32,6 +32,7 @@ form:
   inventory_number: "Инвентарный номер"
   inventory_number_placeholder: "Например: INV-000001"
   inventory_number_help: "Обязательно для объектов на балансе"
+  inventory_number_short: "Инв. номер"
   category: "Категория"
   balance_type: "Тип баланса"
   status: "Статус"
@@ -48,6 +49,8 @@ form:
   panel_basic: "Основная информация"
   section_classification: "Классификация"
   batch_quantity: "Количество"
+  all_categories: "Все категории"
+  all_statuses: "Все статусы"
 
 show:
   main_info: "Основная информация"
@@ -58,6 +61,10 @@ show:
   responsible_person: "Ответственное лицо"
   purchase_price: "Цена покупки"
   purchase_date: "Дата покупки"
+  furniture_in_location: "Мебель в этом местоположении"
+  no_furniture: "Мебель отсутствует"
+  no_furniture_desc: "В этом местоположении пока нет мебели"
+  add_first_furniture: "Добавить первую единицу мебели"
 
 actions:
   check:
@@ -98,3 +105,9 @@ import:
   skipped: "Пропущено"
   errors: "Ошибки"
   error_details: "Детали ошибок:"
+
+check:
+  label: "Проверка"
+  reset_all: "Сбросить проверки"
+  set: "Отметка сохранена"
+  unset: "Отметка снята"

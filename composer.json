@@ -42,6 +42,7 @@
         "symfony/translation": "7.4.*",
         "symfony/twig-bundle": "7.4.*",
         "symfony/ux-autocomplete": "^3.5.1",
+        "symfony/ux-live-component": "^3.6",
         "symfony/ux-translator": "^2.36",
         "symfony/ux-twig-component": ">=3.5.1",
         "symfony/validator": "7.4.*",

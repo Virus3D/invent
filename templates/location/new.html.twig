@@ -1,0 +1,10 @@
+{% extends '@EasyAdmin/crud/new.html.twig' %}
+
+{% trans_default_domain 'location' %}
+
+{% set location = entity.instance %}
+
+{% block main %}
+    {{ parent() }}
+    {{ include('location/_tips.html.twig') }}
+{% endblock %}

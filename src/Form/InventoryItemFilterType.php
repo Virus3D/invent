@@ -28,7 +28,7 @@ final class InventoryItemFilterType extends AbstractType
                     'label'    => 'inventory_item.form.name',
                     'attr'     => [
                         'placeholder' => 'inventory_item.form.name_placeholder',
-                        'class'       => 'form-control filter-input',
+                        'class'       => 'form-control',
                     ],
                 ]
             )
@@ -41,7 +41,7 @@ final class InventoryItemFilterType extends AbstractType
                     'required'    => false,
                     'placeholder' => 'inventory_item.form.all_categories',
                     'attr'        => [
-                        'class'          => 'form-select category-selector filter-input',
+                        'class'          => 'form-select',
                         'data-specs-url' => $options['specs_url'] ?? null,
                     ],
                 ]
@@ -54,7 +54,7 @@ final class InventoryItemFilterType extends AbstractType
                     'class'       => ItemStatus::class,
                     'required'    => false,
                     'placeholder' => 'inventory_item.form.all_statuses',
-                    'attr'        => ['class' => 'filter-input'],
+                    'attr'        => ['class' => 'form-select'],
                 ]
             );
     }// end buildForm()

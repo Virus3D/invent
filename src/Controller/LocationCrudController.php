@@ -54,6 +54,7 @@ class LocationCrudController extends AbstractCrudController
         return $crud
             ->overrideTemplate('crud/edit', 'location/edit.html.twig')
             ->overrideTemplate('crud/detail', 'location/detail.html.twig')
+            ->overrideTemplate('crud/new', 'location/new.html.twig')
             ->setPageTitle('detail', fn (Location $l) => sprintf('%s (каб. %s)', $l->getName(), $l->getRoomNumber()))
             ->setPageTitle('edit', fn (Location $l) => sprintf('Редактирование: %s', $l->getName()))
             ->showEntityActionsInlined()
@@ -65,13 +66,16 @@ class LocationCrudController extends AbstractCrudController
      */
     public function configureFields(string $pageName): iterable
     {
-        yield TextField::new('name')->setSortable(false);
-        yield TextField::new('roomNumber')->setSortable(false);
-        yield TextField::new('description')->hideOnIndex();
-        // Вычисляемое поле для количества объектов (только на index).
+        yield TextField::new('name')->setSortable(false)->setColumns(8);
+        yield TextField::new('roomNumber')->setSortable(false)->setColumns(4);
+        yield TextField::new('description')->hideOnIndex()->setColumns(12);
+        // Вычисляемое поле (только на index).
         if (Crud::PAGE_INDEX === $pageName) {
             yield IntegerField::new('inventoryItemsCount')
-                ->setTemplatePath('fields/inventory_count.html.twig')
+                ->setTemplatePath('fields/count.html.twig')
+                ->setSortable(false);
+            yield IntegerField::new('furnituresCount')
+                ->setTemplatePath('fields/count.html.twig')
                 ->setSortable(false);
         }
     }// end configureFields()
@@ -82,7 +86,8 @@ class LocationCrudController extends AbstractCrudController
     public function configureFilters(Filters $filters): Filters
     {
         return $filters
-            ->add('name');
+            ->add('name')
+            ->add('roomNumber');
     }// end configureFilters()
 
     /**
@@ -112,7 +117,7 @@ class LocationCrudController extends AbstractCrudController
     /**
      * @inheritDoc
      *
-     * Добавляем вычисляемое поле inventoryItemsCount в результаты index.
+     * Добавляем вычисляемое поле inventoryItemsCount и furnituresCount в результаты index.
      */
     public function index(AdminContext $context): KeyValueStore|Response
     {
@@ -129,15 +134,17 @@ class LocationCrudController extends AbstractCrudController
                 $location = $entity->getInstance();
                 // Получаем коллекцию полей, обработанных EasyAdmin.
                 $fields = $entity->getFields();
-                // Ищем поле с property 'inventoryItemsCount' и устанавливаем значение.
+                // Ищем поле с property 'inventoryItemsCount' или 'furnituresCount' и устанавливаем значение.
                 foreach ($fields as $field) {
                     if ('inventoryItemsCount' === $field->getProperty()) {
                         $field->setValue($location->getInventoryItems()->count());
-                        break;
+                    }
+                    if ('furnituresCount' === $field->getProperty()) {
+                        $field->setValue($location->getFurnitures()->count());
                     }
                 }
             }
-        }
+        }// end if
 
         return $response;
     }// end index()
@@ -160,60 +167,15 @@ class LocationCrudController extends AbstractCrudController
             throw $this->createNotFoundException();
         }
 
-        $request = $context->getRequest();
-        $filterForm = $this->createForm(InventoryItemFilterType::class);
-        $filters = [];
-
-        if ($request->query->has('inventory_item_filter')) {
-            $filterForm->submit($request->query->all('inventory_item_filter'));
-            if ($filterForm->isValid()) {
-                $filters = $filterForm->getData();
-            }
-        }
-
-        $inventoryItems = $this->inventoryItemRepository->findByLocationAndFilters($location, $filters);
-
         // Генерируем CSRF-токен, совместимый с EasyAdmin BooleanField.
         $csrfToken = $this->csrfTokenManager->getToken('ea-toggle')->getValue();
-
-        // AJAX-запрос: возвращаем HTML таблицы.
-        if ($request->isXmlHttpRequest()) {
-            $html = $this->renderView(
-                'inventory/_list.html.twig',
-                [
-                    'items'                  => $inventoryItems,
-                    'columns'                => [
-                        'inventory_number',
-                        'status',
-                        'serial_number',
-                        'checked',
-                        'created_at',
-                        'actions',
-                    ],
-                    'booleanToggleCsrfToken' => $csrfToken,
-                ]
-            );
-
-            return new JsonResponse(
-                [
-                    'html'  => $html,
-                    'count' => count($inventoryItems),
-                ]
-            );
-        }// end if
 
         // Получаем стандартный ответ от EasyAdmin (поля, действия и т.д.).
         $response = parent::detail($context);
 
-        // Получаем мебель для этого местоположения.
-        $furnitureItems = $this->furnitureRepository->findBy(['location' => $location]);
-
         if ($response instanceof KeyValueStore) {
             // Добавляем переменные для шаблона.
-            $response->set('filterForm', $filterForm->createView());
-            $response->set('inventoryItems', $inventoryItems);
             $response->set('booleanToggleCsrfToken', $csrfToken);
-            $response->set('furnitureItems', $furnitureItems);
         }
 
         return $response;

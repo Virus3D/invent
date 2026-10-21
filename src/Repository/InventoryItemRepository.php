@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\InventoryItem;
 use App\Entity\Location;
 use App\Enum\InventoryCategory;
+use App\Enum\ItemStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -287,4 +288,49 @@ final class InventoryItemRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }// end searchByCriteria()
+
+    /**
+     * Получить с фильтром.
+     *
+     * @return InventoryItem[]
+     */
+    public function findFiltered(
+        Location $location,
+        ?string $search,
+        ?InventoryCategory $category,
+        ?ItemStatus $status,
+        string $sortField,
+        string $sortDirection,
+    ): array {
+        $allowedSort = [
+            'inventoryNumber',
+            'status',
+            'serialNumber',
+            'checked',
+            'createdAt',
+            'category',
+        ];
+        if (!\in_array($sortField, $allowedSort, true)) {
+            $sortField = 'createdAt';
+        }
+        $direction = $sortDirection === 'asc' ? 'asc' : 'desc';
+
+        $qb = $this->createQueryBuilder('i')
+            ->andWhere('i.location = :location')
+            ->setParameter('location', $location)
+            ->orderBy('i.' . $sortField, $direction);
+
+        if ($search !== null && $search !== '') {
+            $qb->andWhere('i.inventoryNumber LIKE :q OR i.serialNumber LIKE :q OR i.name LIKE :q')
+                ->setParameter('q', '%' . $search . '%');
+        }
+        if ($category !== null) {
+            $qb->andWhere('i.category = :category')->setParameter('category', $category);
+        }
+        if ($status !== null) {
+            $qb->andWhere('i.status = :status')->setParameter('status', $status);
+        }
+
+        return $qb->getQuery()->getResult();
+    }// end findFiltered()
 }// end class

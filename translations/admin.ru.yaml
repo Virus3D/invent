@@ -41,6 +41,7 @@ entities:
       roomNumber: "Номер помещения"
       description: "Описание"
       inventoryItemsCount: "Объектов"
+      furnituresCount: "Мебели"
 
   App\Entity\SoftwareLicense:
     singular: "Лицензия"

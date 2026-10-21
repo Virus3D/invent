@@ -78,8 +78,8 @@ final class DashboardController extends AbstractDashboardController
         yield MenuItem::linkTo(MaterialCrudController::class, 'page.material', 'fas fa-cubes');
         yield MenuItem::linkTo(CartridgeCrudController::class, 'page.cartridge', 'fas fa-fill-drip');
 
-        yield MenuItem::section('sections.users');
-        yield MenuItem::linkTo(UserCrudController::class, 'page.users', 'fas fa-users');
+        yield MenuItem::section('sections.users')->setPermission('ROLE_ADMIN');
+        yield MenuItem::linkTo(UserCrudController::class, 'page.users', 'fas fa-users')->setPermission('ROLE_ADMIN');
     }// end configureMenuItems()
 
     /**

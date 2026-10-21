@@ -1,0 +1,209 @@
+{% trans_default_domain 'furniture' %}
+
+<div {{ attributes }}>
+    {# ───── Форма фильтра ───── #}
+    {{ form_start(form, {
+        attr: {
+            'data-action': 'submit->live#action:prevent',
+            'data-live-action-param': 'save',
+        }
+    }) }}
+        <div class="row g-2 mb-3">
+            <div class="col-md-4">
+                {{ form_row(form.name, {
+                    attr: {'data-model': 'debounce(300)|formValues[name]'}
+                }) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.category) }}
+            </div>
+            <div class="col-md-4">
+                {{ form_row(form.status) }}
+            </div>
+        </div>
+        <noscript><button type="submit" class="btn btn-primary">Фильтр</button></noscript>
+    {{ form_end(form) }}
+
+    {# ───── Таблица ───── #}
+    {% set items = this.items %}
+
+    {# Маппинг колонки → поле сортировки (None = не сортируется) #}
+    {% set sortable = {
+        'inventory_number': 'inventoryNumber',
+        'name': 'name',
+        'created_at': 'createdAt',
+        'checked': 'checked',
+    } %}
+
+    {# Макрос отрисовки заголовка с сортировкой #}
+    {% macro th(label, field, sortField, sortDirection) %}
+        {% if field is null %}
+            <th>{{ label }}</th>
+        {% else %}
+            <th>
+                <a href="#"
+                   class="text-decoration-none text-dark"
+                   data-action="live#action:prevent"
+                   data-live-action-param="sortBy"
+                   data-live-field-param="{{ field }}">
+                    {{ label }}
+                    {% if sortField == field %}
+                        <span class="text-primary">{{ sortDirection == 'asc' ? '▲' : '▼' }}</span>
+                    {% endif %}
+                </a>
+            </th>
+        {% endif %}
+    {% endmacro %}
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    {% if 'inventory_number' in columns %}
+                        {{ _self.th(
+                            'form.inventory_number_short'|trans,
+                            sortable['inventory_number']|default(null),
+                            sortField, sortDirection
+                        ) }}
+                    {% endif %}
+
+                    {{ _self.th(
+                        'form.name'|trans,
+                        sortable['name'],
+                        sortField, sortDirection
+                    ) }}
+
+                    {% if 'location' in columns %}
+                        {# Не сортируем: потребует JOIN и переусложнит запрос #}
+                        <th>{{ 'form.location'|trans }}</th>
+                    {% endif %}
+
+                    {% if 'created_at' in columns %}
+                        {{ _self.th(
+                            'common.messages.added'|trans(domain: 'messages'),
+                            sortable['created_at']|default(null),
+                            sortField, sortDirection
+                        ) }}
+                    {% endif %}
+
+                    {% if 'checked' in columns %}
+                        {{ _self.th(
+                            'check.label'|trans,
+                            sortable['checked']|default(null),
+                            sortField, sortDirection
+                        ) }}
+                    {% endif %}
+
+                    {% if 'actions' in columns %}
+                        <th>{{ 'common.actions.actions'|trans(domain: 'messages') }}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                    <tr>
+                        {% if 'inventory_number' in columns %}
+                            <td>{% include 'fields/balance.html.twig' %}</td>
+                        {% endif %}
+
+                        <td>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="me-3">
+                                    <div class="fw-medium">
+                                        {{ item.name }}
+                                    </div>
+                                    {% if item.description %}
+                                        <small class="text-muted d-block mt-1">{{ item.description|slice(0, 100) }}{% if item.description|length > 100 %}...{% endif %}</small>
+                                    {% endif %}
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <span class="badge badge-{{ item.category.color }}">
+                                        <i class="bi {{ item.category.icon }}"></i> {{ item.category|trans }}
+                                    </span>
+                                </div>
+                            </div>
+                            {% if 'status' in columns %}
+                                <span class="badge badge-{{ item.status.color }}">
+                                    <i class="bi {{ item.status.icon }}"></i> {{ item.status|trans }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        {% if 'serial_number' in columns %}
+                            <td>{{ item.serialNumber }}</td>
+                        {% endif %}
+
+                        {% if 'location' in columns %}
+                            <td>
+                                {% if item.location %}
+                                    <a href="{{ ea_url().setController('App\\Controller\\LocationCurdController').setAction('detail').setEntityId(item.location.id) }}">
+                                        {{ item.location }}
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">{{ 'not_location'|trans }}</span>
+                                {% endif %}
+                            </td>
+                        {% endif %}
+
+                        {% if 'created_at' in columns %}
+                            <td>
+                                <small title="{{ item.createdAt|date('d.m.Y H:i:s') }}">
+                                    {{ item.createdAt|date('d.m.Y') }}
+                                </small>
+                            </td>
+                        {% endif %}
+
+                        {% if 'checked' in columns %}
+                            <td class="text-center"  data-controller="boolean-toggle">
+                                {% set toggle_url = ea_url().setController('App\\Controller\\FurnitureCrudController').setAction('edit').setEntityId(item.id).set('csrfToken', booleanToggleCsrfToken).set('fieldName', 'checked') %}
+                                <span class="ea-switch">
+                                    <input type="checkbox" role="switch" class="ea-switch-input"
+                                        {{ item.checked ? 'checked' }}
+                                        data-toggle-url="{{ toggle_url }}"
+                                        data-boolean-toggle-target="input"
+                                        data-action="change->boolean-toggle#toggle"
+                                    >
+                                    <span class="ea-switch-track" aria-hidden="true"><span class="ea-switch-thumb"></span></span>
+                                </span>
+                            </td>
+                        {% endif %}
+
+                        {% if 'actions' in columns %}
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ ea_url().setController('App\\Controller\\FurnitureCrudController').setAction('detail').setEntityId(item.id) }}"
+                                       class="btn btn-outline-info" title="{{ 'common.actions.view'|trans(domain: 'messages') }}"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{{ ea_url().setController('App\\Controller\\FurnitureCrudController').setAction('edit').setEntityId(item.id) }}"
+                                       class="btn btn-outline-primary" title="{{ 'common.actions.edit'|trans(domain: 'messages') }}"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{{ ea_url().setController('App\\Controller\\FurnitureCrudController').setAction('move').setEntityId(item.id) }}"
+                                       class="btn btn-outline-warning" title="{{ 'common.actions.move'|trans(domain: 'messages') }}"
+                                       data-bs-toggle="tooltip">
+                                        <i class="bi bi-arrow-left-right"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="{{ columns|length }}" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox display-6"></i>
+                            <p class="mt-2">{{ 'not'|trans }}</p>
+                            <a href="{{ ea_url().setController('App\\Controller\\FurnitureCrudController').setAction('new') }}" class="btn btn-outline-primary mt-2">
+                                <i class="bi bi-plus-circle"></i> {{ 'show.add_first'|trans }}
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-muted small mt-2">Всего: {{ items|length }}</div>
+</div>
