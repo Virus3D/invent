@@ -12,7 +12,7 @@ use Doctrine\Persistence\ManagerRegistry;
 /**
  * @extends ServiceEntityRepository<BalanceHistory>
  */
-class BalanceHistoryRepository extends ServiceEntityRepository
+final class BalanceHistoryRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

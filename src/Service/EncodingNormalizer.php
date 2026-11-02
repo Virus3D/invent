@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-class EncodingNormalizer
+final class EncodingNormalizer
 {
     /**
      * Приводит содержимое файла к UTF-8 (без BOM).

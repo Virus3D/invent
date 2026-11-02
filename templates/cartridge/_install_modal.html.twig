@@ -46,7 +46,7 @@
                                 <hr class="my-2">
                                 <div class="small text-muted">
                                     <i class="bi bi-file-earmark-text me-1"></i>
-                                    {{ 'cartridge.table.yield'|trans }}:
+                                    {{ 'table.yield'|trans }}:
                                     <strong>{{ cartridge.yieldPages|number_format(0, ',', ' ') }} {{ 'cartridge.stats.pages'|trans }}</strong>
                                 </div>
                             {% endif %}
@@ -90,12 +90,12 @@
                         {% if cartridge.stockQuantity == 0 %}
                             <div class="alert alert-danger small mt-3 mb-0">
                                 <i class="bi bi-exclamation-octagon me-1"></i>
-                                {{ 'cartridge.status.out_of_stock'|trans }}
+                                {{ 'status.out_of_stock'|trans }}
                             </div>
                         {% elseif cartridge.stockQuantity < 3 %}
                             <div class="alert alert-warning small mt-3 mb-0">
                                 <i class="bi bi-exclamation-circle me-1"></i>
-                                {{ 'cartridge.status.low_stock'|trans }}:
+                                {{ 'status.low_stock'|trans }}:
                                 <strong>{{ cartridge.stockQuantity }}</strong>
                             </div>
                         {% endif %}

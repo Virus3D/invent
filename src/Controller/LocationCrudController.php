@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
-class LocationCrudController extends AbstractCrudController
+final class LocationCrudController extends AbstractCrudController
 {
     public function __construct(
         private readonly InventoryItemRepository $inventoryItemRepository,

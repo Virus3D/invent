@@ -10,7 +10,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
-class SecurityController extends AbstractController
+final class SecurityController extends AbstractController
 {
     public function __construct(
         private readonly TranslatorInterface $translator,

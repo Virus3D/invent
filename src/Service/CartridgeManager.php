@@ -11,7 +11,7 @@ use App\Repository\CartridgeInstallationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-class CartridgeManager
+final class CartridgeManager
 {
     public function __construct(
         private readonly EntityManagerInterface $em,

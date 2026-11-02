@@ -3,6 +3,8 @@ title: "Картриджи"
 cartridge:
   installed_count: "Установлен: %count%"
 
+table:
+  yield: "Расход"
 tips:
   title: "Рекомендации"
   name: "Указывайте полное название модели"

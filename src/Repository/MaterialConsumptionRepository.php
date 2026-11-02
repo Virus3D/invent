@@ -9,7 +9,7 @@ use App\Entity\MaterialConsumption;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-class MaterialConsumptionRepository extends ServiceEntityRepository
+final class MaterialConsumptionRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {

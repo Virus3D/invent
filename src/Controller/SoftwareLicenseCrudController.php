@@ -12,7 +12,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\BooleanField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
-class SoftwareLicenseCrudController extends AbstractCrudController
+final class SoftwareLicenseCrudController extends AbstractCrudController
 {
     /**
      * @inheritDoc
