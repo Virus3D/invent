@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-// src/Repository/MaterialConsumptionRepository.php
 namespace App\Repository;
 
 use App\Entity\MaterialConsumption;
@@ -17,6 +16,8 @@ final class MaterialConsumptionRepository extends ServiceEntityRepository
     }// end __construct()
 
     /**
+     * За период.
+     *
      * @return MaterialConsumption[]
      */
     public function findByPeriod(\DateTimeInterface $start, \DateTimeInterface $end): array
@@ -33,11 +34,14 @@ final class MaterialConsumptionRepository extends ServiceEntityRepository
 
     /**
      * Агрегированные данные по материалам за период.
+     *
+     * @return array<mixed>
      */
     public function getAggregatedByPeriod(\DateTimeInterface $start, \DateTimeInterface $end): array
     {
         return $this->createQueryBuilder('mc')
-            ->select('IDENTITY(mc.material) as materialId', 'SUM(mc.quantity) as totalQuantity')
+            ->select('IDENTITY(mc.material) as materialId', 'm.name as materialName', 'SUM(mc.quantity) as totalQuantity')
+            ->join('mc.material', 'm')
             ->andWhere('mc.consumedAt >= :start')
             ->andWhere('mc.consumedAt <= :end')
             ->setParameter('start', $start)

@@ -25,6 +25,7 @@ flash:
 report:
   title: Отчёт по списаниям материалов
   heading: Отчёт по списаниям материалов
+  export_excel: Экспорт в Excel
   form:
     start_date: Начало периода
     end_date: Конец периода

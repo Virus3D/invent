@@ -81,6 +81,9 @@
         </tbody>
     </table>
 
+    <a href="{{ ea_url().setController('App\\Controller\\MaterialCrudController').setAction('exportExcel').set('start', start.format('Y-m-d')).set('end', end.format('Y-m-d')) }}" class="btn btn-success">
+        <i class="fa fa-file-excel-o"></i> {{ 'report.export_excel'|trans }}
+    </a>
     <a href="{{ ea_url().setController('App\\Controller\\MaterialCrudController').setAction('index') }}" class="btn btn-secondary">
         {{ 'common.navigation.back'|trans(domain: 'messages') }}
     </a>

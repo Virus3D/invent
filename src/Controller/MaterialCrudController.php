@@ -25,6 +25,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\NumberField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -128,6 +134,7 @@ final class MaterialCrudController extends AbstractCrudController
          * @var Material|null $material
          */
         $material = $context->getEntity()->getInstance();
+
         if (!$material instanceof Material) {
             throw $this->createNotFoundException();
         }
@@ -137,6 +144,7 @@ final class MaterialCrudController extends AbstractCrudController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+
             try {
                 $this->writeOffService->writeOffToLocation(
                     $material,
@@ -151,6 +159,7 @@ final class MaterialCrudController extends AbstractCrudController
                     'danger',
                     $this->translator->trans('flash.write_off_error', ['%error%' => $e->getMessage()], 'material')
                 );
+
                 return $this->render(
                     'material/write_off_location.html.twig',
                     [
@@ -188,6 +197,7 @@ final class MaterialCrudController extends AbstractCrudController
          * @var Material|null $material
          */
         $material = $context->getEntity()->getInstance();
+
         if (!$material instanceof Material) {
             throw $this->createNotFoundException();
         }
@@ -197,6 +207,7 @@ final class MaterialCrudController extends AbstractCrudController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
+
             try {
                 $inventoryItem = $data['inventoryItem'];
                 $this->writeOffService->writeOffToInventoryItem(
@@ -222,6 +233,7 @@ final class MaterialCrudController extends AbstractCrudController
                     'danger',
                     $this->translator->trans('flash.write_off_error', ['%error%' => $e->getMessage()], 'material')
                 );
+
                 return $this->render(
                     'material/write_off_item.html.twig',
                     [
@@ -281,4 +293,125 @@ final class MaterialCrudController extends AbstractCrudController
             ]
         );
     }// end report()
+
+    /**
+     * Выгрузка отчета в Excel.
+     */
+    #[AdminRoute]
+    public function exportExcel(Request $request, MaterialConsumptionRepository $consumptionRepo): StreamedResponse
+    {
+        $start = (new DateTimeImmutable($request->query->get('start', 'first day of this month')))->setTime(0, 0, 0);
+        $end   = (new DateTimeImmutable($request->query->get('end', 'last day of this month')))->setTime(23, 59, 59);
+
+        $consumptions = $consumptionRepo->findByPeriod($start, $end);
+        $aggregated   = $consumptionRepo->getAggregatedByPeriod($start, $end);
+
+        $spreadsheet = new Spreadsheet();
+
+        // --- Вкладка 1: Агрегированные данные ---
+        $sheet1 = $spreadsheet->getActiveSheet();
+        $sheet1->setTitle('Агрегировано');
+
+        $sheet1->setCellValue('A1', 'Материал');
+        $sheet1->setCellValue('B1', 'Общее количество');
+
+        $this->applyHeaderStyle($sheet1, 'A1:B1');
+
+        $row = 2;
+
+        foreach ($aggregated as $agg) {
+            $sheet1->setCellValue('A' . $row, $agg['materialName'] ?? 'ID: ' . ($agg['materialId'] ?? '—'));
+            $sheet1->setCellValue('B' . $row, (int) ($agg['totalQuantity'] ?? 0));
+            ++$row;
+        }
+
+        $sheet1->getColumnDimension('A')->setWidth(40);
+        $sheet1->getColumnDimension('B')->setWidth(20);
+
+        // --- Вкладка 2: Детальные данные ---
+        $sheet2 = $spreadsheet->createSheet();
+        $sheet2->setTitle('Детализация');
+
+        $sheet2->setCellValue('A1', 'Дата');
+        $sheet2->setCellValue('B1', 'Материал');
+        $sheet2->setCellValue('C1', 'Количество');
+        $sheet2->setCellValue('D1', 'Назначение');
+        $sheet2->setCellValue('E1', 'Пользователь');
+        $sheet2->setCellValue('F1', 'Комментарий');
+
+        $this->applyHeaderStyle($sheet2, 'A1:F1');
+
+        $row = 2;
+
+        foreach ($consumptions as $c) {
+            if ($c->getTargetType()?->value === 'location') {
+                $location = $c->getTargetLocation();
+
+                if ($location !== null) {
+                    $roomNumber = $location->getRoomNumber();
+                    $target = ($location->getName() ?? '') . ($roomNumber ? " ({$roomNumber})" : '');
+                } else {
+                    $target = '—';
+                }
+            } else {
+                $item = $c->getTargetInventoryItem();
+                $target = $item !== null
+                    ? ($item->getName() ?? '') . ' (' . ($item->getInventoryNumber() ?? '—') . ')'
+                    : '—';
+            }
+
+            $sheet2->setCellValue('A' . $row, $c->getConsumedAt()?->format('d.m.Y H:i') ?? '—');
+            $sheet2->setCellValue('B' . $row, $c->getMaterial()?->getName() ?? '—');
+            $sheet2->setCellValue('C' . $row, $c->getQuantity());
+            $sheet2->setCellValue('D' . $row, $target);
+            $sheet2->setCellValue('E' . $row, $c->getConsumedBy()?->getUsername() ?? '—');
+            $sheet2->setCellValue('F' . $row, $c->getComment() ?? '—');
+            ++$row;
+        }// end foreach
+
+        foreach (['A', 'B', 'C', 'D', 'E', 'F'] as $col) {
+            $sheet2->getColumnDimension($col)->setWidth(25);
+        }
+
+        // Возвращаем активной первую вкладку при открытии файла.
+        $spreadsheet->setActiveSheetIndex(0);
+
+        // --- Потоковый ответ ---
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = sprintf(
+            'material_consumption_%s_to_%s.xlsx',
+            $start->format('Y-m-d'),
+            $end->format('Y-m-d')
+        );
+
+        $response = new StreamedResponse(
+            static function () use ($writer, $spreadsheet): void {
+                $writer->save('php://output');
+                $spreadsheet->disconnectWorksheets();
+            }
+        );
+
+        $disposition = $response->headers->makeDisposition(
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+            $filename
+        );
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', $disposition);
+        $response->headers->set('Cache-Control', 'max-age=0');
+
+        return $response;
+    }// end exportExcel()
+
+    /**
+     * Применяет стиль заголовков к диапазону ячеек.
+     */
+    private function applyHeaderStyle(Worksheet $sheet, string $range): void
+    {
+        $sheet->getStyle($range)->getFont()->setBold(true);
+        $sheet->getStyle($range)->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()
+            ->setRGB('D3D3D3');
+    }// end applyHeaderStyle()
 }// end class
